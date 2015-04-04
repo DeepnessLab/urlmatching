@@ -1,0 +1,51 @@
+/*
+ * Flags.h
+ *
+ *  Created on: Jan 17, 2011
+ *      Author: yotamhc
+ */
+
+#ifndef FLAGS_H_
+#define FLAGS_H_
+
+//#define TRACE_STATE_MACHINE
+//#define PRINT_AHO_CORASICK
+//#define PRINT_STATE_GENERATION
+#define PRINT_MATCHES
+//#define COUNT_FAIL_PERCENT
+//#define MIX_IDS
+//#define PRINT_CHAR_COUNT
+//#define PRINT_OUR_WC_PATTERNS
+//#define PRINT_LENGTH_HIST
+#define SIMPLE_USE_TABLE
+//#define FIND_FAIL_HISTOGRAM
+#define USE_DEPTHMAP
+//#define COUNT_BY_DEPTH
+//#define DEPTHMAP_INFOCOM
+//#define DEPTHJUMP_INFOCOM
+//#define COUNT_CALLS
+//#define X_RATIO // # of matches / # of root visits
+//#define PRINT_COMPRESSED_MACHINE
+//#define PRINT_MATCHING_TIME
+//#define PAPI
+//#define USE_DICTIONARY_ONLY_FOR_MARKED_PACKETS
+//#define COUNT_THROUGHPUT_ONLY_FOR_MARKED_PACKETS
+#define COUNT_DICTIONARY_SKIPPED_BYTES
+#define COUNT_MEMCMP_FAILURES
+#define DICT_USES_BLOOM
+//#define BLOOM_THIRD_FUNC
+//#define HASH_PROBING
+//#define NO_PROBE_IGNORE_DUPS
+#define OPEN_HASH
+//#define VAR_SIZE_DICT
+//#define VAR_SIZE_DICT_PRINT_STAT
+
+#define DICT_WORD_SIZE 16
+#define BLOOM_SIZE (1048576)//131072 //262144 //524288 // In bits
+// 16384 32768 65536 131072 262144 524288 1048576 2097152 4194304 8388608 16777216 33554432
+#define BLOOM_FUNCS 1
+
+//#define TEST_BLOOM_PERF_ONLY
+//#define TEST_DICT_PERF
+
+#endif /* FLAGS_H_ */
