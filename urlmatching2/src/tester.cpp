@@ -53,7 +53,8 @@ void test_aho_compressed() {
 	ac.load_patterns(patterns_file);
 	std::cout<<"matching string="<<my_string<<std::endl;
 	std::cout.flush();
-	ac.find_patterns(my_string,NULL);
+	symbolT result[100];
+	ac.find_patterns(my_string,result);
 	fflush(stdout);
 	std::cout<<std::endl<<"finished matching"<<std::endl;
 

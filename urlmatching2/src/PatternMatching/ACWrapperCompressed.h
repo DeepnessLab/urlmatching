@@ -34,6 +34,9 @@ public:
 		return (_machine == NULL) ? false : true;
 	}
 	virtual bool load_patterns(std::string filepath);
+	/**
+	 * Assign a symbol to every pattern in the patternList and build the pattern matching machine
+	 */
 	virtual bool load_patterns(Symbol2PatternType patternsList, uint32_t size);
 
 	virtual bool find_patterns(std::string input_str, symbolT* result);

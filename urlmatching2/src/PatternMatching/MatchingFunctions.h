@@ -13,7 +13,7 @@
 
 #define MAX_URL_LENGTH 1000
 
-typedef struct stringlistType {
+typedef struct StringListDBWithIdxType {
 	std::string** list;
 	uint32_t index;
 	uint32_t size;

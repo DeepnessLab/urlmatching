@@ -22,7 +22,7 @@ int handle_pattern(char* str,uint32_t idx, void* data) {
 }
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct) {
-	stringlistType* list_describtor = (stringlistType*) list_struct;
+	StringListDBWithIdxType* list_describtor = (StringListDBWithIdxType*) list_struct;
 	if (list_describtor->index == list_describtor->size)
 		return 0;
 	const char* chars= list_describtor->list[list_describtor->index]->c_str();

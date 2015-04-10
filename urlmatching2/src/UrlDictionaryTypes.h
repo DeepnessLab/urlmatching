@@ -24,6 +24,9 @@ typedef std::map<std::string,int> Strings2FreqType;
 typedef std::map<std::string,uint32_t> Strings2SymbolsType;
 
 
+/**
+ * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
+ */
 class Pattern {
 public:
 	Pattern(uint32_t symbol, uint32_t frequency, std::string str);

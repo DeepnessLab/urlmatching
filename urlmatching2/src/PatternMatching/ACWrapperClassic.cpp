@@ -68,7 +68,7 @@ bool ACWrapperClassic::load_patterns(Symbol2PatternType patternsList, uint32_t s
 	for (symbolT i=0; i< size; i++)
 		list[i]=&(patternsList[i]->_str);
 
-	stringlistType db={list,0,size};
+	StringListDBWithIdxType db={list,0,size};
 	_machine = generateTableStateMachineFunc(getStringFromList,&db,0);
 	delete list;
 	return true;

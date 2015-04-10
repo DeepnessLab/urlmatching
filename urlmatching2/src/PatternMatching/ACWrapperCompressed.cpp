@@ -98,9 +98,10 @@ bool ACWrapperCompressed::load_patterns(Symbol2PatternType patternsList, uint32_
 		}
 	}
 
-	stringlistType db={list,0,size};
+	StringListDBWithIdxType db={list,0,size};
 //	_machine = generateTableStateMachineFunc(getStringFromList,&db,0);
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
+	//TODO: delete all lists attached strings
 	delete list;
 	return true;
 
@@ -117,7 +118,8 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 
 	//TODO: insert the following into input string to init
 	module.input_string = (char *) str;
-	symbolT first_place_symbol = _char_to_symbol[str[0]];
+	uint32_t symbol_idx =  str[0];
+	symbolT first_place_symbol = _char_to_symbol[symbol_idx];
 	module.matching_symbols_arr[module.symbol_i] = first_place_symbol;
 	module.symbol_i++;
 
@@ -131,5 +133,6 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	return true;
 	finalize_result(module,result);
 
+	delete str2;
 	return true;
 }
