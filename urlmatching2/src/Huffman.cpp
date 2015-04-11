@@ -6,12 +6,14 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
 
 #include "Huffman.h"
 #include "macros.h"
 
 
-Huffman::Huffman() : _is_loaded(false),_freq_size(0){
+Huffman::Huffman() :
+_is_loaded(false),_freq_size(0){
 	// TODO Auto-generated constructor stub
 
 }
@@ -44,10 +46,12 @@ INode* Huffman::BuildTree()
 }
 
 HuffCode Huffman::encode(uint32_t symbol) {
+	assert(_is_loaded);
 	return _codes[symbol];
 }
 
 uint32_t Huffman::decode(HuffCode code) {
+	assert(_is_loaded);
 	return _codes2symbols[code];
 }
 
@@ -70,11 +74,12 @@ void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeM
 }
 
 void Huffman::load(int* frequencies, long size) {
-	std::cout<<"Entered Huffman::load"<<std::endl;
+	std::cout<<"Entered Huffman::load size="<<size<<std::endl;
 	_freq_size = size;
 
-	if (_frequencies!=NULL)
+	if (_frequencies!=NULL) {
 		DELETE_AND_NULL(_frequencies);
+	}
 
 	_frequencies = frequencies;
 

@@ -60,7 +60,7 @@ bool ACWrapperClassic::load_patterns(std::string filepath) {
 
 }
 
-bool ACWrapperClassic::load_patterns(Symbol2PatternType patternsList, uint32_t size) {
+bool ACWrapperClassic::load_patterns(Symbol2pPatternArr patternsList, uint32_t size) {
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType

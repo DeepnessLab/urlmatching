@@ -8,6 +8,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "../Common/FastLookup/FastLookup.h"
 #include "../Common/BitArray/BitArray.h"
 #include "PathCompressedState.h"
@@ -214,11 +215,25 @@ char *concat_strings_nofree(char *s1, char *s2) {
 	return res;
 }
 
+/** not malloc, no real concat*/
+inline
+char* simple_concat_strings_nofree(char *s1, char *s2) {
+	if (s1 == NULL) {
+//		assert(s2!=NULL);
+		return s2;
+	}
+	assert (s1!=NULL);
+	return s1;
+}
+
+
 #ifdef COUNT_CALLS
 static int counter = 0;
 #endif
 
-int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
+inline
+int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose
+		, callBackWithPattern patternFunc, void* data) {
 	StateHeader *header;
 	int i, j, count, length, failed, matched, id;
 	STATE_PTR_TYPE next;
@@ -259,12 +274,20 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 				if (verbose) {
 					// Count pattern index
 					count = 0;
+					id = (pathCompressedState[2] << 8) | pathCompressedState[3];
 					for (j = 0; j < i; j++) {
-						if (GET_1BIT_ELEMENT(matches, i))
+						if (GET_1BIT_ELEMENT(matches, i)) {
+							printf(" SKIPPED  in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,patternTable->patterns[id][count]);
 							count++;
+						}
 					}
 					id = (pathCompressedState[2] << 8) | pathCompressedState[3];
-					pattern = concat_strings_nofree(pattern, patternTable->patterns[id][count]);
+					assert(patternFunc!=NULL);
+//					pattern = concat_strings_nofree(pattern, patternTable->patterns[id][count]);
+					pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);
+					printf("   in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,pattern);
+					patternFunc( patternTable->patterns[id][count] ,*idx,data );
+
 				}
 			}
 			(*idx)++;

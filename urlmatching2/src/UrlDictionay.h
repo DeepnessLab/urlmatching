@@ -25,12 +25,14 @@ public:
 	UrlCompressor();
 	virtual ~UrlCompressor();
 
-	void load_strings_and_freqs(Strings2FreqType* strings_to_freq);
+	bool isLoaded() { return _is_loaded; }
+
+	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
 
 	//load list of urls and build cached database
 	bool initFromUrlsListFile(std::string& file_path, bool contains_basic_symbols);
 
-	/* load pre-stored dictionary from file and build cached database
+	/** load pre-stored dictionary from file and build cached database
 	 * DB file format:
 	 * <number of db entries>
 	 * <symbol#>,<frequency>,<pattern_string>\n
@@ -47,23 +49,30 @@ public:
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
+
 	struct patternsIterator {
-		Symbol2PatternType arr;
+		Symbol2pPatternArr arr;
 		symbolT index;
 	};
 
 	Huffman _huffman;
-	Strings2SymbolsType _strings_to_symbols;
+	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 //temp private:
 	void init_db(uint32_t size);
 	void init_pattern_matching_algorithm();
 	void calculate_symbols_score();
 
-	Symbol2PatternType _symbol2pattern_db;
-	uint32_t _symbol2pattern_db_size;
+	void setLoaded() { _is_loaded = true; }
+	void setUnloaded() { _is_loaded = false; }
+
+
+	//TODO: get this into a struct
+	Symbol2pPatternArr _symbol2pattern_db;	//array of patterns, where symbol is the index
+	uint32_t _symbol2pattern_db_size;	//length of this array
 
 	ACWrapperCompressed algo;
+	bool _is_loaded;
 
 
 

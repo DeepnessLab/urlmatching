@@ -81,30 +81,73 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 
 	const char* tmp = filepath.c_str();
 	_machine = createStateMachine(tmp,100,100,0);
+	make_pattern_to_symbol_list();
 	return true;
 
 }
 
-bool ACWrapperCompressed::load_patterns(Symbol2PatternType patternsList, uint32_t size) {
+bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_t size) {
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
 	StringListType list = new std::string*[size];
-	for (symbolT i=0; i< size; i++) {
-		list[i]=&(patternsList[i]->_str);
-		const char* c = patternsList[i]->_str.c_str();
-		if (strlen ( patternsList[i]->_str.c_str() ) == 1) {//this is a one char symbol
-			_char_to_symbol[*c] = i;
+	uint32_t idx=0;				//store how many string we entered the list
+
+	for (symbolT i=1; i< size; i++) {	// 0 is reserved pattern as NULL
+		//go over all patterns, if pattern is single char - set it into _char_to_symbol array
+		// if pattern is longer than 1 char - add it to patterns list so AC will load them
+		if (strlen ( patternsList[i]->_str.c_str() ) == 1) {
+			const uint32_t c = (uint32_t) patternsList[i]->_str.at(0);
+			_char_to_symbol[c] = i;
+		} else {
+			list[idx]=&(patternsList[i]->_str);
+			idx++;
 		}
 	}
-
-	StringListDBWithIdxType db={list,0,size};
-//	_machine = generateTableStateMachineFunc(getStringFromList,&db,0);
+	StringListDBWithIdxType db={list,0,idx};
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
-	//TODO: delete all lists attached strings
+
 	delete list;
+
+//	make_pattern_to_symbol_list();
 	return true;
 
+
+}
+
+
+/* use this function to build a complimentary patterns table for symbols*/
+void ACWrapperCompressed::make_pattern_to_symbol_list() {
+	char ***patterns;
+	patterns=_machine->patternTable->patterns;
+
+	uint32_t size =_machine->patternTable->size;
+	symbolT** patterns_as_symbols = new symbolT*[size];
+
+	symbolT symbol_counter = 1; //0 is reserved
+	std::cout<<"Print cached patterns table";
+	for (uint32_t i = 0; i < size; i++) {
+		std::cout<<std::endl;
+		std::cout<<"i="<<i<<":";
+		if (patterns[i] == NULL)
+			patterns_as_symbols[i]=NULL;
+			continue;
+		uint32_t j = 0;
+		//count patterns
+		while (patterns[i][j] != NULL) {
+			j++; //[11]
+		}
+		patterns_as_symbols[i] = new symbolT[j];
+		j--;
+		patterns_as_symbols[i][j]=S_NULL;
+		//assign symbols
+		for (uint32_t new_j=0;new_j<j;j++) {
+			std::cout<<"(j="<<new_j<<",s="<<symbol_counter<<")"<<patterns[i][new_j];
+			patterns_as_symbols[i][new_j]=symbol_counter;
+			symbol_counter++;
+		}
+	}
+	std::cout<<std::endl;
 }
 
 bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
@@ -128,7 +171,7 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 //			TRUE, NULL, NULL, NULL, NULL 	//all others are statistics - use NULL
 //			,handle_pattern, &module);	//use patterncollector
 	MachineStats stats;
-	match(_machine,/*(char *)*/ str2, strlen(str), 1, &stats);
+	match(_machine,/*(char *)*/ str2, strlen(str), 1, &stats , handle_pattern, &module);
 	std::cout<<std::endl;
 	return true;
 	finalize_result(module,result);

@@ -10,9 +10,13 @@
 
 #include "../UrlDictionaryTypes.h"
 #include <assert.h>
+#include <string.h>
 
 #define MAX_URL_LENGTH 1000
 
+/**
+ * Data structure to hold an array of strings and an index
+ */
 typedef struct StringListDBWithIdxType {
 	std::string** list;
 	uint32_t index;
@@ -20,15 +24,18 @@ typedef struct StringListDBWithIdxType {
 } stringlistType;
 
 
-
+/**
+ * Struct that holds data needed to calculate Vi and Pi arrays
+ */
 typedef struct urlMatchingType {
 	char * input_string;
 	uint32_t P[MAX_URL_LENGTH];
 	symbolT V[MAX_URL_LENGTH];
-	uint32_t index;
-	symbolT matching_symbols_arr[MAX_URL_LENGTH];
-	uint32_t symbol_i;
-	Symbol2PatternType list;
+	uint32_t index;									//current index of V and P we are working on
+	symbolT matching_symbols_arr[MAX_URL_LENGTH];	//array that collects all symbols relevant to index (current index)
+	uint32_t symbol_i;								//last used index of matching_symbols_arr
+	Symbol2pPatternArr list;
+	std::map<std::string,symbolT>* patternDB;
 } urlMatchingType;
 
 
@@ -48,7 +55,8 @@ int handle_pattern(char* str,uint32_t idx, void* data) ; /*{
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct);
 
-inline void calcViPi(urlMatchingType& module) {
+inline
+void calcViPi(urlMatchingType& module) {
 	//V[i] = argmin of P[i-l(a)] + p(a) for all matching a's - module.symbols
 	uint32_t& index = module.index;
 	uint32_t minimum_index = module.symbol_i;
@@ -72,7 +80,8 @@ inline void calcViPi(urlMatchingType& module) {
 }
 
 
-inline void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
+inline
+void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	//collect new pattens until idx is advanced - then evaluate the vi pi module
 	if (idx > module.index) {
 		//new index, consolidate previous index
@@ -87,7 +96,8 @@ inline void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx
 
 
 
-inline uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
+inline
+uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 
 	calcViPi(module);
 
@@ -115,7 +125,8 @@ inline uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	return i;//length of symbols "string"
 }
 
-inline void initModule(urlMatchingType& module) {
+inline
+void initModule(urlMatchingType& module) {
 	module.P[0]=0;
 	module.index=0;
 	module.list=NULL;

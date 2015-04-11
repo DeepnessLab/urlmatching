@@ -19,9 +19,8 @@
 #endif
 
 
-typedef std::map<std::string,int> Strings2FreqType;
-//typedef std::map<std::string,int> Strings2FreqType;
-typedef std::map<std::string,uint32_t> Strings2SymbolsType;
+typedef std::map<std::string,int> Strings2FreqMap;
+typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
 
 
 /**
@@ -43,9 +42,10 @@ public:
 
 };
 
-typedef Pattern** Symbol2PatternType;
+typedef Pattern** Symbol2pPatternArr;
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
+
 #define S_NULL 0
 
 

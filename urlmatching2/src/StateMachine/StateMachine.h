@@ -14,6 +14,10 @@
 #include "../AhoCorasick/ACBuilder.h"
 
 
+//handle patterns from outside
+typedef int (*callBackWithPattern)(char *,unsigned int, void* );
+
+
 typedef struct {
 	int totalFailures;
 	int totalGotos;
@@ -33,7 +37,8 @@ typedef struct {
 } StateMachine;
 
 //int getNextState(StateMachine *machine, State *current, char *str, int length, int *idx, NextStateResult *result);
-int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats);
+int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats
+		, callBackWithPattern patternFunc, void* data);
 void compressStateTable(StateMachine *machine);
 int getStateID(State *state);
 #ifdef COUNT_CALLS

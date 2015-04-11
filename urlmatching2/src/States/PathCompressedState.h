@@ -13,7 +13,8 @@
 #include "../Common/Types.h"
 
 //State *createState_PC(int size, char *chars, STATE_PTR_TYPE *failures, int *matches, STATE_PTR_TYPE next);
-int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose);
+int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose
+		, callBackWithPattern patternFunc, void* data);
 void printState_PC(State *state, int depth);
 State *createEmptyState_PC(int id, int size, int numFailPtrsToFirstOrSecondLevel);
 void setStateData_PC(State *state, uchar *chars, STATE_PTR_TYPE *failures, short *ptrTypes, int *matches, STATE_PTR_TYPE next);

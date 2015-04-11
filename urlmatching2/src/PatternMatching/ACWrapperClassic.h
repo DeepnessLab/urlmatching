@@ -33,7 +33,7 @@ public:
 		return (_machine == NULL) ? false : true;
 	}
 	virtual bool load_patterns(std::string filepath);
-	virtual bool load_patterns(Symbol2PatternType patternsList, uint32_t size);
+	virtual bool load_patterns(Symbol2pPatternArr patternsList, uint32_t size);
 
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
@@ -46,7 +46,7 @@ public:
 private:
 
 //members
-	Symbol2PatternType _patternsList;
+	Symbol2pPatternArr _patternsList;
 //	std::map<std::string,int>::iterator patternIter;
 	TableStateMachine* _machine=NULL;
 };

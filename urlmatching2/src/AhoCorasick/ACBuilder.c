@@ -740,6 +740,7 @@ void acBuildTreeFunc(ACTree *tree,  getStringFuncType func , void* func_struct, 
 			fprintf(stderr, "Found zero length pattern in input\n");
 			exit(1);
 		}
+		printf("Loaded %s\n",buff);
 		length = strlen(buff)/* - 1*/;
 		buff[length] = '\0';
 		//if (tree->size + length <= MAX_STATES) {

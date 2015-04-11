@@ -26,13 +26,14 @@ void test_url_matching() {
 	std::string my_string = "shaloma";
 
 	UrlCompressor urlc;
-	assert(urlc.initFromStoredDBFile(patterns_file)==true);
+	bool ret = urlc.initFromStoredDBFile(patterns_file);
+	assert (ret);
 	urlc.print_database(true /*print codes*/);
 
-	std::cout<<"finished loading"<<std::endl;
+	std::cout<<" -------> finished loading <------- "<<std::endl;
 
 	std::cout<<"matching string="<<my_string<<std::endl;
-//	urlc.algo.load_patterns(patterns_file);
+
 	symbolT result[1000];
 	urlc.algo.find_patterns(my_string,result);
 //	ACWrapperClassic aho=ACWrapperClassic::getInstance();
@@ -52,7 +53,7 @@ void test_aho_compressed() {
 	ACWrapperCompressed ac;
 	ac.load_patterns(patterns_file);
 	std::cout<<"matching string="<<my_string<<std::endl;
-	std::cout.flush();
+//	std::cout.flush();
 	symbolT result[100];
 	ac.find_patterns(my_string,result);
 	fflush(stdout);
