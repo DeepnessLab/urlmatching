@@ -33,7 +33,7 @@ void printCounter_PC();
 
 #define GOTO_IDX 6
 
-#define GET_NEXT_STATE_PC(pathCompressedState, str, slen, idx, result, machine, patternTable, verbose) 										\
+#define GET_NEXT_STATE_PC(pathCompressedState, str, slen, idx, result, machine, patternTable, verbose, patternFunc, data) 										\
 	do {																																	\
 		StateHeader *header;																												\
 		int i, j, count, plength, failed, matched , id;																						\
@@ -69,11 +69,14 @@ void printCounter_PC();
 							if (GET_1BIT_ELEMENT(matches, j))																				\
 								count++;																									\
 						}																													\
-						id = ((pathCompressedState)[2] << 8) | (pathCompressedState)[3];														\
+						id = ((pathCompressedState)[2] << 8) | (pathCompressedState)[3];													\
+					/*	pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);*/	\
+						printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);		\
+						patternFunc( patternTable->patterns[id][count] ,*idx,data );						\
 						pattern = concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);										\
 					}																														\
 				}																															\
-				(*(idx)) = (*(idx)) + 1;																													\
+				(*(idx)) = (*(idx)) + 1;																									\
 			}																																\
 		}																																	\
 																																			\

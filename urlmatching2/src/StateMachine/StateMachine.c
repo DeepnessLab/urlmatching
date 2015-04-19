@@ -208,9 +208,10 @@ int matchIterative(StateMachine *machine, char *input, int length, int *idx, Sta
 			}
 				break;
 			case STATE_TYPE_PATH_COMPRESSED:
-				getNextState_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
-						, patternFunc, data);	//made this function inline instead of the macro
-//				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose)
+//				getNextState_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
+//						, patternFunc, data);	//made this function inline instead of the macro
+				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
+						, patternFunc, data);
 				break;
 			case STATE_TYPE_LINEAR_ENCODED:
 				getNextState_LE(s, input, length, idx, &next, machine, machine->patternTable, verbose);
@@ -230,7 +231,7 @@ int matchIterative(StateMachine *machine, char *input, int length, int *idx, Sta
 		if (next.match) {
 #ifdef PRINT_MATCHES
 			if (verbose) {
-				printf("Print: %s(%d)\n", next.pattern,*idx);
+				printf("Ignore Print: %s(%d)\n", next.pattern,*idx);
 				fflush(stdout);
 			}
 #endif

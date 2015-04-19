@@ -11,6 +11,8 @@
 #include "../UrlDictionaryTypes.h"
 #include <assert.h>
 #include <string.h>
+#include <cstring>
+#include <iostream>
 
 #define MAX_URL_LENGTH 1000
 
@@ -28,17 +30,19 @@ typedef struct StringListDBWithIdxType {
  * Struct that holds data needed to calculate Vi and Pi arrays
  */
 typedef struct urlMatchingType {
-	char * input_string;
+	char * input_string;							//original url string
 	uint32_t P[MAX_URL_LENGTH];
 	symbolT V[MAX_URL_LENGTH];
 	uint32_t index;									//current index of V and P we are working on
 	symbolT matching_symbols_arr[MAX_URL_LENGTH];	//array that collects all symbols relevant to index (current index)
-	uint32_t symbol_i;								//last used index of matching_symbols_arr
+	uint32_t matching_symbols_idx;								//last used index of matching_symbols_arr
 	Symbol2pPatternArr list;
-	std::map<std::string,symbolT>* patternDB;
+	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
+	symbolT* char_to_symbol;						//array [char] = symbols
 } urlMatchingType;
 
 
+void printModule (urlMatchingType& urlmatching);
 
 //some forward declarations
 //inline void  calcViPi(urlMatchingType& module);
@@ -58,26 +62,94 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct)
 inline
 void calcViPi(urlMatchingType& module) {
 	//V[i] = argmin of P[i-l(a)] + p(a) for all matching a's - module.symbols
-	uint32_t& index = module.index;
-	uint32_t minimum_index = module.symbol_i;
-	assert(module.symbol_i > 0);
-	module.V[index]=UINT32_MAX;
-	Pattern* p;
-	while (module.symbol_i > 0) {
-		p= module.list[module.matching_symbols_arr[module.symbol_i]];
+	uint32_t index4PV = module.index + 1 ;
+	std::cout << "calcViPi:" << DVAL (index4PV);
+	assert(module.matching_symbols_idx > 0);
+
+
+
+	//calc V[index4PV] according to module.matching_symbols_arr[0]
+	symbolT& symbol = module.V[index4PV];
+	module.V[index4PV] = module.matching_symbols_arr[0];
+
+	Pattern* p = module.list[module.matching_symbols_arr[0]];
+	uint32_t stringlength = p->getStringLength();
+	uint32_t huffmanLength = p->getHuffmanLength();
+	//P[i=index4PV] = P1 + P2 = P[i-l(ai)] + p(V[i])
+	uint32_t P1 = module.P[index4PV - stringlength];
+	uint32_t P2 = huffmanLength;
+
+	uint32_t best_Vi = P1 /*P[i-l(a)]*/ + P2/*p(a)*/;
+	DBG0(DVAL(best_Vi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
+	//look for a better matching symbol
+	for (uint32_t i = 1; i < module.matching_symbols_idx ; i++ ) {
+		symbolT symbol = module.matching_symbols_arr[i];
+		assert(symbol!=0);
+		p= module.list[symbol];
 		//P[i-l(a)] + p(a) where l(a) - string length of symbol a, p(a) huffman code length of a
-		symbolT tmpVi = module.P[index-p->getStringLength()] /*P[i-l(a)]*/ + p->getHuffmanLength()/*p(a)*/;
-		if (tmpVi < module.V[index]) {
-			module.V[index] =  tmpVi;
-			minimum_index = module.symbol_i;
+		stringlength = p->getStringLength();
+		huffmanLength = p->getHuffmanLength();
+		P1 = module.P[index4PV - stringlength];
+		P2 = huffmanLength;
+		symbolT tmpVi = P1 + P2 ; 		// module.P[index4PV-stringlength] /*P[i-l(a)]*/ + huffmanLength/*p(a)*/;
+		DBG0(DVAL(tmpVi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
+		if (tmpVi < best_Vi) {
+			best_Vi =  tmpVi;
+			module.V[index4PV] = module.matching_symbols_arr[i];
+			DBG0(DVAL(best_Vi)<<" and symbol "<<module.V[index4PV]);
 		}
 	}
-	p= module.list[module.matching_symbols_arr[minimum_index]];
-	//P[i] = P[i-l(ai)] + p(V[i])
-	module.P[index] = (index==0)?0 : module.P[index - p->getStringLength()] /*P[i] = P[i-l(ai)]*/
-											  + module.list[module.matching_symbols_arr[module.V[index]]]->getHuffmanLength() /*p(V[i])*/;
-
+	uint32_t& Pi = module.P[index4PV];
+	Pi = best_Vi;
+	DBG0(DVAL(DVAL(index4PV)<<":"<<module.P[index4PV]) << "," << DVAL(module.V[index4PV])<< " " << DVAL(symbol));
+	return;
 }
+
+//inline
+//void calcViPi(urlMatchingType& module) {
+//	//V[i] = argmin of P[i-l(a)] + p(a) for all matching a's - module.symbols
+//	uint32_t index4PV = module.index + 1 ;
+//	std::cout << "calcViPi:" << DVAL (index4PV);
+//	assert(module.matching_symbols_idx > 0);
+//
+//	//calc V[index4PV] according to module.matching_symbols_arr[0]
+//	Pattern* p = module.list[module.matching_symbols_arr[0]];
+//	uint32_t best_Vi = module.P[index4PV-p->getStringLength()] /*P[i-l(a)]*/ + p->getHuffmanLength()/*p(a)*/;
+//	module.V[index4PV] = module.matching_symbols_arr[0];
+//
+//	//look for a better matching symbol
+//	for (uint32_t i = 1; i < module.matching_symbols_idx ; i++ ) {
+//		symbolT symbol = module.matching_symbols_arr[i];
+//		assert(symbol!=0);
+//		p= module.list[symbol];
+//		//P[i-l(a)] + p(a) where l(a) - string length of symbol a, p(a) huffman code length of a
+//		uint32_t stringlength = p->getStringLength();
+//		uint32_t huffmanLength = p->getHuffmanLength();
+//
+//		symbolT tmpVi = module.P[index4PV-stringlength] /*P[i-l(a)]*/ + huffmanLength/*p(a)*/;
+//		if (tmpVi < best_Vi) {
+//			best_Vi =  tmpVi;
+//			module.V[index4PV] = module.matching_symbols_arr[i];
+//		}
+//	}
+//	p= module.list[module.V[index4PV]];
+//
+//
+//	//P[i] = P[i-l(ai)] + p(V[i])
+//	uint32_t P1 = module.P[index4PV - p->getStringLength()];
+//	uint32_t P2 = p->getHuffmanLength();
+//	assert( P2 == module.list[module.V[index4PV]]->getHuffmanLength() );
+////	uint32_t P2 = module.list[module.matching_symbols_arr[module.V[index4PV]]]->getHuffmanLength();
+//	std::cout<<" "<<DVAL(P1)<<"+"<<DVAL(P2);
+//
+//	uint32_t& Pi = module.P[index4PV];
+//	Pi = P1 /*P[i] = P[i-l(ai)]*/  + P2 /*p(V[i])*/;
+//	std::cout<<"="<<DVAL(Pi)<<STDENDL;
+//	DBG0(DVAL(module.P[index4PV]));
+////	module.P[index4PV] = module.P[index4PV - p->getStringLength()] /*P[i] = P[i-l(ai)]*/
+////											  + module.list[module.matching_symbols_arr[module.V[index4PV]]]->getHuffmanLength() /*p(V[i])*/;
+//
+//}
 
 
 inline
@@ -85,13 +157,16 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	//collect new pattens until idx is advanced - then evaluate the vi pi module
 	if (idx > module.index) {
 		//new index, consolidate previous index
+		std::cout<<"idx("<<idx<<") > module.index("<<module.index<<") -> calcViPi"<<std::endl;
 		calcViPi(module);
+		printModule(module);
 		module.index = module.index+1;
-		module.symbol_i = 0;
+		module.matching_symbols_idx = 0;
 	}
 	//gather another symbol
-	module.matching_symbols_arr[module.symbol_i] = symbol;
-	module.symbol_i++;
+	std::cout<<"updateModule:"<<std::endl;
+	module.matching_symbols_arr[module.matching_symbols_idx] = symbol;
+	module.matching_symbols_idx++;
 }
 
 
@@ -99,29 +174,44 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 inline
 uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 
+	//insert all literals
+	for (uint32_t j = module.index+1 ; module.input_string[j] != '\0' ; j++) {
+		uint32_t char_at_j = (uint32_t) module.input_string[j];
+		symbolT s =  module.char_to_symbol[char_at_j];
+		updateModule(module,s,j);
+		std::cout<<" > Added \""<<(char) char_at_j<<"\" at "<<j<<std::endl;
+	}
+
+
 	calcViPi(module);
+	printModule(module);
 
 	// Finalize the successful patterns
-	uint32_t V_idx = module.index;
-	uint32_t next_idx= module.index;
-	result[next_idx+1]=S_NULL;
+	uint32_t V_idx = module.index+1;
+	uint32_t res_idx = V_idx;
+	result[res_idx+1]=S_NULL;
 	while (true) { //after we handle result[0] we will decrement idx by 1 to -1;
-		result[next_idx] = module.V[V_idx];
+		symbolT symbol = module.V[V_idx];
+		DBG0( DVAL(res_idx) << " " << module.list[symbol]->_str );
+		result[res_idx] = symbol;
 		//next idx is idx = idx -l(V[i])
 		uint32_t length =(module.list[module.V[V_idx]])->getStringLength();
-		if (V_idx < length)
-			break;
-		//else
 		V_idx = V_idx - length;
-		next_idx--;
+		assert(V_idx >= 0 );
+		if (V_idx <= 0)
+			break;
+		res_idx--;
 	}
 	//copy result to start at results[0]
 	uint32_t i =0;
-	do {
-		result[i] = result[i+next_idx];
-		i++;
-	} while (result[i]!=S_NULL);
+	DBG0( "result symbols:");
+	while (result[i+res_idx] != S_NULL) {
+		result[i] = result[i+res_idx];
 
+		DBG0( DVAL(i) << " " << module.list[result[i]]->_str );
+		i++;
+	}
+	result[i] = S_NULL;
 	return i;//length of symbols "string"
 }
 
@@ -130,10 +220,8 @@ void initModule(urlMatchingType& module) {
 	module.P[0]=0;
 	module.index=0;
 	module.list=NULL;
-	module.symbol_i=0;
-
+	module.matching_symbols_idx=0;
 }
-
 
 
 #endif /* PATTERNMATCHING_MATCHINGFUNCTIONS_H_ */

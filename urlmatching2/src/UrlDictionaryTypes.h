@@ -13,11 +13,16 @@
 #include <string.h>
 #include <stdint.h>
 #include <map>
+#include <cstring>
 
 #ifndef UINT32_MAX
 #define UINT32_MAX  (0xffffffff)	//this is redefined
 #endif
 
+#define DVAL(x) #x"="<<x
+#define BVAL(x) #x"="<<((x)?"true":"false")
+#define STDENDL std::endl
+#define DBG0(x) std::cout<<x<<std::endl
 
 typedef std::map<std::string,int> Strings2FreqMap;
 typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
@@ -45,8 +50,19 @@ public:
 typedef Pattern** Symbol2pPatternArr;
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
-
 #define S_NULL 0
+
+struct cmp_str
+{
+   bool operator()(char const *a, char const *b)
+   {
+      return (std::strcmp(a, b) < 0);
+   }
+};
+typedef std::map<const char*, symbolT, cmp_str> patternsMapType;
+
+
+
 
 
 

@@ -30,7 +30,7 @@ void test_url_matching() {
 	assert (ret);
 	urlc.print_database(true /*print codes*/);
 
-	std::cout<<" -------> finished loading <------- "<<std::endl;
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
 	std::cout<<"matching string="<<my_string<<std::endl;
 

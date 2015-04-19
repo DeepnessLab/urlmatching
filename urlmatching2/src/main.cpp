@@ -30,8 +30,8 @@ int main()
 //	std::cout<<"starting now"<<std::endl;
 //	test_aho_compressed();
 
-	RUN_TEST(test_aho_compressed);
-//	RUN_TEST(test_url_matching);
+//	RUN_TEST(test_aho_compressed);
+	RUN_TEST(test_url_matching);
 	std::cout<<"test ended"<<std::endl;
 
 

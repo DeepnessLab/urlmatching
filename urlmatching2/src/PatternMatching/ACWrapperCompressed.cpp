@@ -16,8 +16,10 @@
 #include "../PatternMatching/ACWrapperCompressed.h"
 #include <string.h>
 #include <assert.h>
+#include <map>
 #include "../UrlDictionay.h"
 #include "MatchingFunctions.h"
+#include "../UrlDictionaryTypes.h"
 
 extern "C" {
 #include "../Common/Types.h"
@@ -64,10 +66,15 @@ int special_handle_pattern(char* str,uint32_t idx, void* data) {
 
 
 
-ACWrapperCompressed::ACWrapperCompressed() {
-//	resetNextPattern();
-	_patternsList=NULL;
-
+ACWrapperCompressed::ACWrapperCompressed() :
+		is_loaded(false),
+		_patternsList(NULL),
+		_patternsMap(NULL),
+		_machine(NULL)
+{
+	for (int i=0; i < MAX_CHAR; i++) {
+		_char_to_symbol[i]=S_NULL;
+	}
 }
 
 ACWrapperCompressed::~ACWrapperCompressed() {
@@ -82,6 +89,7 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 	const char* tmp = filepath.c_str();
 	_machine = createStateMachine(tmp,100,100,0);
 	make_pattern_to_symbol_list();
+	is_loaded = true;
 	return true;
 
 }
@@ -92,6 +100,7 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_
 	//convert Symbol2PatternType to StringListType
 	StringListType list = new std::string*[size];
 	uint32_t idx=0;				//store how many string we entered the list
+	_patternsMap = new patternsMapType();
 
 	for (symbolT i=1; i< size; i++) {	// 0 is reserved pattern as NULL
 		//go over all patterns, if pattern is single char - set it into _char_to_symbol array
@@ -101,6 +110,8 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_
 			_char_to_symbol[c] = i;
 		} else {
 			list[idx]=&(patternsList[i]->_str);
+			const char* s = patternsList[i]->_str.c_str();
+			_patternsMap->insert(std::make_pair(s,i));
 			idx++;
 		}
 	}
@@ -110,14 +121,13 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_
 	delete list;
 
 //	make_pattern_to_symbol_list();
+	is_loaded = true;
 	return true;
-
-
 }
-
 
 /* use this function to build a complimentary patterns table for symbols*/
 void ACWrapperCompressed::make_pattern_to_symbol_list() {
+	////////////NOT IN USE//////////////
 	char ***patterns;
 	patterns=_machine->patternTable->patterns;
 
@@ -148,6 +158,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 		}
 	}
 	std::cout<<std::endl;
+	////////////NOT IN USE//////////////
 }
 
 bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
@@ -155,16 +166,20 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	//prepare metadata
 	urlMatchingType module;
 	initModule(module);
+	module.patternDB = _patternsMap;
+
+	module.char_to_symbol = _char_to_symbol;
+	module.list = _patternsList;
 
 	const char* str = input_str.c_str();
 	char* str2= new char[strlen(input_str.c_str())+10];
 
 	//TODO: insert the following into input string to init
 	module.input_string = (char *) str;
-	uint32_t symbol_idx =  str[0];
-	symbolT first_place_symbol = _char_to_symbol[symbol_idx];
-	module.matching_symbols_arr[module.symbol_i] = first_place_symbol;
-	module.symbol_i++;
+	uint32_t first_char_of_string =  str[0];
+	symbolT symbol_of_first_char = _char_to_symbol[first_char_of_string];
+	module.matching_symbols_arr[module.matching_symbols_idx] = symbol_of_first_char;
+	module.matching_symbols_idx++;
 
 	strcpy(str2,str);
 //	matchTableMachine(_machine, str, strlen(str),
@@ -172,10 +187,14 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 //			,handle_pattern, &module);	//use patterncollector
 	MachineStats stats;
 	match(_machine,/*(char *)*/ str2, strlen(str), 1, &stats , handle_pattern, &module);
-	std::cout<<std::endl;
-	return true;
+
 	finalize_result(module,result);
 
 	delete str2;
 	return true;
+}
+
+void ACWrapperCompressed::printDB(std::ostream& os) {
+	os<<"ACWrapperCompressed::printDB\n";
+	return;
 }

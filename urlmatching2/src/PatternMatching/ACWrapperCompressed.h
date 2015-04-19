@@ -10,6 +10,7 @@
 
 #include <map>
 #include <string>
+#include <cstring>
 #include "../UrlDictionaryTypes.h"
 #include "../CommonCTypes.h"
 #include "PatternMatchingBaseClass.h"
@@ -19,6 +20,8 @@ extern "C"
 #include "../StateMachine/StateMachine.h"
 #include "../StateMachine/StateMachineGenerator.h"
 }
+
+#define MAX_CHAR 1000
 
 int special_handle_pattern(char* str,uint32_t idx, void* data) ;
 
@@ -30,9 +33,8 @@ public:
 
 	virtual ~ACWrapperCompressed();
 
-	virtual inline bool isInit() {
-		return (_machine == NULL) ? false : true;
-	}
+	virtual inline bool isInit() { return ( _machine == NULL) ? false : true ;	}
+
 	virtual bool load_patterns(std::string filepath);
 	/**
 	 * Assign a symbol to every pattern in the patternList and build the pattern matching machine
@@ -41,21 +43,30 @@ public:
 
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
+	virtual void printDB(std::ostream& os);
+
 //	virtual std::string* nextPattern();
 //	virtual void resetNextPattern();
 
 	//members:
-	std::map<std::string,int> patterns;
+
 
 private:
 
+
 	void make_pattern_to_symbol_list();
 
-//members
+	//members
+	bool is_loaded;
+	std::map<std::string,symbolT> patterns;
+
 	Symbol2pPatternArr _patternsList;
-//	std::map<std::string,int>::iterator patternIter;
-	StateMachine* _machine=NULL;
-	symbolT _char_to_symbol[1000]; //TODO: replace this static define
+
+	patternsMapType* _patternsMap;
+
+	StateMachine* _machine;
+	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
+
 };
 
 

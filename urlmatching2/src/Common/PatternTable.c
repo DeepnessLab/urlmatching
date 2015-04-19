@@ -22,7 +22,7 @@ PatternTable *patterntable_create(int size) {
 void patterntable_destroy(PatternTable *table) {
 	char ***patterns;
 	int i, j;
-
+	return ;
 	patterns = table->patterns;
 
 	for (i = 0; i < table->size; i++) {
