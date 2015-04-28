@@ -18,7 +18,16 @@
 #include "UrlDictionaryTypes.h"
 
 
+#define MAX_URL_LENGTH 1000
 
+
+enum UrlCompressorStatus {
+	STATUS_OK = 1,
+	STATUS_FAIL = -1,
+	STATUS_ERR_NOT_LOADED = -2,
+	STATUS_ERR_SMALL_BUF = -3,
+	STATUS_ERR_LOST_DECODED_DATA = -4
+};
 
 class UrlCompressor {
 public:
@@ -49,6 +58,9 @@ public:
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
+	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t out_buf_size);
+	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
+
 
 	struct patternsIterator {
 		Symbol2pPatternArr arr;
@@ -76,6 +88,24 @@ public:
 
 
 
+};
+
+class UrlBuilder {
+public:
+	UrlBuilder(Symbol2pPatternArr symbol2pattern_db);
+	virtual ~UrlBuilder() {}
+
+	virtual void reset() {_url.empty(); }
+	virtual void append (symbolT symbol);
+	virtual std::string get_url() {return _url; }
+	virtual void print();
+
+private:
+	typedef std::deque<symbolT> SymbolDeque ;
+
+	Symbol2pPatternArr _symbol2pattern_db;
+	std::string _url;
+	SymbolDeque _symbol_deque;
 };
 
 

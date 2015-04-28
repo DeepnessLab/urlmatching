@@ -21,6 +21,7 @@
 #include <iterator>
 #include <algorithm>
 #include <stdint.h>
+#include "UrlDictionaryTypes.h"
 
 
 //const int UniqueSymbols = 1 << CHAR_BIT;
@@ -80,6 +81,14 @@ public:
 
 	HuffCode encode(uint32_t symbol);
 	uint32_t decode(HuffCode code);
+
+	inline void printHuffCode(HuffCode* code) {
+		std::cout<<"code=";
+		std::copy(code->begin(), code->end(),
+				std::ostream_iterator<bool>(std::cout));
+		std::cout << std::endl;
+	}
+
 
 private:
 	INode* BuildTree();

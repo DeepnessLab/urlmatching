@@ -10,12 +10,16 @@
 #include <iostream>
 #include <exception>
 #include <map>
+#include <bitset>
 #include <assert.h>
 #include "macros.h"
 
 
 #define MAX_DB_LINE_SIZE 100
 #define SEPERATOR ","
+
+#define BITS_IN_BYTE 8
+#define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
 
 
 UrlCompressor::UrlCompressor():_huffman(),_symbol2pattern_db(NULL),_is_loaded(false){
@@ -103,7 +107,7 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 		} else
 			return false;
 		if (p) {
-			patternStr=p;
+			patternStr.assign(p);
 		} else
 			return false;
 		assert(symbol==symbol_counter);
@@ -133,6 +137,104 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 	return true;
 }
 
+//out_buf_size[0] is the length of coded bits (number of coded + 1)
+UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t out_buf_size) {
+	assert (out_buf_size > 2);
+
+	if (isLoaded() == false) {
+		return STATUS_ERR_NOT_LOADED;
+	}
+
+	//find patterns cover over url
+	symbolT result[MAX_URL_LENGTH];
+	algo.find_patterns(url,result);
+
+
+	uint32_t reset_mask = 1 << (BITS_IN_UINT32_T -1 );
+	uint32_t mask = reset_mask;
+	uint32_t& bit_counter = out_encoded_buf[0];
+	bit_counter=0;
+	uint32_t i = 1;	//idx in out_encoded_buf
+	out_encoded_buf[i] = 0;
+
+	//Huffman encode the symbols
+	symbolT* symbol = result;
+	while (*symbol != S_NULL) {
+		HuffCode coded_symbol = _huffman.encode(*symbol);
+		for (HuffCode::const_iterator it = coded_symbol.begin(); it != coded_symbol.end(); ++it) {
+			if (*it == true) {
+				out_encoded_buf[i] = out_encoded_buf[i] | mask;
+			}
+			bit_counter++;
+			mask = mask / 2;	//move right
+			if (mask == 0) {
+				i++;
+				if (i >= out_buf_size) {
+					return STATUS_ERR_SMALL_BUF;
+				}
+				mask = reset_mask;
+				out_encoded_buf[i] = 0;
+			}
+		}
+		symbol++;
+	}
+	return STATUS_OK;
+}
+
+UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size) {
+	assert (in_buf_size > 2);
+	if (isLoaded() == false) {
+		return STATUS_ERR_NOT_LOADED;
+	}
+
+	UrlBuilder urlbuilder(_symbol2pattern_db);
+	uint32_t num_of_left_bits_to_read = in_encoded_buf[0];
+
+	uint32_t most_left_bit = 1 << (BITS_IN_UINT32_T -1 );
+	HuffCode huff_code;
+	uint32_t i;
+	for (i=1 /*[0] was number of coded bits*/; i < in_buf_size; i++) {
+		uint32_t buf = in_encoded_buf[i];
+		std::bitset<32> x(buf);
+		std::cout<<"buf="<<x<<STDENDL;
+
+		for (uint16_t j=0; j < BITS_IN_UINT32_T ; j++) {
+			uint32_t bit = buf & most_left_bit;
+			if (bit == 0) { 	// 0
+				huff_code.push_back(false);
+				std::cout<<0;
+			} else {			// 1
+				huff_code.push_back(true);
+				std::cout<<1;
+			}
+			num_of_left_bits_to_read--;
+			buf = buf << 1;	//shift left buf
+			_huffman.printHuffCode(&huff_code);
+			symbolT symbol = _huffman.decode(huff_code);
+			if (symbol != S_NULL) {
+				std::cout<<";";
+				urlbuilder.append(symbol);
+				huff_code.clear();
+				if (num_of_left_bits_to_read == 0) {
+					i = in_buf_size; 	//break outer for loop
+					break; 				//break this loop
+				}
+			}
+
+			if (num_of_left_bits_to_read == 0) {
+				return STATUS_ERR_LOST_DECODED_DATA;
+			}
+
+		}
+	}
+	std::cout<<STDENDL;
+	urlbuilder.print();
+	url = urlbuilder.get_url();
+
+	return STATUS_OK;
+}
+
+
 void UrlCompressor::print_database(bool print_codes) {
 	std::cout<<"UrlCompressor::print_database"<<std::endl;
 	std::cout<<"UrlCompressor db contains "<<_symbol2pattern_db_size<< " patterns:"<<std::endl;
@@ -147,7 +249,7 @@ void UrlCompressor::print_database(bool print_codes) {
 			std::cout<<",code=";
 			std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(std::cout));
 		}
-		std::cout<<",pattern=" << ptrn->_str <<std::endl;
+		std::cout<<", pattern=" << ptrn->_str <<std::endl;
 	}
 }
 
@@ -193,4 +295,32 @@ void UrlCompressor::init_db(uint32_t size) {
 
 void UrlCompressor::init_pattern_matching_algorithm() {
 	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
+}
+
+
+UrlBuilder::UrlBuilder(Symbol2pPatternArr symbol2pattern_db) :
+		_symbol2pattern_db(symbol2pattern_db),
+		_url("")
+{
+	_symbol_deque.empty();
+}
+
+
+void UrlBuilder::append (symbolT symbol) {
+	_symbol_deque.push_back(symbol);
+	_url.append(_symbol2pattern_db[symbol]->_str);
+}
+
+void UrlBuilder::print() {
+	std::cout << "UrlBuilder::print " << DVAL(_url)<<STDENDL;
+	std::cout << "string: " ;
+	for (SymbolDeque::iterator it = _symbol_deque.begin(); it != _symbol_deque.end(); ++it) {
+		std::cout << _symbol2pattern_db[*it]->_str << ";";
+	}
+	std::cout << STDENDL;
+	std::cout << "symbols: " ;
+	for (SymbolDeque::iterator it = _symbol_deque.begin(); it != _symbol_deque.end(); ++it) {
+		std::cout << *it << ";";
+	}
+	std::cout << STDENDL;
 }

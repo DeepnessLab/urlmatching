@@ -52,7 +52,12 @@ HuffCode Huffman::encode(uint32_t symbol) {
 
 uint32_t Huffman::decode(HuffCode code) {
 	assert(_is_loaded);
-	return _codes2symbols[code];
+	HuffSymbMap::iterator it;
+	it = _codes2symbols.find(code);
+	if (it == _codes2symbols.end()) {
+		return S_NULL;
+	}
+	return it->second;
 }
 
 void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes)

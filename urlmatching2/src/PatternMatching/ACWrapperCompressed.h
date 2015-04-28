@@ -41,6 +41,14 @@ public:
 	 */
 	virtual bool load_patterns(Symbol2pPatternArr patternsList, uint32_t size);
 
+
+	/**
+	 * @param input_str - input string to find matches
+	 * @param result - output S_NULL terminated symbolT array with symbols of
+	 * patterns covering the input string.
+	 *  i.e. 1-AB, 2-C, 3-DE, and input_str ABCDE then result = {1,2,3,0}
+	 * @return true is succeed, false for fail
+	 */
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
 	virtual void printDB(std::ostream& os);

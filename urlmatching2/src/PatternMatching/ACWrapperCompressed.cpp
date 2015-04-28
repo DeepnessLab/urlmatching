@@ -79,7 +79,7 @@ ACWrapperCompressed::ACWrapperCompressed() :
 
 ACWrapperCompressed::~ACWrapperCompressed() {
 	if (_machine != NULL) {
-		destroyStateMachine(_machine);
+//		destroyStateMachine(_machine);
 	}
 }
 

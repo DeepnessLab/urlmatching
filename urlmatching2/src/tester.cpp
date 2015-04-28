@@ -16,6 +16,41 @@
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlDictionay.h"
 
+void test_url_dictionary() {
+
+//	UrlCompressor dict;
+//	build_simple_dict(&dict);
+
+	std::string patterns_file = "d:\\Temp\\project\\patterns_abc.txt";
+	std::string my_string = "shaloma";
+
+	UrlCompressor urlc;
+	bool ret = urlc.initFromStoredDBFile(patterns_file);
+	assert (ret);
+	urlc.print_database(true /*print codes*/);
+
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+
+	std::cout<<"matching string="<<my_string<<std::endl;
+
+	symbolT result[1000];
+	urlc.algo.find_patterns(my_string,result);
+
+	my_string = "shalomashalomashalomashalomashaloma";
+	std::cout<<"encode string="<<my_string<<std::endl;
+	uint32_t codedbuff[100];
+	urlc.encode(my_string,codedbuff,100);
+
+	std::string decoded_str;
+	urlc.decode(decoded_str,codedbuff,100);
+	std::cout<<"dencoded string="<<decoded_str<<std::endl;
+
+//	exit(1);
+
+}
+
+
+
 
 void test_url_matching() {
 
