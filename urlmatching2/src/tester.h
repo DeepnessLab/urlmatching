@@ -14,6 +14,7 @@ void test_url_matching() ;
 void build_simple_dict(UrlCompressor* dict) ;
 void test_aho_compressed();
 void test_huffman();
+void test_LLH();
 
 
 

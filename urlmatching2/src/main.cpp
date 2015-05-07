@@ -32,7 +32,8 @@ int main()
 
 //	RUN_TEST(test_aho_compressed);
 //	RUN_TEST(test_url_matching);
-	RUN_TEST(test_url_dictionary);
+//	RUN_TEST(test_url_dictionary);
+	RUN_TEST(test_LLH);
 	std::cout<<"test ended"<<std::endl;
 
 

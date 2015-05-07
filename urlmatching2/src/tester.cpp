@@ -15,6 +15,88 @@
 #include "Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlDictionay.h"
+#include "HeavyHitters/dhh_lines.h"
+
+
+void test_LLH() {
+/*
+    this->kgram_size            = 8;
+    this->n1                    = 3000;
+    this->n2                    = 3000;
+    this->n3                    = 100;
+    this->r                     = 0.1;
+    this->attack_high_threshold = 0.50;
+    this->peace_high_threshold  = 0.07;
+    this->peace_low_threshold   = 0.03;
+    this->peace_time_delta      = 0.90;
+    this->use_pcaps		= true;
+    this->_parse_command_line(argc, argv);
+    this->line_del = '\n';
+ */
+	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";
+	LDHH ldhh(urls_file, 3000, 3000, 0.1, 8 );
+	ldhh.run();
+
+	std::list<signature_t>& peace_signatures = ldhh.get_signatures();
+	size_t                  pckt_count       = ldhh.get_pckt_count();
+	std::cout << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
+
+	int counter = 0;
+	for (std::list<signature_t>::iterator it = peace_signatures.begin(); it != peace_signatures.end(); ++it) {
+
+	    signature_t& sig = *it;
+		std::string url;
+
+		const char* str =(const char *) &sig.data[0];
+		url.assign(str,  sig.data.size());
+
+	    std::list<signature_t>::size_type data_size = sig.data.size();
+
+//	    ofs.write((const char *)&data_size,                 sizeof(data_size));
+//	    ofs.write((const char *)&sig.data[0],               sig.data.size());
+//	    ofs.write((const char *)&sig.hh_count,              sizeof(int));
+//	    ofs.write((const char *)&sig.real_count,            sizeof(int));
+//	    ofs.write((const char *)&sig.real_count_all_series, sizeof(int));
+//	    ofs.write((const char *)&sig.src_count,             sizeof(int));
+//	    ofs.write((const char *)&sig.cover_rate,            sizeof(double));
+
+		std::cout << counter++ <<": " << url << STDENDL;
+	}
+	std::cout << "total of "<< counter <<" patterns were found"<< STDENDL;
+	/*
+	 * LDHH peace_dhh(options.peace_pcap_file_path, options.n1, options.n2, options.r, options.kgram_size);
+    peace_dhh.run();
+    STOPWATCH_MESSURE2("** peace time traffic DHH", utils::run_logfile);
+
+    std::list<signature_t>& peace_signatures = peace_dhh.get_signatures();
+    size_t                  pckt_count       = peace_dhh.get_pckt_count();
+    std::cout << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
+    utils::run_logfile << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
+
+    std::string file_path = utils::log_dir + "/peace_signatures";
+    utils::signatures_to_file(file_path, peace_signatures, pckt_count);
+    std::cout << "** stored " << peace_signatures.size() << " peace signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+    utils::run_logfile << "** stored " << peace_signatures.size() << " peace signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+    std::list<signature_t> white_list;
+    std::list<signature_t> maybe_white_list;
+
+    _categorize_peace_signatures(peace_signatures, pckt_count,
+                                 options.peace_high_threshold, options.peace_low_threshold,
+                                 white_list, maybe_white_list);
+
+    file_path = utils::log_dir + "/white_list_signatures";
+    utils::signatures_to_file(file_path, white_list, pckt_count);
+    std::cout << "** stored " << white_list.size() << " white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+    utils::run_logfile << "** stored " << white_list.size() << " white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+    file_path = utils::log_dir + "/maybe_white_list_signatures";
+    utils::signatures_to_file(file_path, maybe_white_list, pckt_count);
+    std::cout << "** stored " << maybe_white_list.size() << " maybe white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+    utils::run_logfile << "** stored " << maybe_white_list.size() << " maybe white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
+	 *
+	 */
+
+}
+
 
 void test_url_dictionary() {
 

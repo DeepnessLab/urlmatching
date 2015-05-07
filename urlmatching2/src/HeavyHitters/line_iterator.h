@@ -31,7 +31,7 @@ public:
     //inline set delim
 
     inline const raw_buffer_t& next() {
-      char delim = 0xff; 
+      char delim = '\n'; //0xff;	//TODO: which delimiter should be used ? NULL or '\n'
       if (std::getline((this->_infile), (this->line), delim) != 0){
         this->_nextBuffer.ptr  =  (unsigned char *) this->line.c_str();
         this->_nextBuffer.size = this->line.size();
