@@ -29,6 +29,15 @@ enum UrlCompressorStatus {
 	STATUS_ERR_LOST_DECODED_DATA = -4
 };
 
+typedef struct HeavyHittersParams {
+	int n1;
+	int n2;
+	float r;
+	size_t kgrams_size;
+} HeavyHittersParams_t;
+
+extern HeavyHittersParams_t default_hh_params;
+
 class UrlCompressor {
 public:
 	UrlCompressor();
@@ -39,7 +48,9 @@ public:
 	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
 
 	//load list of urls and build cached database
-	bool initFromUrlsListFile(std::string& file_path, bool contains_basic_symbols);
+	bool initFromUrlsListFile(const std::string& file_path,
+							const HeavyHittersParams_t params,
+							const  bool contains_basic_symbols);
 
 	/** load pre-stored dictionary from file and build cached database
 	 * DB file format:

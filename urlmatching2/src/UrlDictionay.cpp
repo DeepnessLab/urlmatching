@@ -6,6 +6,7 @@
  */
 
 #include "UrlDictionay.h"
+#include "HeavyHitters/dhh_lines.h"
 #include <fstream>
 #include <iostream>
 #include <exception>
@@ -21,6 +22,8 @@
 #define BITS_IN_BYTE 8
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
 
+//globals
+HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
 UrlCompressor::UrlCompressor():_huffman(),_symbol2pattern_db(NULL),_is_loaded(false){
 	_symbol2pattern_db_size=0;
@@ -60,9 +63,53 @@ void UrlCompressor::load_strings_and_freqs(Strings2FreqMap* strings_to_freq)
 
 }
 
-bool UrlCompressor::initFromUrlsListFile(std::string& file_path, bool contains_basic_symbols)
+bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
+									const HeavyHittersParams_t params,
+									const  bool contains_basic_symbols)
 {
-	//TODO: implement this
+	//TODO: finish this method
+
+	/*
+	 * 1. Load file_path into LDHH (Heavy Hitters) with 2 pass constructor
+	 * 2. run LDHH
+	 * 3. go over all signatures and add to module
+	 * 4. go over file_path again and count literals
+	 * ...
+	 */
+
+	//TODO: verify file path
+	LDHH ldhh(file_path, params.n1, params.n2, params.r, params.kgrams_size);
+	ldhh.run();
+
+	std::list<signature_t>& peace_signatures = ldhh.get_signatures();
+	size_t                  pckt_count       = ldhh.get_pckt_count();
+	std::cout << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
+
+	int counter = 0;
+	for (std::list<signature_t>::iterator it = peace_signatures.begin(); it != peace_signatures.end(); ++it) {
+
+	    signature_t& sig = *it;
+		std::string url;
+
+		const char* str =(const char *) &sig.data[0];
+		url.assign(str,  sig.data.size());
+
+	    std::list<signature_t>::size_type data_size = sig.data.size();
+
+//	    ofs.write((const char *)&data_size,                 sizeof(data_size));
+//	    ofs.write((const char *)&sig.data[0],               sig.data.size());
+//	    ofs.write((const char *)&sig.hh_count,              sizeof(int));
+//	    ofs.write((const char *)&sig.real_count,            sizeof(int));
+//	    ofs.write((const char *)&sig.real_count_all_series, sizeof(int));
+//	    ofs.write((const char *)&sig.src_count,             sizeof(int));
+//	    ofs.write((const char *)&sig.cover_rate,            sizeof(double));
+
+		std::cout << counter++ <<": " << url << STDENDL;
+	}
+	std::cout << "total of "<< counter <<" patterns were found"<< STDENDL;
+
+
+
 	return true;
 }
 

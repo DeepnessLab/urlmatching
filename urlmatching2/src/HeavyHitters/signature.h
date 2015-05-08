@@ -20,13 +20,15 @@ typedef struct signature {
     }
     
     signature(buffer_t& sig_data, int hh_count, int real_count, 
-              int real_count_all_series, int src_count=0, double cover_rate=0.0, size_t firstPacket = 0) : data(sig_data) {
+              int real_count_all_series, int src_count=0, double cover_rate=0.0,
+			  size_t firstPacket = 0)
+    :  data(sig_data) {
         this->hh_count              = hh_count;
         this->real_count            = real_count;
         this->real_count_all_series = real_count_all_series;
         this->src_count             = src_count;
         this->cover_rate            = cover_rate;
-	this->firstPacket = firstPacket;
+        this->firstPacket = firstPacket;
     }
     
     inline bool operator < (const struct signature &other) const {

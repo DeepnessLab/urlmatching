@@ -14,7 +14,7 @@
 #include <set>
 #include <vector>
 #include <string>
-#include <algorithm> 
+#include <algorithm>
 
 #include "crc32c.h"
 
@@ -128,6 +128,7 @@ typedef std::unordered_set<raw_buffer_t, hash_raw_buffer>       raw_buffer_hash_
 typedef std::set<raw_buffer_t, raw_buffer_t_less>               raw_buffer_ordered_set_t;
 
 typedef std::vector<unsigned char> buffer_t;
+//typedef std::deque<unsigned char> buffer_t;
 
 #endif	/* COMMON_H */
 
