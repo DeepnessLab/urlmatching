@@ -13,7 +13,7 @@
 #include <map>
 #include <bitset>
 #include <assert.h>
-#include "macros.h"
+#include "common.h"
 
 
 #define MAX_DB_LINE_SIZE 100

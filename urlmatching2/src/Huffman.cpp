@@ -9,7 +9,7 @@
 #include <assert.h>
 
 #include "Huffman.h"
-#include "macros.h"
+#include "common.h"
 
 
 Huffman::Huffman() :
