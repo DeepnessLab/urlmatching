@@ -22,10 +22,12 @@
 #define BITS_IN_BYTE 8
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
 
+typedef unsigned char uchar;
+
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-UrlCompressor::UrlCompressor():_huffman(),_symbol2pattern_db(NULL),_is_loaded(false){
+UrlCompressor::UrlCompressor():_huffman(),_symbol2pattern_db(NULL),_is_loaded(false), _nextSymbol(1){
 	_symbol2pattern_db_size=0;
 }
 
@@ -67,48 +69,64 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 									const HeavyHittersParams_t params,
 									const  bool contains_basic_symbols)
 {
-	//TODO: finish this method
+	init_db(atoi(chars)); //get number of lines to load
 
 	/*
-	 * 1. Load file_path into LDHH (Heavy Hitters) with 2 pass constructor
-	 * 2. run LDHH
-	 * 3. go over all signatures and add to module
+	 * - create all 'single char' patterns in db
+	 * - go over input file and count  frequencies
+	 * - Load file_path into LDHH (Heavy Hitters) with 2 pass constructor
+	 * - run LDHH
+	 * - go over all signatures and add to module
 	 * 4. go over file_path again and count literals
 	 * ...
 	 */
+	{	//in separate block so 'lit' will close the file
+		uint32_t frequencies[UCHAR_MAX];
+		for (uint32_t i=0 ; i < UCHAR_MAX ; i++ )
+			frequencies[i]=1;
 
-	//TODO: verify file path
+		LineIterator lit(file_path.c_str(),'\n');
+		while (lit.has_next() ) {
+			const raw_buffer_t &pckt = lit.next();
+			uchar* p = pckt.ptr;
+			for (uint32_t i = 0 ; i < pckt.size; i++) {
+				uchar c = *p;
+				p++;
+				frequencies[c] += 1;
+			}
+		}
+
+		for (unsigned char c=1; c < UCHAR_MAX ; c++) {
+			char chars[2];
+			chars[0] = (char) (c);
+			chars[1] = '\0';
+			std::string patStr(chars);
+			addPattern(patStr,frequencies[c]);
+		}
+	}
+
 	LDHH ldhh(file_path, params.n1, params.n2, params.r, params.kgrams_size);
 	ldhh.run();
 
-	std::list<signature_t>& peace_signatures = ldhh.get_signatures();
-	size_t                  pckt_count       = ldhh.get_pckt_count();
-	std::cout << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
+	std::list<signature_t>& common_strings = ldhh.get_signatures();
+	size_t                  urls_count     = ldhh.get_pckt_count();
+	std::cout << "** scanned " << urls_count << " urls " << std::endl << std::endl;
 
-	int counter = 0;
-	for (std::list<signature_t>::iterator it = peace_signatures.begin(); it != peace_signatures.end(); ++it) {
-
-	    signature_t& sig = *it;
-		std::string url;
-
+	int patterns_counter = 0;
+	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
+		signature_t& sig = *it;
+		std::string patStr;
 		const char* str =(const char *) &sig.data[0];
-		url.assign(str,  sig.data.size());
-
-	    std::list<signature_t>::size_type data_size = sig.data.size();
-
-//	    ofs.write((const char *)&data_size,                 sizeof(data_size));
-//	    ofs.write((const char *)&sig.data[0],               sig.data.size());
-//	    ofs.write((const char *)&sig.hh_count,              sizeof(int));
-//	    ofs.write((const char *)&sig.real_count,            sizeof(int));
-//	    ofs.write((const char *)&sig.real_count_all_series, sizeof(int));
-//	    ofs.write((const char *)&sig.src_count,             sizeof(int));
-//	    ofs.write((const char *)&sig.cover_rate,            sizeof(double));
-
-		std::cout << counter++ <<": " << url << STDENDL;
+		patStr.assign(str,  sig.data.size());
+		uint32_t frequency = sig.calcHitsInSource();
+		addPattern(patStr,frequency);
+		patterns_counter++;
 	}
-	std::cout << "total of "<< counter <<" patterns were found"<< STDENDL;
+	std::cout << "total of "<< patterns_counter <<" patterns were found"<< STDENDL;
 
+	prepare_database();
 
+	std::cout << "load_dict_from_file: loaded "<<_nextSymbol<<" patterns"<<std::endl;
 
 	return true;
 }
@@ -344,6 +362,32 @@ void UrlCompressor::init_pattern_matching_algorithm() {
 	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
 }
 
+symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& frequency) {
+	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
+	_symbol2pattern_db[_nextSymbol]=pat;
+	_strings_to_symbols[str]=_nextSymbol;
+	symbolT ret = _nextSymbol;
+	_nextSymbol++;
+	assert ((ret + 1) == _nextSymbol );
+	return ret;
+}
+
+void UrlCompressor::prepare_database() {
+	//prepare array to load huffman dictionary
+	int* freqArr = new int[_nextSymbol];
+	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
+			Pattern* pat =_symbol2pattern_db[i];
+			assert(pat->_symbol == i);
+			freqArr[i]=pat->_frequency;
+	}
+	_huffman.load(freqArr,_nextSymbol);
+	delete freqArr;
+
+	calculate_symbols_score();	//evaluate each symbol encoded length
+//	init_pattern_matching_algorithm();
+	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
+
+}
 
 UrlBuilder::UrlBuilder(Symbol2pPatternArr symbol2pattern_db) :
 		_symbol2pattern_db(symbol2pattern_db),

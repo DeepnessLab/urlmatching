@@ -34,7 +34,10 @@ typedef struct signature {
     inline bool operator < (const struct signature &other) const {
         return this->real_count_all_series < other.real_count_all_series;
     }
-    
+
+    // TODO: can't really count on this number
+    inline uint32_t calcHitsInSource() {return ( 1 + real_count_all_series - real_count); }
+
     void print() const {
                 
         std::cout << "##";

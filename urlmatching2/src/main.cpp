@@ -14,15 +14,15 @@
 #include "PatternMatching/ACWrapperClassic.h"
 #include "tester.h"
 #include "UrlDictionay.h"
+#include "easylogging++.h"
+
+INITIALIZE_EASYLOGGINGPP
+
+//void my_print(char* str) {
+//	printf("%s\n", str);
+//}
 
 
-void my_print(char* str) {
-	printf("%s\n", str);
-}
-
-
-#define RUN_TEST(name) std::cout<<"starting now test "<<#name<<std::endl; \
-	name();
 
 int main()
 {
@@ -33,7 +33,8 @@ int main()
 //	RUN_TEST(test_aho_compressed);
 //	RUN_TEST(test_url_matching);
 //	RUN_TEST(test_url_dictionary);
-	RUN_TEST(test_LLH);
+//	RUN_TEST(test_LLH);
+	RUN_TEST(test_url_dictionary_load_from_url_txt_file);
 	std::cout<<"test ended"<<std::endl;
 
 

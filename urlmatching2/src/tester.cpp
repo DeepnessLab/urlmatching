@@ -17,6 +17,36 @@
 #include "UrlDictionay.h"
 #include "HeavyHitters/dhh_lines.h"
 
+void test_url_dictionary_load_from_url_txt_file() {
+	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";
+
+	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.1, kgrams_size: 8};
+	HeavyHittersParams_t& params = customParams; //default_hh_params;
+
+	UrlCompressor urlc;
+	bool ret = urlc.initFromUrlsListFile(urls_file, params, false);
+	assert (ret);
+
+	urlc.print_database(true /*print codes*/);
+
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+
+	std::string my_string = "http://www.google.com";
+	std::cout<<"matching string="<<my_string<<std::endl;
+
+	symbolT result[1000];
+	urlc.algo.find_patterns(my_string,result);
+
+	std::cout<<"encode string="<<my_string<<std::endl;
+	uint32_t codedbuff[100];
+	urlc.encode(my_string,codedbuff,100);
+
+	std::string decoded_str;
+	urlc.decode(decoded_str,codedbuff,100);
+	std::cout<<"dencoded string="<<decoded_str<<std::endl;
+
+}
+
 
 void test_LLH() {
 /*
@@ -34,7 +64,7 @@ void test_LLH() {
     this->line_del = '\n';
  */
 	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";
-	LDHH ldhh(urls_file, 3000, 3000, 0.1, 8 );
+	LDHH ldhh(urls_file, 1000, 1000, 0.1, 8 );
 	ldhh.run();
 
 	std::list<signature_t>& peace_signatures = ldhh.get_signatures();
@@ -61,6 +91,12 @@ void test_LLH() {
 //	    ofs.write((const char *)&sig.cover_rate,            sizeof(double));
 
 		std::cout << counter++ <<": " << url << STDENDL;
+		std::cout << "\t" << DVAL(sig.hh_count)
+				<< ", " << DVAL(sig.real_count)
+				<< ", " << DVAL(sig.real_count_all_series)
+				<< ", " << DVAL(sig.src_count)
+				<< ", " << DVAL(sig.cover_rate)
+				<< STDENDL;
 	}
 	std::cout << "total of "<< counter <<" patterns were found"<< STDENDL;
 	/*
@@ -98,7 +134,7 @@ void test_LLH() {
 }
 
 
-void test_url_dictionary() {
+void test_url_dictionary_load_from_stored_DB() {
 
 //	UrlCompressor dict;
 //	build_simple_dict(&dict);

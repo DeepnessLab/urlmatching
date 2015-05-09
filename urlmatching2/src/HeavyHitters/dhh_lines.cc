@@ -16,7 +16,7 @@ void _init_ldelimiter() {
 }
 
 LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, float r, 
-         size_t kgram_size) : _line_it(pcap_filepath.c_str()) {
+         size_t kgram_size) : _line_it(pcap_filepath.c_str() , ENDL_DELIMITER) {
     
     this->_kgram_size = kgram_size;
     this->_r          = r;
@@ -32,6 +32,7 @@ LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, float r,
     _init_ldelimiter();
 }
 
+//TODO: differ between pcap_filepath or simple '\n' delimiter file
 LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, int n3, float r, size_t kgram_size, 
          std::list<signature_t>* white_list) : _line_it(pcap_filepath.c_str()) {
     
@@ -62,6 +63,11 @@ LDHH::~LDHH() {
 
 void LDHH::run() {    
     
+	if (!_line_it.isLoadedSuccessfully() ){
+		//TODO: what to do when can't load ?
+		return ;
+	}
+
     while (this->_line_it.has_next() ) {
         const raw_buffer_t &pckt = this->_line_it.next();
         

@@ -12,6 +12,7 @@
 #include "signature.h"
 #include "common.h"
 
+enum LdhhInputFileType { PCAP_FILE = 0 , ENDL_FILE =1 };
 
 class LDHH {
     

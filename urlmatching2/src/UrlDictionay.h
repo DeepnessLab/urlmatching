@@ -85,10 +85,22 @@ public:
 	void init_db(uint32_t size);
 	void init_pattern_matching_algorithm();
 	void calculate_symbols_score();
+	/** once all patterns are loaded with their frequencies -
+	  1. create huffman code
+	  2. create pattern matching algorithm
+	 */
+	void prepare_database();
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }
 
+	/**
+	 * Add pattern to dictionary
+	 * @param str - pattern's string
+	 * @param frequency - expected frequency
+	 * @return the generated symbol of this pattern
+	 */
+	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
 	//TODO: get this into a struct
 	Symbol2pPatternArr _symbol2pattern_db;	//array of patterns, where symbol is the index
@@ -96,6 +108,7 @@ public:
 
 	ACWrapperCompressed algo;
 	bool _is_loaded;
+	symbolT _nextSymbol;
 
 
 
