@@ -14,7 +14,7 @@
 #include <bitset>
 #include <assert.h>
 #include "common.h"
-
+#include "logger.h"
 
 #define MAX_DB_LINE_SIZE 100
 #define SEPERATOR ","
@@ -260,6 +260,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 		return STATUS_ERR_NOT_LOADED;
 	}
 
+	DBG("decode:");
 	UrlBuilder urlbuilder(_symbol2pattern_db);
 	uint32_t num_of_left_bits_to_read = in_encoded_buf[0];
 
@@ -385,6 +386,7 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 
 void UrlCompressor::prepare_database() {
 
+	DBG("prepare_database:" << DVAL(_nextSymbol));
 	//update number of symbols were loaded
 	_symbol2pattern_db_size = _nextSymbol;
 
@@ -419,15 +421,19 @@ void UrlBuilder::append (symbolT symbol) {
 }
 
 void UrlBuilder::print() {
-	std::cout << "UrlBuilder::print " << DVAL(_url)<<STDENDL;
-	std::cout << "string: " ;
+	DBG( "UrlBuilder::print -" << DVAL(_url) << ", " <<DVAL(_symbol_deque.size()));
+	std::stringstream s0;
+	s0 << "string: " ;
 	for (SymbolDeque::iterator it = _symbol_deque.begin(); it != _symbol_deque.end(); ++it) {
-		std::cout << _symbol2pattern_db[*it]->_str << ";";
+		s0 << _symbol2pattern_db[*it]->_str << ";";
 	}
-	std::cout << STDENDL;
-	std::cout << "symbols: " ;
+	std::string out = s0.str();
+	DBG(out);
+	std::stringstream s1;
+	s1 << "symbols: " ;
 	for (SymbolDeque::iterator it = _symbol_deque.begin(); it != _symbol_deque.end(); ++it) {
-		std::cout << *it << ";";
+		s1 << *it << ";";
 	}
-	std::cout << STDENDL;
+	out = s1.str();
+	DBG(out);
 }

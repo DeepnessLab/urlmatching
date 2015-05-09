@@ -20,10 +20,7 @@
 #define UINT32_MAX  (0xffffffff)	//this is redefined
 #endif
 
-#define DVAL(x) #x"="<<x
-#define BVAL(x) #x"="<<((x)?"true":"false")
 #define STDENDL std::endl
-#define DBG0(x) std::cout<<x<<std::endl
 
 typedef std::map<std::string,int> Strings2FreqMap;
 typedef std::map<std::string,uint32_t> Strings2SymbolsMap;

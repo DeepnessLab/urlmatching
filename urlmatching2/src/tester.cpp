@@ -16,6 +16,7 @@
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlDictionay.h"
 #include "HeavyHitters/dhh_lines.h"
+#include "logger.h"
 
 void test_url_dictionary_load_from_url_txt_file() {
 	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";

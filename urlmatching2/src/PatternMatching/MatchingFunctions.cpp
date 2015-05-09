@@ -30,7 +30,7 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 
 int handle_pattern(char* str, uint32_t idx, void* data) {
 	if (str == NULL) {
-		DBG0("** handled str=NULL at "<<DVAL(idx)<<" **");
+		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
 		return 0;
 	}
 	urlMatchingType* url_module = (urlMatchingType*) data;

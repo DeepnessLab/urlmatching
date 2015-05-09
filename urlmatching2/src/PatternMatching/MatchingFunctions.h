@@ -13,6 +13,7 @@
 #include <string.h>
 #include <cstring>
 #include <iostream>
+#include "../logger.h"
 
 #define MAX_URL_LENGTH 1000
 
@@ -80,7 +81,7 @@ void calcViPi(urlMatchingType& module) {
 	uint32_t P2 = huffmanLength;
 
 	uint32_t best_Vi = P1 /*P[i-l(a)]*/ + P2/*p(a)*/;
-	DBG0(DVAL(best_Vi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
+	DBG(DVAL(best_Vi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
 	//look for a better matching symbol
 	for (uint32_t i = 1; i < module.matching_symbols_idx ; i++ ) {
 		symbolT symbol = module.matching_symbols_arr[i];
@@ -92,16 +93,16 @@ void calcViPi(urlMatchingType& module) {
 		P1 = module.P[index4PV - stringlength];
 		P2 = huffmanLength;
 		symbolT tmpVi = P1 + P2 ; 		// module.P[index4PV-stringlength] /*P[i-l(a)]*/ + huffmanLength/*p(a)*/;
-		DBG0(DVAL(tmpVi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
+		DBG(DVAL(tmpVi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
 		if (tmpVi < best_Vi) {
 			best_Vi =  tmpVi;
 			module.V[index4PV] = module.matching_symbols_arr[i];
-			DBG0(DVAL(best_Vi)<<" and symbol "<<module.V[index4PV]);
+			DBG(DVAL(best_Vi)<<" and symbol "<<module.V[index4PV]);
 		}
 	}
 	uint32_t& Pi = module.P[index4PV];
 	Pi = best_Vi;
-	DBG0(DVAL(DVAL(index4PV)<<":"<<module.P[index4PV]) << "," << DVAL(module.V[index4PV])<< " " << DVAL(symbol));
+	DBG(DVAL(index4PV)<<":"<<module.P[index4PV] << "," << DVAL(module.V[index4PV])<< " " << DVAL(symbol));
 	return;
 }
 
@@ -192,7 +193,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	result[res_idx+1]=S_NULL;
 	while (true) { //after we handle result[0] we will decrement idx by 1 to -1;
 		symbolT symbol = module.V[V_idx];
-		DBG0( DVAL(res_idx) << " " << (*module.list)[symbol]->_str );
+		DBG( DVAL(res_idx) << " " << (*module.list)[symbol]->_str );
 		result[res_idx] = symbol;
 		//next idx is idx = idx -l(V[i])
 		Pattern* p = (*module.list)[module.V[V_idx]]  ;
@@ -205,11 +206,11 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	}
 	//copy result to start at results[0]
 	uint32_t i =0;
-	DBG0( "result symbols:");
+	DBG( "result symbols:");
 	while (result[i+res_idx] != S_NULL) {
 		result[i] = result[i+res_idx];
 
-		DBG0( DVAL(i) << " " << (*module.list)[result[i]]->_str );
+		DBG( DVAL(i) << " " << (*module.list)[result[i]]->_str );
 		i++;
 	}
 	result[i] = S_NULL;
