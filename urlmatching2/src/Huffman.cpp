@@ -26,10 +26,10 @@ INode* Huffman::BuildTree()
 {
     std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
 
-    for (int i = 0; i < _freq_size; ++i)
+    for (uint32_t i = 0; i < _freq_size; ++i)
     {
         if(_frequencies[i] != 0)
-            trees.push(new LeafNode(_frequencies[i], (char)i));
+            trees.push(new LeafNode(_frequencies[i], (uint32_t)i));
     }
     while (trees.size() > 1)
     {
@@ -78,7 +78,7 @@ void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeM
 	}
 }
 
-void Huffman::load(int* frequencies, long size) {
+void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	std::cout<<"Entered Huffman::load size="<<size<<std::endl;
 	_freq_size = size;
 
@@ -90,7 +90,7 @@ void Huffman::load(int* frequencies, long size) {
 
 	//debug print
 	std::cout<<"Input frequencies for symbols:"<<std::endl;
-	for (int i =0 ; i< _freq_size ; i++) {
+	for (uint32_t i =0 ; i< _freq_size ; i++) {
 		std::cout<<"frequencies["<<i<<"]="<<frequencies[i]<<std::endl;
 	}
 	INode* root = BuildTree();

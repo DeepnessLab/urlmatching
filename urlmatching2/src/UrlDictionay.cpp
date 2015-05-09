@@ -49,7 +49,7 @@ void UrlCompressor::load_strings_and_freqs(Strings2FreqMap* strings_to_freq)
 {
 	std::cout<<"Entered load_strings_and_freqs"<<std::endl;
 	uint32_t size = strings_to_freq->size();
-	int* myfreq = new int[size+1];
+	uint32_t* myfreq = new uint32_t[size+1];
 	_strings_to_symbols.clear();
 
 	uint32_t ith_symbol = 0;
@@ -193,7 +193,7 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 	file.close();
 
 	//prepare array to load huffman dictionary
-	int* freqArr = new int[symbol_counter];
+	uint32_t* freqArr = new uint32_t[symbol_counter];
 	for (uint32_t i=0; i<symbol_counter;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
 			assert(pat->_symbol == i);
@@ -392,7 +392,7 @@ void UrlCompressor::prepare_database() {
 
 
 	//prepare array to load huffman dictionary
-	int* freqArr = new int[_nextSymbol];
+	uint32_t* freqArr = new uint32_t[_nextSymbol];
 	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
 			assert(pat->_symbol == i);

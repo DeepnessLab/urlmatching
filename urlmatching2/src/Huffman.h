@@ -33,11 +33,11 @@ typedef std::map<HuffCode, uint32_t> HuffSymbMap;
 
 class INode {
 public:
-	const int f;
+	const uint32_t f;
 	virtual ~INode() {
 	}
 protected:
-	INode(int f) :
+	INode(uint32_t f) :
 			f(f) {
 	}
 };
@@ -58,9 +58,9 @@ public:
 
 class LeafNode: public INode {
 public:
-	const char c;
+	const uint32_t c;
 
-	LeafNode(int f, char c) :
+	LeafNode(uint32_t f, uint32_t c) :
 			INode(f), c(c) {
 	}
 };
@@ -76,7 +76,7 @@ public:
 	Huffman();
 	virtual ~Huffman();
 
-	void load(int* frequencies, long size);
+	void load(uint32_t* frequencies, uint32_t size);
 	void print();
 
 	HuffCode encode(uint32_t symbol);
@@ -98,8 +98,8 @@ private:
 	HuffCodeMap _codes;
 	HuffSymbMap _codes2symbols;
 	bool _is_loaded ;
-	int* _frequencies = NULL;
-	long _freq_size ;
+	uint32_t* _frequencies = NULL;
+	uint32_t _freq_size ;
 
 };
 
