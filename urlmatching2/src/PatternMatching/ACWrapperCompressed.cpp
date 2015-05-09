@@ -94,7 +94,7 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 
 }
 
-bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_t size) {
+bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr* patternsList, uint32_t size) {
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
@@ -105,12 +105,12 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr patternsList, uint32_
 	for (symbolT i=1; i< size; i++) {	// 0 is reserved pattern as NULL
 		//go over all patterns, if pattern is single char - set it into _char_to_symbol array
 		// if pattern is longer than 1 char - add it to patterns list so AC will load them
-		if (strlen ( patternsList[i]->_str.c_str() ) == 1) {
-			const uint32_t c = (uint32_t) patternsList[i]->_str.at(0);
+		if (strlen ( (*patternsList)[i]->_str.c_str() ) == 1) {
+			const uint32_t c = (uint32_t) (*patternsList)[i]->_str.at(0);
 			_char_to_symbol[c] = i;
 		} else {
-			list[idx]=&(patternsList[i]->_str);
-			const char* s = patternsList[i]->_str.c_str();
+			list[idx]=&((*patternsList)[i]->_str);
+			const char* s = (*patternsList)[i]->_str.c_str();
 			_patternsMap->insert(std::make_pair(s,i));
 			idx++;
 		}

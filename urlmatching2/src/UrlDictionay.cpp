@@ -27,14 +27,21 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-UrlCompressor::UrlCompressor():_huffman(),_symbol2pattern_db(NULL),_is_loaded(false), _nextSymbol(1){
+UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1){
 	_symbol2pattern_db_size=0;
 }
 
 UrlCompressor::~UrlCompressor() {
-	if (_symbol2pattern_db!=NULL)
-		delete _symbol2pattern_db;
-	_symbol2pattern_db=NULL;
+//	if (_symbol2pattern_db!=NULL)	//TODO: remove
+//		delete _symbol2pattern_db;
+//	_symbol2pattern_db=NULL;
+
+	while (!_symbol2pattern_db.empty()) {
+		Pattern* p = _symbol2pattern_db.back();
+		_symbol2pattern_db.pop_back();
+		delete p;
+	}
+
 	// TODO Auto-generated destructor stub
 }
 
@@ -197,7 +204,7 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
-	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
+	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
 
 	std::cout << "load_dict_from_file: loaded "<<symbol_counter<<" patterns"<<std::endl;
 	return true;
@@ -348,27 +355,30 @@ void UrlCompressor::calculate_symbols_score() {
 
 void UrlCompressor::init_db(uint32_t size) {
 	if (!isLoaded()) {
-		DELETE_AND_NULL(_symbol2pattern_db);
+//		DELETE_AND_NULL(_symbol2pattern_db); //TODO: remove
 	}
 	_symbol2pattern_db_size=size+1;
-	_symbol2pattern_db = new Pattern*[size];
+//	_symbol2pattern_db = new Pattern*[size]; //TODO: remove
 	//symbol=0 is used to represent "strings" of symbols
-	_symbol2pattern_db[0]=new Pattern(0,0,"NULL");
-	for (symbolT i=1; i<_symbol2pattern_db_size;i++)
-		_symbol2pattern_db[i]=NULL;
+	_symbol2pattern_db.push_back( new Pattern(0,0,"NULL") );
+	_nextSymbol = 1;
+//	for (symbolT i=1; i<_symbol2pattern_db_size;i++)
+//		_symbol2pattern_db[i]=NULL;
 	setLoaded();
 }
 
 void UrlCompressor::init_pattern_matching_algorithm() {
-	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
+	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
 }
 
 symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& frequency) {
 	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
-	_symbol2pattern_db[_nextSymbol]=pat;
+//	_symbol2pattern_db[_nextSymbol]=pat;
+	_symbol2pattern_db.push_back( pat );
 	_strings_to_symbols[str]=_nextSymbol;
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
+	assert (_nextSymbol == _symbol2pattern_db.size());
 	assert ((ret + 1) == _nextSymbol );
 	return ret;
 }
@@ -391,7 +401,7 @@ void UrlCompressor::prepare_database() {
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
-	algo.load_patterns(_symbol2pattern_db,_symbol2pattern_db_size);
+	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
 
 }
 

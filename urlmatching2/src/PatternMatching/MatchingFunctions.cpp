@@ -93,7 +93,7 @@ void printModule (urlMatchingType& urlmatching) {
 	std::cout<<prefix<<"matching_symbols_arr ("<<urlmatching.matching_symbols_idx<<")=[";
 	for (uint32_t i=0; i<urlmatching.matching_symbols_idx ; i++) {
 		std::cout<<urlmatching.matching_symbols_arr[i] <<"-"
-				<<urlmatching.list[urlmatching.matching_symbols_arr[i]]->_str << ",";
+				<<(*urlmatching.list)[urlmatching.matching_symbols_arr[i]]->_str << ",";
 	}
 	std::cout<<"]"<<std::endl;
 //	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >

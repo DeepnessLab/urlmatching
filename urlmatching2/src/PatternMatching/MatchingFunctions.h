@@ -36,7 +36,7 @@ typedef struct urlMatchingType {
 	uint32_t index;									//current index of V and P we are working on
 	symbolT matching_symbols_arr[MAX_URL_LENGTH];	//array that collects all symbols relevant to index (current index)
 	uint32_t matching_symbols_idx;								//last used index of matching_symbols_arr
-	Symbol2pPatternArr list;
+	Symbol2pPatternArr* list;
 	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
 	symbolT* char_to_symbol;						//array [char] = symbols
 } urlMatchingType;
@@ -72,7 +72,7 @@ void calcViPi(urlMatchingType& module) {
 	symbolT& symbol = module.V[index4PV];
 	module.V[index4PV] = module.matching_symbols_arr[0];
 
-	Pattern* p = module.list[module.matching_symbols_arr[0]];
+	Pattern* p = (*module.list)[module.matching_symbols_arr[0]];
 	uint32_t stringlength = p->getStringLength();
 	uint32_t huffmanLength = p->getHuffmanLength();
 	//P[i=index4PV] = P1 + P2 = P[i-l(ai)] + p(V[i])
@@ -85,7 +85,7 @@ void calcViPi(urlMatchingType& module) {
 	for (uint32_t i = 1; i < module.matching_symbols_idx ; i++ ) {
 		symbolT symbol = module.matching_symbols_arr[i];
 		assert(symbol!=0);
-		p= module.list[symbol];
+		p= (*module.list)[symbol];
 		//P[i-l(a)] + p(a) where l(a) - string length of symbol a, p(a) huffman code length of a
 		stringlength = p->getStringLength();
 		huffmanLength = p->getHuffmanLength();
@@ -192,10 +192,11 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	result[res_idx+1]=S_NULL;
 	while (true) { //after we handle result[0] we will decrement idx by 1 to -1;
 		symbolT symbol = module.V[V_idx];
-		DBG0( DVAL(res_idx) << " " << module.list[symbol]->_str );
+		DBG0( DVAL(res_idx) << " " << (*module.list)[symbol]->_str );
 		result[res_idx] = symbol;
 		//next idx is idx = idx -l(V[i])
-		uint32_t length =(module.list[module.V[V_idx]])->getStringLength();
+		Pattern* p = (*module.list)[module.V[V_idx]]  ;
+		uint32_t length = p->getStringLength();
 		V_idx = V_idx - length;
 		assert(V_idx >= 0 );
 		if (V_idx <= 0)
@@ -208,7 +209,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	while (result[i+res_idx] != S_NULL) {
 		result[i] = result[i+res_idx];
 
-		DBG0( DVAL(i) << " " << module.list[result[i]]->_str );
+		DBG0( DVAL(i) << " " << (*module.list)[result[i]]->_str );
 		i++;
 	}
 	result[i] = S_NULL;

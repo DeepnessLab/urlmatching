@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <map>
 #include <cstring>
+#include <vector>
 
 #ifndef UINT32_MAX
 #define UINT32_MAX  (0xffffffff)	//this is redefined
@@ -47,7 +48,7 @@ public:
 
 };
 
-typedef Pattern** Symbol2pPatternArr;
+typedef std::vector<Pattern*> Symbol2pPatternArr;
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
 #define S_NULL 0

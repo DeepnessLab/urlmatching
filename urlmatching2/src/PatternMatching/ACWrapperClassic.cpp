@@ -16,7 +16,7 @@ extern "C" {
 
 
 #define DBG(__str__) std::cout<<__str__
-
+/*
 
 //uint32_t getStringFromMap(char* out_buff, uint32_t max_size) {
 //	ACWrapperClassic ac = ACWrapperClassic::getInstance();
@@ -91,3 +91,4 @@ bool ACWrapperClassic::find_patterns(std::string input_str, symbolT* result) {
 
 	return true;
 }
+*/

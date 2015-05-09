@@ -39,7 +39,7 @@ public:
 	/**
 	 * Assign a symbol to every pattern in the patternList and build the pattern matching machine
 	 */
-	virtual bool load_patterns(Symbol2pPatternArr patternsList, uint32_t size);
+	virtual bool load_patterns(Symbol2pPatternArr* patternsList, uint32_t size);
 
 
 	/**
@@ -68,7 +68,7 @@ private:
 	bool is_loaded;
 	std::map<std::string,symbolT> patterns;
 
-	Symbol2pPatternArr _patternsList;
+	Symbol2pPatternArr* _patternsList;
 
 	patternsMapType* _patternsMap;
 
