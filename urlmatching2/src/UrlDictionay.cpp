@@ -69,7 +69,7 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 									const HeavyHittersParams_t params,
 									const  bool contains_basic_symbols)
 {
-	init_db(atoi(chars)); //get number of lines to load
+	init_db(1000); //TODO: change
 
 	/*
 	 * - create all 'single char' patterns in db
@@ -81,8 +81,8 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 	 * ...
 	 */
 	{	//in separate block so 'lit' will close the file
-		uint32_t frequencies[UCHAR_MAX];
-		for (uint32_t i=0 ; i < UCHAR_MAX ; i++ )
+		uint32_t frequencies[CHAR_MAX+1];
+		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
 			frequencies[i]=1;
 
 		LineIterator lit(file_path.c_str(),'\n');
@@ -96,10 +96,10 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 			}
 		}
 
-		for (unsigned char c=1; c < UCHAR_MAX ; c++) {
-			char chars[2];
+		char chars[2];
+		chars[1] = '\0';
+		for (unsigned char c=1; c <= CHAR_MAX ; c++) {
 			chars[0] = (char) (c);
-			chars[1] = '\0';
 			std::string patStr(chars);
 			addPattern(patStr,frequencies[c]);
 		}
@@ -123,6 +123,7 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 		patterns_counter++;
 	}
 	std::cout << "total of "<< patterns_counter <<" patterns were found"<< STDENDL;
+	std::cout << "total of "<< _nextSymbol <<" symbols were inserted"<< STDENDL;
 
 	prepare_database();
 
@@ -373,6 +374,11 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 }
 
 void UrlCompressor::prepare_database() {
+
+	//update number of symbols were loaded
+	_symbol2pattern_db_size = _nextSymbol;
+
+
 	//prepare array to load huffman dictionary
 	int* freqArr = new int[_nextSymbol];
 	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
