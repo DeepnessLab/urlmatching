@@ -90,7 +90,7 @@ void LCU_ShowGroups(LCU_type * lcu) {
         i = first;
         if (i != NULL)
             do {
-                printf("%lu -> ", i->item.size());
+                printf("%u -> ", i->item.size());
                 i = i->nexting;
                 wt += g->count;
                 n++;

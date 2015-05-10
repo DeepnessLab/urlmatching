@@ -21,6 +21,8 @@
 #include <iterator>
 #include <algorithm>
 #include <stdint.h>
+#include <string>
+#include <sstream>
 #include "UrlDictionaryTypes.h"
 
 

@@ -26,6 +26,8 @@ INITIALIZE_EASYLOGGINGPP
 
 int main()
 {
+	el::Configurations defaultConf;
+
 ////	test_huffman();
 //	std::cout<<"starting now"<<std::endl;
 //	test_aho_compressed();

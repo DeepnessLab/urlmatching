@@ -10,7 +10,7 @@
 
 #include "Huffman.h"
 #include "common.h"
-
+#include "logger.h"
 
 Huffman::Huffman() :
 _is_loaded(false),_freq_size(0){
@@ -79,7 +79,7 @@ void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeM
 }
 
 void Huffman::load(uint32_t* frequencies, uint32_t size) {
-	std::cout<<"Entered Huffman::load size="<<size<<std::endl;
+	DBG("Entered Huffman::load size="<<size);
 	_freq_size = size;
 
 	if (_frequencies!=NULL) {
@@ -91,7 +91,7 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	//debug print
 	std::cout<<"Input frequencies for symbols:"<<std::endl;
 	for (uint32_t i =0 ; i< _freq_size ; i++) {
-		std::cout<<"frequencies["<<i<<"]="<<frequencies[i]<<std::endl;
+		DBG("frequencies["<<i<<"]="<<frequencies[i]);
 	}
 	INode* root = BuildTree();
 

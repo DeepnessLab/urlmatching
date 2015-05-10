@@ -47,24 +47,24 @@ UrlCompressor::~UrlCompressor() {
 
 void UrlCompressor::load_strings_and_freqs(Strings2FreqMap* strings_to_freq)
 {
-	std::cout<<"Entered load_strings_and_freqs"<<std::endl;
+	DBG("Entered load_strings_and_freqs");
 	uint32_t size = strings_to_freq->size();
 	uint32_t* myfreq = new uint32_t[size+1];
 	_strings_to_symbols.clear();
 
 	uint32_t ith_symbol = 0;
-	std::cout<<"Print strings_to_freq:"<<std::endl;
+	DBG("Print strings_to_freq:");
 	for (std::map<std::string,int>::iterator it=strings_to_freq->begin(); it!=strings_to_freq->end(); ++it) {
-		std::cout << it->first << " freq => " << it->second << '\n';
+		DBG( it->first << " freq => " << it->second );
 		_strings_to_symbols.insert( std::pair<std::string,uint32_t>(it->first,ith_symbol) );
 		myfreq[ith_symbol]=  it->second;
 		ith_symbol++;
 	}
-	std::cout << std::endl;
+	DBG(" ");
 
-	std::cout<<"Print _strings_to_symbols:"<<std::endl;
+	DBG("Print _strings_to_symbols:");
 	for (std::map<std::string,uint32_t>::iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
-		std::cout << it->first << " symbol => " << it->second << '\n';
+		DBG(it->first << " symbol => " << it->second );
 		_strings_to_symbols.insert( std::pair<std::string,uint32_t>(it->first,ith_symbol) );
 	}
 
@@ -117,7 +117,7 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 
 	std::list<signature_t>& common_strings = ldhh.get_signatures();
 	size_t                  urls_count     = ldhh.get_pckt_count();
-	std::cout << "** scanned " << urls_count << " urls " << std::endl << std::endl;
+	DBG("** scanned " << urls_count << " urls " << std::endl );
 
 	int patterns_counter = 0;
 	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
@@ -129,12 +129,12 @@ bool UrlCompressor::initFromUrlsListFile(const std::string& file_path,
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
-	std::cout << "total of "<< patterns_counter <<" patterns were found"<< STDENDL;
-	std::cout << "total of "<< _nextSymbol <<" symbols were inserted"<< STDENDL;
+	DBG("total of "<< patterns_counter <<" patterns were found");
+	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
 	prepare_database();
 
-	std::cout << "load_dict_from_file: loaded "<<_nextSymbol<<" patterns"<<std::endl;
+	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
 
 	return true;
 }
@@ -206,7 +206,7 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
 
-	std::cout << "load_dict_from_file: loaded "<<symbol_counter<<" patterns"<<std::endl;
+	DBG("load_dict_from_file: loaded "<<symbol_counter<<" patterns");
 	return true;
 }
 
@@ -270,23 +270,24 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	for (i=1 /*[0] was number of coded bits*/; i < in_buf_size; i++) {
 		uint32_t buf = in_encoded_buf[i];
 		std::bitset<32> x(buf);
-		std::cout<<"buf="<<x<<STDENDL;
+		DBG(" buf="<<x);
 
 		for (uint16_t j=0; j < BITS_IN_UINT32_T ; j++) {
 			uint32_t bit = buf & most_left_bit;
 			if (bit == 0) { 	// 0
 				huff_code.push_back(false);
-				std::cout<<0;
+				DBG(0);
 			} else {			// 1
 				huff_code.push_back(true);
-				std::cout<<1;
+				DBG(1);
 			}
 			num_of_left_bits_to_read--;
 			buf = buf << 1;	//shift left buf
 			_huffman.printHuffCode(&huff_code);
+			DBG(s);
 			symbolT symbol = _huffman.decode(huff_code);
 			if (symbol != S_NULL) {
-				std::cout<<";";
+				DBG(";");
 				urlbuilder.append(symbol);
 				huff_code.clear();
 				if (num_of_left_bits_to_read == 0) {
@@ -301,7 +302,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 
 		}
 	}
-	std::cout<<STDENDL;
+	DBG("finished decode");
 	urlbuilder.print();
 	url = urlbuilder.get_url();
 

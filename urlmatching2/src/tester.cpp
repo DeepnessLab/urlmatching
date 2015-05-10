@@ -32,7 +32,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
-	std::string my_string = "http://www.google.com";
+	std::string my_string = "http://www.google.com/gmail/drive";
 	std::cout<<"matching string="<<my_string<<std::endl;
 
 	symbolT result[1000];
