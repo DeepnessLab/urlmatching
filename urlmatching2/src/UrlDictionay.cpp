@@ -283,7 +283,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 			}
 			num_of_left_bits_to_read--;
 			buf = buf << 1;	//shift left buf
-			_huffman.printHuffCode(&huff_code);
+//			_huffman.printHuffCode(&huff_code);
 			DBG(s);
 			symbolT symbol = _huffman.decode(huff_code);
 			if (symbol != S_NULL) {

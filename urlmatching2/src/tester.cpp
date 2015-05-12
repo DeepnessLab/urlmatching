@@ -19,8 +19,19 @@
 #include "logger.h"
 
 void test_url_dictionary_load_from_url_txt_file() {
-	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";
 
+	char pBuf[1000];
+	int bytes = GetModuleFileName(NULL, pBuf, 1000);
+	std::string path(pBuf, bytes);
+	std::cout<<"running from path="<<path<<std::endl;
+
+	int last_slash = path.find_last_of("/\\");
+	int another = path.find_last_of("/\\",last_slash-1);
+	path=path.substr(0,another+1);
+	std::string urls_file = "test_files/9000_urls.txt";
+	path = path + urls_file;
+
+	std::cout<<"test file path="<<path<<std::endl;
 	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.1, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
