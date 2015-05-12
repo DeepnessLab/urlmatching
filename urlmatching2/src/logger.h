@@ -25,7 +25,7 @@
 
 #define DBG(what) do { std::stringstream s; \
 	s << what; \
-	LOG(INFO) << s.str(); } while(0)\
+	LOG(DEBUG) << s.str(); } while(0)\
 
 
 #elif DEBUG_STDOUT > 0

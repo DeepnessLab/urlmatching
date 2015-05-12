@@ -32,7 +32,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.1, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.5, kgrams_size: 4};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -46,7 +46,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::string my_string = "http://www.google.com/gmail/drive";
 	std::cout<<"matching string="<<my_string<<std::endl;
 
-	symbolT result[1000];
+//	symbolT result[1000];
 //	urlc.algo.find_patterns(my_string,result);
 
 	std::cout<<"encode string="<<my_string<<std::endl;

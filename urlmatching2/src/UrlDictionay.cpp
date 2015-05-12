@@ -279,18 +279,17 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 			uint32_t bit = buf & most_left_bit;
 			if (bit == 0) { 	// 0
 				huff_code.push_back(false);
-				DBG(0);
 			} else {			// 1
 				huff_code.push_back(true);
-				DBG(1);
 			}
 			num_of_left_bits_to_read--;
 			buf = buf << 1;	//shift left buf
-//			_huffman.printHuffCode(&huff_code);
-			DBG(s);
+//			DBG(s);
 			symbolT symbol = _huffman.decode(huff_code);
 			if (symbol != S_NULL) {
-				DBG(";");
+// these are only for debugging:
+//				std::string code = _huffman.HuffCode_str(&huff_code);;
+//				std::cout<<"code="<<code<<"; "<<_symbol2pattern_db[symbol]->_str<<STDENDL;
 				urlbuilder.append(symbol);
 				huff_code.clear();
 				if (num_of_left_bits_to_read == 0) {

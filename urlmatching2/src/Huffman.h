@@ -84,11 +84,20 @@ public:
 	HuffCode encode(uint32_t symbol);
 	uint32_t decode(HuffCode code);
 
-	inline void printHuffCode(HuffCode* code) {
+	inline
+	void printHuffCode(HuffCode* code) {
 		std::cout<<"code=";
 		std::copy(code->begin(), code->end(),
 				std::ostream_iterator<bool>(std::cout));
 		std::cout << std::endl;
+	}
+
+	inline
+	std::string HuffCode_str(HuffCode* code) {
+		std::stringstream stream;
+		std::copy(code->begin(), code->end(),
+				std::ostream_iterator<bool>(stream));
+		return stream.str();
 	}
 
 
