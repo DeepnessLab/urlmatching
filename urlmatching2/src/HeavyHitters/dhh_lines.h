@@ -27,7 +27,7 @@ public:
     
 public:
     
-    void                    run();
+    bool                    run();
     size_t                  get_pckt_count();
     std::list<signature_t>& get_signatures();
     std::list<signature_t>& get_signatures_sets();

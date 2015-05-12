@@ -19,7 +19,7 @@
 
 
 #define MAX_URL_LENGTH 1000
-
+#define RESERVED_NUM_OF_PATTERNS 1000
 
 enum UrlCompressorStatus {
 	STATUS_OK = 1,
@@ -48,7 +48,7 @@ public:
 	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
 
 	//load list of urls and build cached database
-	bool initFromUrlsListFile(const std::string& file_path,
+	bool LoadUrlsFromFile(const std::string& file_path,
 							const HeavyHittersParams_t params,
 							const  bool contains_basic_symbols);
 
@@ -82,9 +82,10 @@ public:
 	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 //temp private:
-	void init_db(uint32_t size);
-	void init_pattern_matching_algorithm();
-	void calculate_symbols_score();
+	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
+
+	// calculates Huffman length and string lenght for every patterns
+	 void calculate_symbols_score();
 	/** once all patterns are loaded with their frequencies -
 	  1. create huffman code
 	  2. create pattern matching algorithm
@@ -93,6 +94,7 @@ public:
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }
+	bool unload_and_return_false();
 
 	/**
 	 * Add pattern to dictionary

@@ -36,7 +36,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
-	bool ret = urlc.initFromUrlsListFile(urls_file, params, false);
+	bool ret = urlc.LoadUrlsFromFile(urls_file, params, false);
 	assert (ret);
 
 	urlc.print_database(true /*print codes*/);

@@ -61,11 +61,10 @@ LDHH::~LDHH() {
     
 }
 
-void LDHH::run() {    
+bool LDHH::run() {
     
 	if (!_line_it.isLoadedSuccessfully() ){
-		//TODO: what to do when can't load ?
-		return ;
+		return false;
 	}
 
     while (this->_line_it.has_next() ) {
@@ -83,7 +82,7 @@ void LDHH::run() {
         this->_produce_signatures(this->_hh3, this->_signatures_sets);
     }
     
-//    LCU_Print_Output(this->_hh2);
+    return true;
 }
 
 inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
