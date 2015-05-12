@@ -18,15 +18,27 @@
 
 INITIALIZE_EASYLOGGINGPP
 
-//void my_print(char* str) {
-//	printf("%s\n", str);
-//}
-
-
 
 int main()
 {
-	el::Configurations defaultConf;
+	char pBuf[1000];
+	int bytes = GetModuleFileName(NULL, pBuf, 1000);
+	std::string path(pBuf, bytes);
+	int last_slash = path.find_last_of("/\\");
+	int another = path.find_last_of("/\\",last_slash-1);
+	path=path.substr(0,another+1);
+
+
+
+	// Load configuration from file
+	std::string logger_config_file("src/easylogging.conf");
+	logger_config_file = path +  logger_config_file;
+    el::Configurations conf(logger_config_file.c_str());
+    // Reconfigure single logger
+    el::Loggers::reconfigureLogger("default", conf);
+    // Actually reconfigure all loggers instead
+    el::Loggers::reconfigureAllLoggers(conf);
+    // Now all the loggers will use configuration from file
 
 ////	test_huffman();
 //	std::cout<<"starting now"<<std::endl;

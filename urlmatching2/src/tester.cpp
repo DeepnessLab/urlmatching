@@ -47,11 +47,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"matching string="<<my_string<<std::endl;
 
 	symbolT result[1000];
-	urlc.algo.find_patterns(my_string,result);
+//	urlc.algo.find_patterns(my_string,result);
 
 	std::cout<<"encode string="<<my_string<<std::endl;
-	uint32_t codedbuff[100];
-	urlc.encode(my_string,codedbuff,100);
+	uint32_t buff_size = 100;
+	uint32_t* codedbuff = new uint32_t[buff_size];
+	urlc.encode(my_string,codedbuff,buff_size);
 
 	std::string decoded_str;
 	urlc.decode(decoded_str,codedbuff,100);
@@ -168,13 +169,15 @@ void test_url_dictionary_load_from_stored_DB() {
 
 	my_string = "shalomashalomashalomashalomashaloma";
 	std::cout<<"encode string="<<my_string<<std::endl;
-	uint32_t codedbuff[100];
-	urlc.encode(my_string,codedbuff,100);
+	uint32_t buff_size = 100;
+	uint32_t* codedbuff = new uint32_t[buff_size];
+	urlc.encode(my_string,codedbuff,buff_size);
 
 	std::string decoded_str;
-	urlc.decode(decoded_str,codedbuff,100);
+	urlc.decode(decoded_str,codedbuff,buff_size);
 	std::cout<<"dencoded string="<<decoded_str<<std::endl;
 
+	delete codedbuff;
 //	exit(1);
 
 }

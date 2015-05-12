@@ -213,8 +213,8 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
-UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t out_buf_size) {
-	assert (out_buf_size > 2);
+UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+	assert (buf_size > 2);
 
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -244,7 +244,7 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 			mask = mask / 2;	//move right
 			if (mask == 0) {
 				i++;
-				if (i >= out_buf_size) {
+				if (i >= buf_size) {
 					return STATUS_ERR_SMALL_BUF;
 				}
 				mask = reset_mask;
@@ -253,6 +253,7 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 		}
 		symbol++;
 	}
+	buf_size = i;
 	return STATUS_OK;
 }
 

@@ -69,7 +69,8 @@ public:
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
-	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t out_buf_size);
+	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
+	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
 
 
