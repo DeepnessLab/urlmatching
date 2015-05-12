@@ -96,6 +96,9 @@ public:
 	void setUnloaded() { _is_loaded = false; }
 	bool unload_and_return_false();
 
+	inline
+	uint32_t getDBsize() { return _symbol2pattern_db.size(); }
+
 	/**
 	 * Add pattern to dictionary
 	 * @param str - pattern's string
@@ -106,7 +109,7 @@ public:
 
 	//TODO: get this into a struct
 	Symbol2pPatternArr _symbol2pattern_db;	//array of patterns, where symbol is the index
-	uint32_t _symbol2pattern_db_size;	//length of this array
+//	uint32_t _symbol2pattern_db_size;	//length of this array
 
 	ACWrapperCompressed algo;
 	bool _is_loaded;

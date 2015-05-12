@@ -18,6 +18,7 @@
 
 #define MAX_DB_LINE_SIZE 100
 #define SEPERATOR ","
+#define NULL_DEFAULT_FREQ 1
 
 #define BITS_IN_BYTE 8
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
@@ -28,7 +29,7 @@ typedef unsigned char uchar;
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
 UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1){
-	_symbol2pattern_db_size=0;
+//	_symbol2pattern_db_size=0;
 }
 
 UrlCompressor::~UrlCompressor() {
@@ -205,7 +206,7 @@ bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
-	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
+	algo.load_patterns(&_symbol2pattern_db,getDBsize());
 
 	DBG("load_dict_from_file: loaded "<<symbol_counter<<" patterns");
 	return true;
@@ -313,8 +314,8 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 
 void UrlCompressor::print_database(bool print_codes) {
 	std::cout<<"UrlCompressor::print_database"<<std::endl;
-	std::cout<<"UrlCompressor db contains "<<_symbol2pattern_db_size<< " patterns:"<<std::endl;
-	for (uint32_t i=0; i<_symbol2pattern_db_size;i++) {
+	std::cout<<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
+	for (uint32_t i=0; i< getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
 		Pattern* ptrn = _symbol2pattern_db[i];
 		std::cout << "symbol=" << ptrn->_symbol << ",freq=" << ptrn->_frequency
@@ -349,7 +350,7 @@ Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(st
 }
 
 void UrlCompressor::calculate_symbols_score() {
-	for (symbolT i=0; i<_symbol2pattern_db_size;i++) {
+	for (symbolT i=0; i < getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator iter=_symbol2pattern_db.begin(); iter!=_symbol2pattern_db.end();++iter) {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
 		_symbol2pattern_db[i]->_huffman_length=code.size();
@@ -361,9 +362,10 @@ void UrlCompressor::init(uint32_t reserved_size) {
 		unload_and_return_false();
 	}
 	_symbol2pattern_db.reserve(reserved_size);
-	_symbol2pattern_db.push_back( new Pattern(0,0,"NULL") );
-	_symbol2pattern_db_size=1;
+	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
+//	_symbol2pattern_db_size=1;
 	_nextSymbol = 1;
+	assert (_nextSymbol == getDBsize() );
 	setLoaded();
 }
 
@@ -392,7 +394,7 @@ void UrlCompressor::prepare_database() {
 
 	DBG("prepare_database:" << DVAL(_nextSymbol));
 	//update number of symbols were loaded
-	_symbol2pattern_db_size = _nextSymbol;
+//	_symbol2pattern_db_size = _nextSymbol;
 
 
 	//prepare array to load huffman dictionary
@@ -407,7 +409,7 @@ void UrlCompressor::prepare_database() {
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
-	algo.load_patterns(&_symbol2pattern_db,_symbol2pattern_db_size);
+	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 
 }
 
