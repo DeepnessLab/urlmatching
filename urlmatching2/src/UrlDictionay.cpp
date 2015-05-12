@@ -146,7 +146,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
  * @param file_path - DB file path
  * @return true if loaded successfully
  */
-bool UrlCompressor::initFromStoredDBFile(std::string& file_path)
+bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 {
 	std::string line;
 	std::ifstream file(file_path.c_str());
@@ -382,7 +382,7 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 }
 
 bool UrlCompressor::unload_and_return_false() {
-	for (Symbol2pPatternArr::iterator it = _symbol2pattern_db.begin(); it!= _symbol2pattern_db.end(); ++it){
+	for (Symbol2pPatternVec::iterator it = _symbol2pattern_db.begin(); it!= _symbol2pattern_db.end(); ++it){
 		delete *it;
 	}
 	_symbol2pattern_db.clear();

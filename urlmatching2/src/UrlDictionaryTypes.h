@@ -45,7 +45,7 @@ public:
 
 };
 
-typedef std::vector<Pattern*> Symbol2pPatternArr;
+typedef std::vector<Pattern*> Symbol2pPatternVec;
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
 #define S_NULL 0

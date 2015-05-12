@@ -37,7 +37,7 @@ typedef struct urlMatchingType {
 	uint32_t index;									//current index of V and P we are working on
 	symbolT matching_symbols_arr[MAX_URL_LENGTH];	//array that collects all symbols relevant to index (current index)
 	uint32_t matching_symbols_idx;								//last used index of matching_symbols_arr
-	Symbol2pPatternArr* list;
+	Symbol2pPatternVec* list;
 	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
 	symbolT* char_to_symbol;						//array [char] = symbols
 } urlMatchingType;

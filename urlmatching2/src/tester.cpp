@@ -155,7 +155,7 @@ void test_url_dictionary_load_from_stored_DB() {
 	std::string my_string = "shaloma";
 
 	UrlCompressor urlc;
-	bool ret = urlc.initFromStoredDBFile(patterns_file);
+	bool ret = urlc.LoadStoredDBFromFiled(patterns_file);
 	assert (ret);
 	urlc.print_database(true /*print codes*/);
 
@@ -191,7 +191,7 @@ void test_url_matching() {
 	std::string my_string = "shaloma";
 
 	UrlCompressor urlc;
-	bool ret = urlc.initFromStoredDBFile(patterns_file);
+	bool ret = urlc.LoadStoredDBFromFiled(patterns_file);
 	assert (ret);
 	urlc.print_database(true /*print codes*/);
 

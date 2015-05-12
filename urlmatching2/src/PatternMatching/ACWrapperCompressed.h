@@ -33,13 +33,11 @@ public:
 
 	virtual ~ACWrapperCompressed();
 
-	virtual inline bool isInit() { return ( _machine == NULL) ? false : true ;	}
-
+	//Load Patterns from file
 	virtual bool load_patterns(std::string filepath);
-	/**
-	 * Assign a symbol to every pattern in the patternList and build the pattern matching machine
-	 */
-	virtual bool load_patterns(Symbol2pPatternArr* patternsList, uint32_t size);
+
+	//map every pattern to symbol in patternList and build the pattern matching machine
+	virtual bool load_patterns(Symbol2pPatternVec* patternsList, uint32_t size);
 
 
 	/**
@@ -52,6 +50,9 @@ public:
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
 	virtual void printDB(std::ostream& os);
+
+	virtual inline
+	bool isLoaded() { return is_loaded; }
 
 //	virtual std::string* nextPattern();
 //	virtual void resetNextPattern();
@@ -68,7 +69,8 @@ private:
 	bool is_loaded;
 	std::map<std::string,symbolT> patterns;
 
-	Symbol2pPatternArr* _patternsList;
+	//input during load
+	Symbol2pPatternVec* _patternsList;
 
 	patternsMapType* _patternsMap;
 

@@ -79,13 +79,18 @@ ACWrapperCompressed::ACWrapperCompressed() :
 
 ACWrapperCompressed::~ACWrapperCompressed() {
 	if (_machine != NULL) {
-//		destroyStateMachine(_machine);
+		destroyStateMachine(_machine);
+		_machine = NULL;
+	}
+	if (_patternsMap!=NULL) {
+		delete _patternsMap;
+		_patternsMap = NULL;
 	}
 }
 
 
 bool ACWrapperCompressed::load_patterns(std::string filepath) {
-
+	assert(false); // not supported
 	const char* tmp = filepath.c_str();
 	_machine = createStateMachine(tmp,100,100,0);
 	make_pattern_to_symbol_list();
@@ -94,15 +99,16 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 
 }
 
-bool ACWrapperCompressed::load_patterns(Symbol2pPatternArr* patternsList, uint32_t size) {
+bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size) {
+	assert(!isLoaded());
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
-	StringListType list = new std::string*[size];
+	StringListType list = new std::string*[patternsList_size];
 	uint32_t idx=0;				//store how many string we entered the list
 	_patternsMap = new patternsMapType();
 
-	for (symbolT i=1; i< size; i++) {	// 0 is reserved pattern as NULL
+	for (symbolT i=1; i< patternsList_size; i++) {	// 0 is reserved pattern as NULL
 		//go over all patterns, if pattern is single char - set it into _char_to_symbol array
 		// if pattern is longer than 1 char - add it to patterns list so AC will load them
 		if (strlen ( (*patternsList)[i]->_str.c_str() ) == 1) {
@@ -162,7 +168,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 }
 
 bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
-
+	assert(isLoaded());
 	//prepare metadata
 	urlMatchingType module;
 	initModule(module);

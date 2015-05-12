@@ -8,7 +8,7 @@
 #include "UrlDictionay.h"
 #include "logger.h"
 
-UrlBuilder::UrlBuilder(Symbol2pPatternArr symbol2pattern_db) :
+UrlBuilder::UrlBuilder(Symbol2pPatternVec symbol2pattern_db) :
 		_symbol2pattern_db(symbol2pattern_db),
 		_url("")
 {

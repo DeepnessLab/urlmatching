@@ -60,7 +60,7 @@ public:
 	 * Returns true if successfully loaded
 	 * will assert if symbols are not ordered and continues, i.e 0..n
 	 */
-	bool initFromStoredDBFile(std::string& file_path);
+	bool LoadStoredDBFromFiled(std::string& file_path);
 
 	//API
 //	void compressUrl(char* url);
@@ -74,7 +74,7 @@ public:
 
 
 	struct patternsIterator {
-		Symbol2pPatternArr arr;
+		Symbol2pPatternVec arr;
 		symbolT index;
 	};
 
@@ -108,7 +108,7 @@ public:
 	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
 	//TODO: get this into a struct
-	Symbol2pPatternArr _symbol2pattern_db;	//array of patterns, where symbol is the index
+	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
 //	uint32_t _symbol2pattern_db_size;	//length of this array
 
 	ACWrapperCompressed algo;
@@ -121,7 +121,7 @@ public:
 
 class UrlBuilder {
 public:
-	UrlBuilder(Symbol2pPatternArr symbol2pattern_db);
+	UrlBuilder(Symbol2pPatternVec symbol2pattern_db);
 	virtual ~UrlBuilder() {}
 
 	virtual void reset() {_url.empty(); }
@@ -132,7 +132,7 @@ public:
 private:
 	typedef std::deque<symbolT> SymbolDeque ;
 
-	Symbol2pPatternArr _symbol2pattern_db;
+	Symbol2pPatternVec _symbol2pattern_db;
 	std::string _url;
 	SymbolDeque _symbol_deque;
 };
