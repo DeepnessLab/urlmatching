@@ -62,10 +62,6 @@ public:
 	 */
 	bool LoadStoredDBFromFiled(std::string& file_path);
 
-	//API
-//	void compressUrl(char* url);
-//	void decompressUrl(char* code);
-
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 

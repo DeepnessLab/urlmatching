@@ -89,10 +89,10 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	_frequencies = frequencies;
 
 	//debug print
-	std::cout<<"Input frequencies for symbols:"<<std::endl;
-	for (uint32_t i =0 ; i< _freq_size ; i++) {
-		DBG("frequencies["<<i<<"]="<<frequencies[i]);
-	}
+//	std::cout<<"Input frequencies for symbols:"<<std::endl;
+//	for (uint32_t i =0 ; i< _freq_size ; i++) {
+//		DBG("frequencies["<<i<<"]="<<frequencies[i]);
+//	}
 	INode* root = BuildTree();
 
 	Huffman::GenerateCodes(root, HuffCode(), _codes);
