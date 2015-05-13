@@ -736,12 +736,12 @@ void acBuildTreeFunc(ACTree *tree,  getStringFuncType func , void* func_struct, 
 	tree->root = createNewNode(tree, NULL);
 
 	while ( func(buff,READ_BUFFER_SIZE,func_struct)!=0 && (MAX_PATTERNS <= 0 || count < MAX_PATTERNS)) {
+		printf("Loaded %s\n",buff);
+		length = strlen(buff)/* - 1*/;
 		if (length == 0) {
 			fprintf(stderr, "Found zero length pattern in input\n");
 			exit(1);
 		}
-		printf("Loaded %s\n",buff);
-		length = strlen(buff)/* - 1*/;
 		buff[length] = '\0';
 		//if (tree->size + length <= MAX_STATES) {
 		enter(tree, buff, length);

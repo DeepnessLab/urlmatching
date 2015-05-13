@@ -19,11 +19,12 @@
 INITIALIZE_EASYLOGGINGPP
 
 
+
 int main()
 {
 	char pBuf[1000];
-	int bytes = GetModuleFileName(NULL, pBuf, 1000);
-	std::string path(pBuf, bytes);
+	GetCurrentDir(pBuf, 1000);
+	std::string path(pBuf);
 	int last_slash = path.find_last_of("/\\");
 	int another = path.find_last_of("/\\",last_slash-1);
 	path=path.substr(0,another+1);

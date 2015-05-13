@@ -121,7 +121,13 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 			idx++;
 		}
 	}
+
+	DBG("--- START printing all patterns: ---");
 	StringListDBWithIdxType db={list,0,idx};
+	for (uint32_t i=0; i < db.size; i++ ){
+		DBG(DVAL(i)<<": "<<*(db.list[i]));
+	}
+	DBG("--- FINISH printing all patterns: ---");
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
 
 	delete list;
