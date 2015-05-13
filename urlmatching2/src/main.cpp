@@ -22,18 +22,14 @@ INITIALIZE_EASYLOGGINGPP
 
 int main()
 {
-	char pBuf[1000];
-	GetCurrentDir(pBuf, 1000);
-	std::string path(pBuf);
-	int last_slash = path.find_last_of("/\\");
-	int another = path.find_last_of("/\\",last_slash-1);
-	path=path.substr(0,another+1);
 
-
+	std::string path;
+	getWorkingDirectory(path);
+	std::cout<<"running from path="<<path<<std::endl;
 
 	// Load configuration from file
 	std::string logger_config_file("src/easylogging.conf");
-	logger_config_file = path +  logger_config_file;
+	logger_config_file = path + "/" + logger_config_file;
     el::Configurations conf(logger_config_file.c_str());
     // Reconfigure single logger
     el::Loggers::reconfigureLogger("default", conf);

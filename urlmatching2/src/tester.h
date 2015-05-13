@@ -17,6 +17,16 @@
  #endif
 
 
+#define MAX_PATH 1000
+
+//Helpers
+inline
+void getWorkingDirectory(std::string& out ) {
+	char pBuf[1000];
+	GetCurrentDir(pBuf, MAX_PATH);
+	out.assign(pBuf);
+}
+
 
 #define RUN_TEST(name) std::cout<<"TEST \""<<#name<<"\" STARTED now" << std::endl; \
 	name(); \
