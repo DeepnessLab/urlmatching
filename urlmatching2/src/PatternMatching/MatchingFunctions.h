@@ -70,6 +70,7 @@ void calcViPi(urlMatchingType& module) {
 
 
 	//calc V[index4PV] according to module.matching_symbols_arr[0]
+	assert (index4PV < MAX_URL_LENGTH);
 	symbolT& symbol = module.V[index4PV];
 	module.V[index4PV] = module.matching_symbols_arr[0];
 
@@ -77,6 +78,7 @@ void calcViPi(urlMatchingType& module) {
 	uint32_t stringlength = p->getStringLength();
 	uint32_t huffmanLength = p->getHuffmanLength();
 	//P[i=index4PV] = P1 + P2 = P[i-l(ai)] + p(V[i])
+	assert (index4PV >= stringlength);
 	uint32_t P1 = module.P[index4PV - stringlength];
 	uint32_t P2 = huffmanLength;
 
@@ -90,16 +92,19 @@ void calcViPi(urlMatchingType& module) {
 		//P[i-l(a)] + p(a) where l(a) - string length of symbol a, p(a) huffman code length of a
 		stringlength = p->getStringLength();
 		huffmanLength = p->getHuffmanLength();
+		assert (index4PV >= stringlength);
 		P1 = module.P[index4PV - stringlength];
 		P2 = huffmanLength;
 		symbolT tmpVi = P1 + P2 ; 		// module.P[index4PV-stringlength] /*P[i-l(a)]*/ + huffmanLength/*p(a)*/;
 		DBG(DVAL(tmpVi)<<" = "<<DVAL(P1)<<"+"<<DVAL(P2));
 		if (tmpVi < best_Vi) {
 			best_Vi =  tmpVi;
+			assert (index4PV < MAX_URL_LENGTH);
 			module.V[index4PV] = module.matching_symbols_arr[i];
 			DBG(DVAL(best_Vi)<<" and symbol "<<module.V[index4PV]);
 		}
 	}
+	assert (index4PV < MAX_URL_LENGTH);
 	uint32_t& Pi = module.P[index4PV];
 	Pi = best_Vi;
 	DBG(DVAL(index4PV)<<":"<<module.P[index4PV] << "," << DVAL(module.V[index4PV])<< " " << DVAL(symbol));
