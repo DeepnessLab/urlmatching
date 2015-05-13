@@ -53,14 +53,8 @@ int special_handle_pattern(char* str,uint32_t idx, void* data) {
 	urlMatchingType* url_module = (urlMatchingType*) data;
 	assert(url_module!=NULL);
 
-	//TODO: remove the following
-	std::string real_str(str);
-	std::cout<<"at idx="<<idx<<", pattern="<<real_str<<std::endl;
-
+	DBG("at idx="<<idx<<", pattern="<<str);
 	//update module with the pattern
-
-
-
 	return 1;
 }
 

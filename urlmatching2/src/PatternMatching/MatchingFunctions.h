@@ -43,7 +43,7 @@ typedef struct urlMatchingType {
 } urlMatchingType;
 
 
-void printModule (urlMatchingType& urlmatching);
+void debugPrintModule (urlMatchingType& urlmatching);
 
 //some forward declarations
 //inline void  calcViPi(urlMatchingType& module);
@@ -64,7 +64,7 @@ inline
 void calcViPi(urlMatchingType& module) {
 	//V[i] = argmin of P[i-l(a)] + p(a) for all matching a's - module.symbols
 	uint32_t index4PV = module.index + 1 ;
-	std::cout << "calcViPi:" << DVAL (index4PV);
+	DBG("calcViPi:" << DVAL (index4PV));
 	assert(module.matching_symbols_idx > 0);
 
 
@@ -158,14 +158,14 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	//collect new pattens until idx is advanced - then evaluate the vi pi module
 	if (idx > module.index) {
 		//new index, consolidate previous index
-		std::cout<<"idx("<<idx<<") > module.index("<<module.index<<") -> calcViPi"<<std::endl;
+		DBG("idx("<<idx<<") > module.index("<<module.index<<") -> calcViPi");
 		calcViPi(module);
-		printModule(module);
+		debugPrintModule(module);
 		module.index = module.index+1;
 		module.matching_symbols_idx = 0;
 	}
 	//gather another symbol
-	std::cout<<"updateModule:"<<std::endl;
+	DBG("updateModule:");
 	module.matching_symbols_arr[module.matching_symbols_idx] = symbol;
 	module.matching_symbols_idx++;
 }
@@ -180,12 +180,12 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 		uint32_t char_at_j = (uint32_t) module.input_string[j];
 		symbolT s =  module.char_to_symbol[char_at_j];
 		updateModule(module,s,j);
-		std::cout<<" > Added \""<<(char) char_at_j<<"\" at "<<j<<std::endl;
+		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
 
 
 	calcViPi(module);
-	printModule(module);
+	debugPrintModule(module);
 
 	// Finalize the successful patterns
 	uint32_t V_idx = module.index+1;
@@ -209,7 +209,6 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	DBG( "result symbols:");
 	while (result[i+res_idx] != S_NULL) {
 		result[i] = result[i+res_idx];
-
 		DBG( DVAL(i) << " " << (*module.list)[result[i]]->_str );
 		i++;
 	}

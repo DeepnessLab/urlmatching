@@ -277,7 +277,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 					id = (pathCompressedState[2] << 8) | pathCompressedState[3];
 					for (j = 0; j < i; j++) {
 						if (GET_1BIT_ELEMENT(matches, i)) {
-							printf(" SKIPPED  in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,patternTable->patterns[id][count]);
+//							printf(" SKIPPED  in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,patternTable->patterns[id][count]);
 							count++;
 						}
 					}
@@ -285,7 +285,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 					assert(patternFunc!=NULL);
 //					pattern = concat_strings_nofree(pattern, patternTable->patterns[id][count]);
 					pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);
-					printf("   in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,pattern);
+//					printf("   in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,pattern);
 					patternFunc( patternTable->patterns[id][count] ,*idx,data );
 
 				}

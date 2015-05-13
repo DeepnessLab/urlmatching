@@ -11,7 +11,7 @@
 //#define TRACE_STATE_MACHINE
 //#define PRINT_AHO_CORASICK
 //#define PRINT_STATE_GENERATION
-#define PRINT_MATCHES
+//#define PRINT_MATCHES
 //#define COUNT_FAIL_PERCENT
 //#define MIX_IDS
 //#define PRINT_CHAR_COUNT

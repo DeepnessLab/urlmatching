@@ -14,7 +14,7 @@ inline
 void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		uint32_t idx_of_last_char, urlMatchingType& url_module) {
 	//assuming here the patterns are in decreasing length order (the longest is the first)
-	std::cout << "go_over_all_patterns for \"" << string_with_patterns <<"\""<< std::endl;
+	DBG("go_over_all_patterns for \"" << string_with_patterns <<"\"");
 	char* s = new char[strlen(string_with_patterns)];
 	strcpy(s, string_with_patterns);
 	char* tk = strtok(s, delimiter);
@@ -23,7 +23,7 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		assert (ret != url_module.patternDB->end());
 		symbolT s = ret->second;
 		updateModule(url_module,s,idx_of_last_char);
-		std::cout << " > Added \"" << tk <<"\" at "<< idx_of_last_char << std::endl;
+		DBG(" > Added \"" << tk <<"\" at "<< idx_of_last_char);
 		tk = strtok(NULL, delimiter);
 	}
 }
@@ -34,14 +34,14 @@ int handle_pattern(char* str, uint32_t idx, void* data) {
 		return 0;
 	}
 	urlMatchingType* url_module = (urlMatchingType*) data;
-	std::cout<<"handle_pattern: \""<<str<< "\" at "<<idx<<std::endl;
+	DBG("handle_pattern: \""<<str<< "\" at "<<idx);
 
 	//insert all literals
 	for (uint32_t j = url_module->index+1 ; j <=idx ; j++) {
 		uint32_t char_at_j = (uint32_t) url_module->input_string[j];
 		symbolT s =  url_module->char_to_symbol[char_at_j];
 		updateModule(*url_module,s,j);
-		std::cout<<" > Added \""<<(char) char_at_j<<"\" at "<<j<<std::endl;
+		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
 
 	assert(url_module!=NULL);
@@ -64,38 +64,41 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 	StringListDBWithIdxType* list_describtor =
 			(StringListDBWithIdxType*) list_struct;
 	if (list_describtor->index == list_describtor->size) {
-		std::cout << std::endl << "Total of " << list_describtor->size
-				<< " patterns loaded" << std::endl;
+		DBG(std::endl << "Total of " << list_describtor->size
+				<< " patterns loaded");
 		return 0;
 	}
 	const char* chars = list_describtor->list[list_describtor->index]->c_str();
 	list_describtor->index = list_describtor->index + 1;
 	strncpy(out_buff, chars, max_size);
-	std::cout << "adding \"" << chars << "\"; ";
+	DBG("adding \"" << chars << "\"; ");
 	return strlen(chars);
 }
 
-void printModule (urlMatchingType& urlmatching) {
+void debugPrintModule (urlMatchingType& urlmatching) {
 	const char* prefix = "' ";
-	std::cout<<prefix<<"Index of P and V ="<<urlmatching.index+1<<STDENDL;
-	std::cout<<prefix<<"P=[";
+	DBG(prefix<<"Index of P and V ="<<urlmatching.index+1);
+	std::stringstream s1;
+	s1 <<prefix<<"P=[";
 	for (uint32_t i=0; i<=urlmatching.index+1 ; i++) {
-		std::cout<<urlmatching.P[i]<< ",";
+		s1<<urlmatching.P[i]<< ",";
 	}
-	std::cout<<"]"<<std::endl;
+	DBG(s<<"]");
 
-	std::cout<<prefix<<"V=[";
+	std::stringstream s2;
+	s2 <<prefix<<"V=[";
 	for (uint32_t i=0; i<=urlmatching.index+1 ; i++) {
-		std::cout<<urlmatching.V[i]<< ",";
+		s2 <<urlmatching.V[i]<< ",";
 	}
-	std::cout<<"]"<<std::endl;
+	DBG(s2<<"]");
 
-	std::cout<<prefix<<"matching_symbols_arr ("<<urlmatching.matching_symbols_idx<<")=[";
+	std::stringstream s3;
+	s3 <<prefix<<"matching_symbols_arr ("<<urlmatching.matching_symbols_idx<<")=[";
 	for (uint32_t i=0; i<urlmatching.matching_symbols_idx ; i++) {
-		std::cout<<urlmatching.matching_symbols_arr[i] <<"-"
+		s3 << urlmatching.matching_symbols_arr[i] <<"-"
 				<<(*urlmatching.list)[urlmatching.matching_symbols_arr[i]]->_str << ",";
 	}
-	std::cout<<"]"<<std::endl;
+	DBG(s3<<"]");
 //	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
 //		symbolT* char_to_symbol;						//array [char] = symbols
 

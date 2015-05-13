@@ -71,7 +71,7 @@ void printCounter_PC();
 						}																													\
 						id = ((pathCompressedState)[2] << 8) | (pathCompressedState)[3];													\
 					/*	pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);*/	\
-						printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);		\
+					/*	printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);	*/	\
 						patternFunc( patternTable->patterns[id][count] ,*idx,data );						\
 						pattern = concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);										\
 					}																														\
