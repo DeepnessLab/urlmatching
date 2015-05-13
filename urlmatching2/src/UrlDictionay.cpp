@@ -305,7 +305,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 		}
 	}
 	DBG("finished decode");
-	urlbuilder.print();
+//	urlbuilder.print();
 	url = urlbuilder.get_url();
 
 	return STATUS_OK;

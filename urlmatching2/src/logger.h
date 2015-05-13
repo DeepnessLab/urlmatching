@@ -14,25 +14,26 @@
 #define STR(s) #s
 #define XSTR(a) STR(a)
 
+#define DEBUG_NONE 0
 #define DEBUG_LOG 1
-//#define DEBUG_STDOUT 1
-//#define DEBUG_NONE 1
+#define DEBUG_STDOUT 2
+
+#define DEBUG_OUTPUT DEBUG_LOG
 
 #define DVAL(what) #what"="<< (what)
 #define BVAL(x) #x"="<<((x)?"true":"false")
 
-#if DEBUG_LOG > 0
+#if DEBUG_OUTPUT == DEBUG_LOG
 
 #define DBG(what) do { std::stringstream s; \
 	s << what; \
 	LOG(DEBUG) << s.str(); } while(0)\
 
-
-#elif DEBUG_STDOUT > 0
+#elif DEBUG_OUTPUT == DEBUG_STDOUT
 #define DBG(what) std::cout<< what <<std::endl
 
-#elif DEBUG_NONE > 0
-#define DBG(x) do { } while(0)
+#elif DEBUG_OUTPUT == DEBUG_NONE
+#define DBG(what) do { } while(0)
 
 #endif
 

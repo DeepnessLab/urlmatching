@@ -10,6 +10,7 @@
 #include <map>
 #include <string>
 #include <assert.h>
+#include <ctime>
 
 #include "tester.h"
 #include "Huffman.h"
@@ -18,8 +19,17 @@
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
-void test_url_dictionary_load_from_url_txt_file() {
+#define GETTIMING double(end - begin) / (CLOCKS_PER_SEC)
+#define START_TIMING 	do {begin = std::clock();} while(0)
+#define STOP_TIMING 	do {end = std::clock();} while(0)
 
+
+#define BUFFSIZE 500
+
+void test_url_dictionary_load_from_url_txt_file() {
+	using namespace std;
+
+	clock_t begin,end;
 
 //	int bytes = GetModuleFileName(NULL, pBuf, 1000);
 //	std::string path(pBuf, bytes);
@@ -36,28 +46,82 @@ void test_url_dictionary_load_from_url_txt_file() {
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
+	START_TIMING;
 	bool ret = urlc.LoadUrlsFromFile(urls_file, params, false);
+	STOP_TIMING;
+	double time_to_load = GETTIMING;
 	assert (ret);
 
-	urlc.print_database(true /*print codes*/);
+//	urlc.print_database(true /*print codes*/);
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
+	//static test - encode/decode single string
 	std::string my_string = "http://www.google.com/gmail/drive";
 	std::cout<<"matching string="<<my_string<<std::endl;
 
-//	symbolT result[1000];
-//	urlc.algo.find_patterns(my_string,result);
-
 	std::cout<<"encode string="<<my_string<<std::endl;
-	uint32_t buff_size = 100;
+	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
 	urlc.encode(my_string,codedbuff,buff_size);
 
 	std::string decoded_str;
-	urlc.decode(decoded_str,codedbuff,100);
+	urlc.decode(decoded_str,codedbuff,buff_size);
 	std::cout<<"dencoded string="<<decoded_str<<std::endl;
 
+
+	//encode/decode entire urlsfile
+	//count urls and prepare coding buffers
+	std::cout<<"reading file and allocating memory... "<<std::endl;
+	std::deque<std::string> urls;
+	std::deque<uint32_t*> codedbuffers;
+	buff_size = BUFFSIZE;
+	{
+		LineIterator lit(urls_file.c_str(),'\n');
+		while (lit.has_next() ) {
+			const raw_buffer_t &pckt = lit.next();
+			std::string str((const char *) pckt.ptr,pckt.size);
+			urls.push_back(str);
+			uint32_t* codedbuff = new uint32_t[buff_size];
+			codedbuffers.push_back(codedbuff);
+		}
+	}
+	//encode all urls
+	std::cout<<"encoding ... "<<std::endl;
+	START_TIMING;
+	for (uint32_t i = 0 ; i <100/* urls.size()*/; i++ ) {
+		buff_size = BUFFSIZE;
+		uint32_t* codedbuff = codedbuffers[i];
+		urlc.encode(urls[i],codedbuff,buff_size);
+		if (i%500 == 0)
+			std::cout<<"  at "<<i<<std::endl;
+	}
+	STOP_TIMING;
+	double time_to_encode = GETTIMING;
+
+	//decode all urls
+	std::cout<<"decoding ... "<<std::endl;
+	START_TIMING;
+	for (uint32_t i = 0 ; i <100/* urls.size()*/; i++ ) {
+
+		buff_size = BUFFSIZE;
+		uint32_t* codedbuff = codedbuffers[i];
+		std::string decoded_str;
+		urlc.decode(decoded_str,codedbuff,buff_size);
+		if (i%500 == 0)
+					std::cout<<"  at "<<i<<std::endl;
+	}
+	STOP_TIMING;
+	double time_to_decode = GETTIMING;
+
+	uint32_t size = urls.size();
+
+
+	//printing stats
+	std::cout<<"Printing stats:"<<std::endl;
+	std::cout<<DVAL(time_to_load) 	<< "ms, average="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+	std::cout<<DVAL(time_to_encode) << "ms, average="<< double(time_to_encode/size) <<"ms"<< STDENDL;
+	std::cout<<DVAL(time_to_decode )<< "ms, average="<< double(time_to_decode/size) <<"ms"<< STDENDL;
 }
 
 
