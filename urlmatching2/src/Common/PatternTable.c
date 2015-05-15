@@ -130,4 +130,5 @@ void patterntable_update_pattern(PatternTable *table, STATE_PTR_TYPE_WIDE source
 	if (freeOld) {
 		free(old);
 	}
+	free(new);	//memory leak fix
 }
