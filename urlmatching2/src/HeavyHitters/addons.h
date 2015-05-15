@@ -1,7 +1,7 @@
 /*
  * addons.h
  *
- *  Created on: 1 боай 2015
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2015
  *      Author: Daniel
  */
 
@@ -27,7 +27,7 @@ memmem(const void *l, size_t l_len, const void *s, size_t s_len)
 
 	/* special case where s_len == 1 */
 	if (s_len == 1)
-		return memchr(l, (int)*cs, l_len);
+		return memchr((void*) l, (int)*cs, l_len);
 
 	/* the last position where its possible to find "s" in "l" */
 	last = (char *)cl + l_len - s_len;

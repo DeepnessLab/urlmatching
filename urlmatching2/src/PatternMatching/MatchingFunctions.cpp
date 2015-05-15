@@ -2,7 +2,7 @@
  * MatchingFunctions.cpp
 
  *
- *  Created on: 8 áãöî 2014
+ *  Created on: 8 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -15,16 +15,30 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		uint32_t idx_of_last_char, urlMatchingType& url_module) {
 	//assuming here the patterns are in decreasing length order (the longest is the first)
 	DBG("go_over_all_patterns for \"" << string_with_patterns <<"\"");
-	char* s = new char[strlen(string_with_patterns)];
+	char buffer[1000];
+	char* s =buffer;
+
+	bool deleted = false
+	if (strlen(string_with_patterns) => 1000) {
+
+		s = new char[strlen(string_with_patterns)];
+	}
+
+
 	strcpy(s, string_with_patterns);
 	char* tk = strtok(s, delimiter);
+	int counter = 0;
 	while (tk != NULL) {
 		patternsMapType::iterator ret = url_module.patternDB->find(tk);
-		assert (ret != url_module.patternDB->end());
+		if (ret == url_module.patternDB->end()) {
+			DBG("daniel " << DVAL(tk) << " " << DVAL (string_with_patterns)<< " " << DVAL (counter));
+			assert(ret == url_module.patternDB->end());
+		}
 		symbolT s = ret->second;
 		updateModule(url_module,s,idx_of_last_char);
 		DBG(" > Added \"" << tk <<"\" at "<< idx_of_last_char);
 		tk = strtok(NULL, delimiter);
+		counter++;
 	}
 }
 
