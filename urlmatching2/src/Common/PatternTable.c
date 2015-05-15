@@ -33,6 +33,7 @@ void patterntable_destroy(PatternTable *table) {
 			free(patterns[i][j]);
 			j++;
 		}
+		free(patterns[i]);
 	}
 	free(patterns);
 	free(table);
@@ -130,4 +131,5 @@ void patterntable_update_pattern(PatternTable *table, STATE_PTR_TYPE_WIDE source
 	if (freeOld) {
 		free(old);
 	}
+	free(new);
 }

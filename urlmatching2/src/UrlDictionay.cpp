@@ -1,7 +1,7 @@
 /*
  * UrlDictionay.cpp
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -405,7 +405,7 @@ void UrlCompressor::prepare_database() {
 			freqArr[i]=pat->_frequency;
 	}
 	_huffman.load(freqArr,_nextSymbol);
-	delete freqArr;
+	delete[] freqArr;
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();

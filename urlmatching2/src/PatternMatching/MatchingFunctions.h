@@ -1,7 +1,7 @@
 /*
  * UrlMatchingFunctions.h
  *
- *  Created on: 7 áãöî 2014
+ *  Created on: 7 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -224,6 +224,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 inline
 void initModule(urlMatchingType& module) {
 	module.P[0]=0;
+	module.V[0]=0;
 	module.index=0;
 	module.list=NULL;
 	module.matching_symbols_idx=0;

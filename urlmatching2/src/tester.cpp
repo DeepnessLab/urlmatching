@@ -1,7 +1,7 @@
 /*
  * tester.cpp
  *
- *  Created on: 18 бреб 2014
+ *  Created on: 18 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -69,6 +69,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	urlc.decode(decoded_str,codedbuff,buff_size);
 	std::cout<<"dencoded string="<<decoded_str<<std::endl;
 
+	delete[] codedbuff;
 
 	//encode/decode entire urlsfile
 	//count urls and prepare coding buffers
@@ -86,10 +87,14 @@ void test_url_dictionary_load_from_url_txt_file() {
 			codedbuffers.push_back(codedbuff);
 		}
 	}
+
+	uint32_t howmanytocode;
+	howmanytocode = 1000;
+//	howmuchtocode = urls.size();
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
+	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode(urls[i],codedbuff,buff_size);
@@ -102,7 +107,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	//decode all urls
 	std::cout<<"decoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
+	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
@@ -113,6 +118,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 	STOP_TIMING;
 	double time_to_decode = GETTIMING;
+
+	//free what was never yours
+	for (uint32_t i = 0 ; i < urls.size(); i++ ) {
+		uint32_t* codedbuff = codedbuffers[i];
+		delete[] codedbuff;
+	}
 
 	uint32_t size = urls.size();
 

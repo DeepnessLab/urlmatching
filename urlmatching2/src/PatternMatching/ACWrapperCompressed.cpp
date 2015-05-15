@@ -1,7 +1,7 @@
 /*
  * ACWrapperCompressed.cpp
  *
- *  Created on: 7 бгцо 2014
+ *  Created on: 7 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -9,7 +9,7 @@
 /*
  * AhoCrosarikClassic.cpp
  *
- *  Created on: 14 бреб 2014
+ *  Created on: 14 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -124,7 +124,7 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	DBG("--- FINISH printing all patterns: ---");
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
 
-	delete list;
+	delete[] list;
 
 //	make_pattern_to_symbol_list();
 	is_loaded = true;
@@ -196,7 +196,7 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 
 	finalize_result(module,result);
 
-	delete str2;
+	delete[] str2;
 	return true;
 }
 

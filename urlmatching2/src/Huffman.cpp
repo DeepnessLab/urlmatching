@@ -1,7 +1,7 @@
 /*
  * Huffman.cpp
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -109,6 +109,24 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 //				std::ostream_iterator<bool>(std::cout));
 //		std::cout << std::endl;
 //	}
+	//bfs scan the tree and free it
+	std::deque<INode*> bfs;
+	bfs.push_back(root);
+//	while (!bfs.empty()) {
+//		INode* node = bfs.front();
+//		bfs.pop_front();
+//		if (const LeafNode* lf = dynamic_cast<const LeafNode*>(node))
+//		{
+//
+//		} else 	if (const InternalNode* in = dynamic_cast<const InternalNode*>(node)) {
+//			bfs.push_back(in->left);
+//			bfs.push_back(in->right);
+//		}
+//		delete node;
+//	}
+
+
+
 	_is_loaded=true;
 }
 
