@@ -89,7 +89,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <6000/* urls.size()*/; i++ ) {
+	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode(urls[i],codedbuff,buff_size);
@@ -102,7 +102,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	//decode all urls
 	std::cout<<"decoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <6000/* urls.size()*/; i++ ) {
+	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
 
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];

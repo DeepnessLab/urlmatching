@@ -32,7 +32,7 @@ int main()
 	logger_config_file = path + "/" + logger_config_file;
     el::Configurations conf(logger_config_file.c_str());
     // Reconfigure single logger
-    el::Loggers::reconfigureLogger("default", conf);
+//    el::Loggers::reconfigureLogger("default", conf);
     // Actually reconfigure all loggers instead
     el::Loggers::reconfigureAllLoggers(conf);
     // Now all the loggers will use configuration from file

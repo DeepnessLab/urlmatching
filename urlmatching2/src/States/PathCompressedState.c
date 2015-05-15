@@ -216,7 +216,7 @@ char *concat_strings_nofree(char *s1, char *s2) {
 }
 
 /** not malloc, no real concat*/
-inline
+//inline
 char* simple_concat_strings_nofree(char *s1, char *s2) {
 	if (s1 == NULL) {
 //		assert(s2!=NULL);
