@@ -176,10 +176,10 @@ int matchTableMachine(TableStateMachine *machine, const char *input, int length,
 		if (GET_1BIT_ELEMENT(matches, next)) {
 			// It's a match!
 			res = 1;
+			patternFunc(patterns[next],idx,data);
 #ifdef PRINT_MATCHES
 			if (verbose) {
-				patternFunc(patterns[next],idx,data);
-//				printf("%s\n", patterns[next]);
+				printf("%s\n", patterns[next]);
 #ifdef TRACE_STATE_MACHINE
 //				getc(stdin);
 #endif

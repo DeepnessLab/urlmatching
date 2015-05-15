@@ -8,13 +8,17 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
-#include <string>
+#include <string.h>
 #include <stdio.h>
 #include "easylogging++.h"
 
-#define assert(what) if (!(what)) { \
+#ifdef BUILD_DEBUG
+#define ASSERT(what) if (!(what)) { \
 	el::Loggers::flushAll();\
 	assert(what); }
+#else
+#define ASSERT(what) do {} while(0)
+#endif
 
 #define STR(s) #s
 #define XSTR(a) STR(a)

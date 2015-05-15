@@ -17,11 +17,10 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 	DBG("go_over_all_patterns for \"" << string_with_patterns <<"\"");
 	char buffer[1000];
 	char* s =buffer;
-
-	bool deleted = false
-	if (strlen(string_with_patterns) => 1000) {
-
+	bool to_delete = false;
+	if (strlen(string_with_patterns) >= 1000) {
 		s = new char[strlen(string_with_patterns)];
+		to_delete = true;
 	}
 
 
@@ -32,7 +31,7 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		patternsMapType::iterator ret = url_module.patternDB->find(tk);
 		if (ret == url_module.patternDB->end()) {
 			DBG("daniel " << DVAL(tk) << " " << DVAL (string_with_patterns)<< " " << DVAL (counter));
-			assert(ret == url_module.patternDB->end());
+			ASSERT(ret == url_module.patternDB->end());
 		}
 		symbolT s = ret->second;
 		updateModule(url_module,s,idx_of_last_char);
@@ -40,6 +39,7 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		tk = strtok(NULL, delimiter);
 		counter++;
 	}
+	if (to_delete) { delete s ;}
 }
 
 int handle_pattern(char* str, uint32_t idx, void* data) {
@@ -58,7 +58,7 @@ int handle_pattern(char* str, uint32_t idx, void* data) {
 		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
 
-	assert(url_module!=NULL);
+	ASSERT(url_module!=NULL);
 	update_for_all_patterns(";", str, idx,*url_module);
 	std::string real_str(str);
 

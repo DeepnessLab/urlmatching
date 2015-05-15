@@ -172,7 +172,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 		char *p = strtok(chars, SEPERATOR);
 		if (p) {
 			symbol= atoi(p);
-			assert(symbol!=0); //0 is saved for S_NULL
+			ASSERT(symbol!=0); //0 is saved for S_NULL
 			p = strtok(NULL, SEPERATOR);
 		} else
 			return false;
@@ -185,7 +185,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 			patternStr.assign(p);
 		} else
 			return false;
-		assert(symbol==symbol_counter);
+		ASSERT(symbol==symbol_counter);
 		Pattern* patt = new Pattern(symbol,frequency,patternStr);
 		_symbol2pattern_db[symbol]=patt;
 		_strings_to_symbols[patternStr]=symbol;
@@ -198,7 +198,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 	uint32_t* freqArr = new uint32_t[symbol_counter];
 	for (uint32_t i=0; i<symbol_counter;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
-			assert(pat->_symbol == i);
+			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
 	}
 	_huffman.load(freqArr,symbol_counter);
@@ -214,7 +214,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
 UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
-	assert (buf_size > 2);
+	ASSERT (buf_size > 2);
 
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -258,7 +258,7 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 }
 
 UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size) {
-	assert (in_buf_size > 2);
+	ASSERT (in_buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
 	}
@@ -365,7 +365,7 @@ void UrlCompressor::init(uint32_t reserved_size) {
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
 //	_symbol2pattern_db_size=1;
 	_nextSymbol = 1;
-	assert (_nextSymbol == getDBsize() );
+	ASSERT (_nextSymbol == getDBsize() );
 	setLoaded();
 }
 
@@ -376,8 +376,8 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 	_strings_to_symbols[str]=_nextSymbol;
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
-	assert (_nextSymbol == _symbol2pattern_db.size());
-	assert ((ret + 1) == _nextSymbol );
+	ASSERT (_nextSymbol == _symbol2pattern_db.size());
+	ASSERT ((ret + 1) == _nextSymbol );
 	return ret;
 }
 
@@ -401,7 +401,7 @@ void UrlCompressor::prepare_database() {
 	uint32_t* freqArr = new uint32_t[_nextSymbol];
 	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
-			assert(pat->_symbol == i);
+			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
 	}
 	_huffman.load(freqArr,_nextSymbol);
