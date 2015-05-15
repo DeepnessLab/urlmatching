@@ -1,7 +1,7 @@
 /*
  * logger.h
  *
- *  Created on: 9 боай 2015
+ *  Created on: 9 пїЅпїЅпїЅпїЅ 2015
  *      Author: Daniel
  */
 
@@ -9,7 +9,12 @@
 #define LOGGER_H_
 
 #include <string>
+#include <stdio.h>
 #include "easylogging++.h"
+
+#define assert(what) if (!(what)) { \
+	el::Loggers::flushAll();\
+	assert(what); }
 
 #define STR(s) #s
 #define XSTR(a) STR(a)
