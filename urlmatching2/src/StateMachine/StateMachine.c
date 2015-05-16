@@ -9,6 +9,7 @@
 #include <stdlib.h>
 //#include <string.h>
 #include <math.h>
+#include <assert.h>
 #include "../Common/BitArray/BitArray.h"
 
 #include "../Common/Flags.h"
@@ -23,7 +24,9 @@
 
 
 
-inline int getNextState(StateMachine *machine, State *current, char *str, int length, int *idx, NextStateResult *result, int verbose) {
+inline int getNextState(StateMachine *machine, State *current, char *str, int length
+		, int *idx, NextStateResult *result, int verbose)
+{
 	StateHeader *header = (StateHeader*)current;
 
 	switch (header->type) {
@@ -66,7 +69,8 @@ int getStateID(State *state) {
 	return FALSE;
 }
 
-int matchRecursive(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose) {
+int matchRecursive(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose)
+{
 	State *nextState;
 	int res;
 	NextStateResult next;
@@ -116,8 +120,8 @@ int matchRecursive(StateMachine *machine, char *input, int length, int *idx, Sta
 }
 
 
-int matchIterative(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose, MachineStats *stats
-		, callBackWithPattern handlePatternFunc, void* data) {
+int matchIterative(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose, MachineStats *stats)
+{
 	State *nextState;
 	int res;
 	NextStateResult next;
@@ -210,15 +214,17 @@ int matchIterative(StateMachine *machine, char *input, int length, int *idx, Sta
 			case STATE_TYPE_PATH_COMPRESSED:
 //				getNextState_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
 //						, patternFunc, data);	//made this function inline instead of the macro
-				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
-						, handlePatternFunc, data);	//know memory leak here
+				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose);	//know memory leak here
 				//TODO: insert handlePatternFunc to other options below and remove the concat_no_free inside
 				break;
 			case STATE_TYPE_LINEAR_ENCODED:
-				getNextState_LE(s, input, length, idx, &next, machine, machine->patternTable, verbose);
+				getNextState_LE(s, input, length, idx, &next, machine, machine->patternTable, verbose
+						);
 				break;
 			case STATE_TYPE_BITMAP_ENCODED:
-				getNextState_BM(s, input, length, idx, &next, machine, machine->patternTable, verbose);
+				// insert callBackWithPattern patternFunc
+				getNextState_BM(s, input, length, idx, &next, machine, machine->patternTable, verbose
+						);
 				break;
 			}
 
@@ -309,15 +315,18 @@ int matchIterativeSimple(StateMachine *machine, char *input, int length, int *id
 	return res;
 }
 
-int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats
-		, callBackWithPattern patternFunc, void* data) {
+int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats)
+{
+	//matching should not be possible if data for matching data not provided.
+	assert (machine->handlePatternData != NULL);
 	int idx = 0;
 	//return matchRecursive(machine, input, length, &idx, machine->states->table[0], verbose);
 	if (machine->isSimple) {
 		return matchIterativeSimple(machine, input, length, &idx, machine->states->table[0], verbose, stats);
 	} else {
-		return matchIterative(machine, input, length, &idx, machine->states->table[0], verbose, stats
-				, patternFunc, data);
+		return matchIterative(machine, input, length, &idx, machine->states->table[0], verbose, stats);
+	//make sure next call won't reuse this buffer by default
+	machine->handlePatternData = NULL;
 	}
 }
 

@@ -34,11 +34,13 @@ typedef struct {
 #ifdef PRINT_COMPRESSED_MACHINE
 	int *depthmap;
 #endif
+	// members for handling the matched pattersn
+	callBackWithPattern handlePatternFunc;
+	void* handlePatternData;
 } StateMachine;
 
 //int getNextState(StateMachine *machine, State *current, char *str, int length, int *idx, NextStateResult *result);
-int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats
-		, callBackWithPattern patternFunc, void* data);
+int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats);
 void compressStateTable(StateMachine *machine);
 int getStateID(State *state);
 #ifdef COUNT_CALLS

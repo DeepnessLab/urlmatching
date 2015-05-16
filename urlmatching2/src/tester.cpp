@@ -89,15 +89,20 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 
 	uint32_t howmanytocode;
-	howmanytocode = 1000;
-//	howmuchtocode = urls.size();
+//	howmanytocode = 1000;
+	howmanytocode = urls.size();
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
+	uint32_t decoded_size = 0;
+	uint32_t encoded_size = 0;
+
 	START_TIMING;
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode(urls[i],codedbuff,buff_size);
+		decoded_size+=urls[i].length();
+		encoded_size+=buff_size;
 		if (i%500 == 0)
 			std::cout<<"  at "<<i<<std::endl;
 	}
@@ -133,6 +138,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<DVAL(time_to_load) 	<< "ms, average="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<DVAL(time_to_encode) << "ms, average="<< double(time_to_encode/size) <<"ms"<< STDENDL;
 	std::cout<<DVAL(time_to_decode )<< "ms, average="<< double(time_to_decode/size) <<"ms"<< STDENDL;
+	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) <<STDENDL;
 }
 
 

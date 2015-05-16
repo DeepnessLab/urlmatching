@@ -123,6 +123,7 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	}
 	DBG("--- FINISH printing all patterns: ---");
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
+	_machine->handlePatternFunc = handle_pattern;
 
 	delete[] list;
 
@@ -192,8 +193,12 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 //			TRUE, NULL, NULL, NULL, NULL 	//all others are statistics - use NULL
 //			,handle_pattern, &module);	//use patterncollector
 	MachineStats stats;
-	match(_machine,/*(char *)*/ str2, strlen(str), 1, &stats , handle_pattern, &module);
-
+	_machine->handlePatternFunc = handle_pattern;
+	_machine->handlePatternData = &module;
+	//to support multithreaded - make a copy of _machine and set its handlePatternData member
+	match(_machine,/*(char *)*/ str2, strlen(str)
+			, 1 /* verbose to make matching call handlePatternFunc when a pattern is found*/
+			, &stats);
 	finalize_result(module,result);
 
 	delete[] str2;

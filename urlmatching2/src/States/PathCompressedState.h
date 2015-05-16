@@ -23,7 +23,8 @@ int getSizeInBytes_PC(State *state);
 State *getNextStatePointer_PC(State *pathCompressedState);
 int getAllNextStates_PC(State *state, int *next);
 
-char *concat_strings_nofree(char *s1, char *s2);
+char* concat_strings_nofree(char *s1, char *s2);
+char* simple_concat_strings_nofree(char *s1, char *s2);
 
 #ifdef COUNT_CALLS
 void printCounter_PC();
@@ -33,7 +34,7 @@ void printCounter_PC();
 
 #define GOTO_IDX 6
 
-#define GET_NEXT_STATE_PC(pathCompressedState, str, slen, idx, result, machine, patternTable, verbose, patternFunc, data) 										\
+#define GET_NEXT_STATE_PC(pathCompressedState, str, slen, idx, result, machine, patternTable, verbose) 										\
 	do {																																	\
 		StateHeader *header;																												\
 		int i, j, count, plength, failed, matched , id;																						\
@@ -72,8 +73,8 @@ void printCounter_PC();
 						id = ((pathCompressedState)[2] << 8) | (pathCompressedState)[3];													\
 					/*	pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);*/	\
 					/*	printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);	*/	\
-						patternFunc( patternTable->patterns[id][count] ,*idx,data );						\
-						pattern = concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);		/* known memory leak */			\
+						machine->handlePatternFunc( patternTable->patterns[id][count] ,*idx, machine->handlePatternData );						\
+						pattern = simple_concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);		/* known memory leak */			\
 					}																														\
 				}																															\
 				(*(idx)) = (*(idx)) + 1;																									\
