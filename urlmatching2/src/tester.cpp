@@ -38,7 +38,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 	getWorkingDirectory(path);
 	std::cout<<"running from path="<<path<<std::endl;
 
-	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/9000_urls_100times.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/file.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
@@ -103,7 +105,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 		urlc.encode(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
-		if (i%500 == 0)
+		if (i%1000 == 0)
 			std::cout<<"  at "<<i<<std::endl;
 	}
 	STOP_TIMING;
@@ -118,7 +120,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 		uint32_t* codedbuff = codedbuffers[i];
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (i%500 == 0)
+		if (i%1000 == 0)
 					std::cout<<"  at "<<i<<std::endl;
 	}
 	STOP_TIMING;
@@ -134,13 +136,23 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 
 	//printing stats
-	std::cout<<"Printing stats:"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "ms, average="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
-	std::cout<<DVAL(time_to_encode) << "ms, average="<< double(time_to_encode/size) <<"ms"<< STDENDL;
-	std::cout<<DVAL(time_to_decode )<< "ms, average="<< double(time_to_decode/size) <<"ms"<< STDENDL;
+	// remember 1 B/ms == 1KB / sec
+	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
+	std::cout<<"--------------"<<std::endl;
+	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
+			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+	std::cout<<"Online compression: "<<STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_encode/size) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_decode/size) <<"ms"<< STDENDL;
+	std::cout<<"Offline compression (load & encode all urls)\n  ~ "<< double((double) (size/(time_to_load+time_to_encode)))*8/1024
+			<<" Mb/s"<<STDENDL;
 	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) <<STDENDL;
+	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
+	const HeavyHittersStats* stats = urlc.get_stats();
+	stats->print();
 }
 
 

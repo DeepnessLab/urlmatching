@@ -1,7 +1,7 @@
 /*
  * UrlDictionay.h
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -36,6 +36,30 @@ typedef struct HeavyHittersParams {
 	size_t kgrams_size;
 } HeavyHittersParams_t;
 
+typedef struct HeavyHittersStats {
+	uint32_t number_of_symbols;
+	uint32_t number_of_patterns;
+	uint32_t number_of_urls;
+	HeavyHittersParams_t params;
+	bool params_set;
+
+	void reset() {
+		number_of_patterns = 0;
+		number_of_symbols = 0;
+		number_of_urls = 0;
+		params_set = false;
+	}
+
+	void reset(const HeavyHittersParams_t& params_) {
+		reset();
+		params = params_;
+		params_set = true;
+	}
+
+	void print() const ;
+
+} HeavyHittersStats_t;
+
 extern HeavyHittersParams_t default_hh_params;
 
 class UrlCompressor {
@@ -68,6 +92,8 @@ public:
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
+
+	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
 
 
 	struct patternsIterator {
@@ -111,7 +137,7 @@ public:
 	ACWrapperCompressed algo;
 	bool _is_loaded;
 	symbolT _nextSymbol;
-
+	HeavyHittersStats_t _statistics;
 
 
 };

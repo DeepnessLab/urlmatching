@@ -78,6 +78,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 									const  bool contains_basic_symbols)
 {
 	init();
+	_statistics.reset(params);
 
 	/*
 	 * - create all 'single char' patterns in db
@@ -94,8 +95,10 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 			frequencies[i]=1;
 
 		LineIterator lit(file_path.c_str(),'\n');
+		int line=0;
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
+			std::cout<<"at line "<< line++<<STDENDL;
 			uchar* p = pckt.ptr;
 			for (uint32_t i = 0 ; i < pckt.size; i++) {
 				uchar c = *p;
@@ -131,6 +134,8 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
+	_statistics.number_of_patterns = patterns_counter;
+	_statistics.number_of_urls = urls_count;
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
@@ -365,6 +370,7 @@ void UrlCompressor::init(uint32_t reserved_size) {
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
 //	_symbol2pattern_db_size=1;
 	_nextSymbol = 1;
+	_statistics.reset();
 	ASSERT (_nextSymbol == getDBsize() );
 	setLoaded();
 }
@@ -410,7 +416,18 @@ void UrlCompressor::prepare_database() {
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	_statistics.number_of_symbols = _symbol2pattern_db.size();
 
 }
 
 
+
+void HeavyHittersStats::print() const {
+	std::cout<<  DVAL(number_of_symbols)<<STDENDL;
+	std::cout<<  DVAL(number_of_patterns)<<STDENDL;
+	std::cout<<  DVAL(number_of_urls)<<STDENDL;
+	if (params_set) {
+		std::cout<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
+		std::cout<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
+	}
+}

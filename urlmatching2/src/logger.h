@@ -27,7 +27,12 @@
 #define DEBUG_LOG 1
 #define DEBUG_STDOUT 2
 
-#define DEBUG_OUTPUT DEBUG_LOG
+#ifdef BUILD_DEBUG
+#define DEBUG_OUTPUT DEBUG_NONE
+#else
+#define DEBUG_OUTPUT DEBUG_NONE
+#endif
+
 
 #define DVAL(what) #what"="<< (what)
 #define BVAL(x) #x"="<<((x)?"true":"false")
