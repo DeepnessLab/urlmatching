@@ -43,10 +43,10 @@
 	s << what; \
 	LOG(DEBUG) << s.str(); } while(0)\
 
-#elif DEBUG_OUTPUT == DEBUG_STDOUT
+#elif DEBUG_OUTPUT == DBG_TO_STDOUT
 #define DBG(what) std::cout<< what <<std::endl
 
-#elif DEBUG_OUTPUT == DEBUG_NONE
+#elif DEBUG_OUTPUT == DBG_TO_NONE
 #define DBG(what) do { } while(0)
 
 #endif

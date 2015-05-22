@@ -21,7 +21,7 @@ void UrlBuilder::append (symbolT symbol) {
 	_url.append(_symbol2pattern_db[symbol]->_str);
 }
 
-void UrlBuilder::print() {
+void UrlBuilder::debug_print() {
 	DBG( "UrlBuilder::print -" << DVAL(_url) << ", " <<DVAL(_symbol_deque.size()));
 	std::stringstream s0;
 	s0 << "string: " ;

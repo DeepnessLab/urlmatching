@@ -150,7 +150,7 @@ public:
 	virtual void reset() {_url.empty(); }
 	virtual void append (symbolT symbol);
 	virtual std::string get_url() {return _url; }
-	virtual void print();
+	virtual void debug_print();
 
 private:
 	typedef std::deque<symbolT> SymbolDeque ;

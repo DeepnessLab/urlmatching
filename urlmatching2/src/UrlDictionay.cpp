@@ -274,9 +274,10 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	uint32_t i;
 	for (i=1 /*[0] was number of coded bits*/; i < in_buf_size; i++) {
 		uint32_t buf = in_encoded_buf[i];
+#ifdef BUILD_DEBUG
 		std::bitset<32> x(buf);
 		DBG(" buf="<<x);
-
+#endif
 		for (uint16_t j=0; j < BITS_IN_UINT32_T ; j++) {
 			uint32_t bit = buf & most_left_bit;
 			if (bit == 0) { 	// 0
@@ -300,15 +301,13 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 					break; 				//break this loop
 				}
 			}
-
 			if (num_of_left_bits_to_read == 0) {
 				return STATUS_ERR_LOST_DECODED_DATA;
 			}
-
 		}
 	}
 	DBG("finished decode");
-	urlbuilder.print();
+	urlbuilder.debug_print();
 	url = urlbuilder.get_url();
 
 	return STATUS_OK;
