@@ -37,12 +37,11 @@
 #define DVAL(what) #what"="<< (what)
 #define BVAL(x) #x"="<<((x)?"true":"false")
 
-#if DEBUG_OUTPUT == DEBUG_LOG
+#if DEBUG_OUTPUT == DBG_TO_LOG
 
 #define DBG(what) do { std::stringstream s; \
 	s << what; \
-	LOG(DEBUG) << s.str(); } while(0)\
-
+	LOG(DEBUG) << s.str(); } while(0)
 #elif DEBUG_OUTPUT == DBG_TO_STDOUT
 #define DBG(what) std::cout<< what <<std::endl
 
