@@ -23,14 +23,14 @@
 #define STR(s) #s
 #define XSTR(a) STR(a)
 
-#define DEBUG_NONE 0
-#define DEBUG_LOG 1
-#define DEBUG_STDOUT 2
+#define DBG_TO_NONE 0
+#define DBG_TO_LOG 1
+#define DBG_TO_STDOUT 2
 
 #ifdef BUILD_DEBUG
-#define DEBUG_OUTPUT DEBUG_NONE
+#define DEBUG_OUTPUT DBG_TO_LOG
 #else
-#define DEBUG_OUTPUT DEBUG_NONE
+#define DEBUG_OUTPUT DBG_TO_NONE
 #endif
 
 

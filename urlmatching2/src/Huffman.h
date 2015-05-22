@@ -82,7 +82,7 @@ public:
 	void print();
 
 	HuffCode encode(uint32_t symbol);
-	uint32_t decode(HuffCode code);
+	bool decode(HuffCode code, symbolT& out_decoded_symbol);
 
 	inline
 	void printHuffCode(HuffCode* code) {

@@ -220,15 +220,12 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
 UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
-
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
 	}
-
 	//find patterns cover over url
 	symbolT result[MAX_URL_LENGTH];
 	algo.find_patterns(url,result);
-
 
 	uint32_t reset_mask = 1 << (BITS_IN_UINT32_T -1 );
 	uint32_t mask = reset_mask;
@@ -258,7 +255,7 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 		}
 		symbol++;
 	}
-	buf_size = i;
+	buf_size = i + 1; //convert from last used space to size
 	return STATUS_OK;
 }
 
@@ -290,8 +287,9 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 			num_of_left_bits_to_read--;
 			buf = buf << 1;	//shift left buf
 //			DBG(s);
-			symbolT symbol = _huffman.decode(huff_code);
-			if (symbol != S_NULL) {
+			symbolT symbol ;
+			bool found = _huffman.decode(huff_code,symbol);
+			if (found) {
 // these are only for debugging:
 //				std::string code = _huffman.HuffCode_str(&huff_code);;
 //				std::cout<<"code="<<code<<"; "<<_symbol2pattern_db[symbol]->_str<<STDENDL;
@@ -310,7 +308,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 		}
 	}
 	DBG("finished decode");
-//	urlbuilder.print();
+	urlbuilder.print();
 	url = urlbuilder.get_url();
 
 	return STATUS_OK;

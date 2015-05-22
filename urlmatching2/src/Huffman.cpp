@@ -50,14 +50,15 @@ HuffCode Huffman::encode(uint32_t symbol) {
 	return _codes[symbol];
 }
 
-uint32_t Huffman::decode(HuffCode code) {
+bool Huffman::decode(HuffCode code, symbolT& symbol) {
 	assert(_is_loaded);
 	HuffSymbMap::iterator it;
 	it = _codes2symbols.find(code);
 	if (it == _codes2symbols.end()) {
-		return S_NULL;
+		return false;
 	}
-	return it->second;
+	symbol = it->second;
+	return true;
 }
 
 void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes)

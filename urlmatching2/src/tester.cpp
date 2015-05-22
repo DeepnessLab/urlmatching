@@ -38,8 +38,8 @@ void test_url_dictionary_load_from_url_txt_file() {
 	getWorkingDirectory(path);
 	std::cout<<"running from path="<<path<<std::endl;
 
-	std::string urls_file = "test_files/9000_urls_100times.txt";
-//	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/9000_urls_100times.txt";
+	std::string urls_file = "test_files/9000_urls.txt";
 //	std::string urls_file = "test_files/file.txt";
 	path = path + urls_file;
 
@@ -49,10 +49,10 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 	UrlCompressor urlc;
 	START_TIMING;
-	bool ret = urlc.LoadUrlsFromFile(urls_file, params, false);
+	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
-	assert (ret);
+	assert (retB);
 
 //	urlc.print_database(true /*print codes*/);
 
@@ -68,8 +68,15 @@ void test_url_dictionary_load_from_url_txt_file() {
 	urlc.encode(my_string,codedbuff,buff_size);
 
 	std::string decoded_str;
-	urlc.decode(decoded_str,codedbuff,buff_size);
+	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
+	if (ret != STATUS_OK)
+		std::cout<<"ERROR DECODING: "<<ret<<STDENDL;
 	std::cout<<"dencoded string="<<decoded_str<<std::endl;
+	if (my_string != decoded_str) {
+		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+		return;
+	}
 
 	delete[] codedbuff;
 
@@ -91,8 +98,8 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 
 	uint32_t howmanytocode;
-//	howmanytocode = 1000;
-	howmanytocode = urls.size();
+	howmanytocode = 1000;
+//	howmanytocode = urls.size();
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
 	uint32_t decoded_size = 0;
@@ -106,7 +113,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
 		if (i%1000 == 0)
-			std::cout<<"  at "<<i<<std::endl;
+			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
 	double time_to_encode = GETTIMING;
@@ -121,7 +128,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
 		if (i%1000 == 0)
-					std::cout<<"  at "<<i<<std::endl;
+					std::cout<<"  decoding passed "<<i<<std::endl;
+		if (decoded_str != urls[i]) {
+			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+			std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+			return;
+		}
 	}
 	STOP_TIMING;
 	double time_to_decode = GETTIMING;
