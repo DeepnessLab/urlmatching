@@ -244,7 +244,7 @@ void setStateData_BM(State *state, uchar *chars, STATE_PTR_TYPE *gotos, short *p
 		}																\
 	} while (0);
 
-int getNextState_BM(State *bitmapEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
+int getNextState_BM(State *bitmapEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
 {
 	uchar c;
 	StateHeader *header;

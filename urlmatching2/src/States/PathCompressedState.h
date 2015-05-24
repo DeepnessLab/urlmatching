@@ -74,7 +74,7 @@ void printCounter_PC();
 					/*	pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);*/	\
 					/*	printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);	*/	\
 						machine->handlePatternFunc( patternTable->patterns[id][count] ,*idx, machine->handlePatternData );						\
-						pattern = simple_concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);		/* known memory leak */			\
+						pattern = simple_concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);								\
 					}																														\
 				}																															\
 				(*(idx)) = (*(idx)) + 1;																									\

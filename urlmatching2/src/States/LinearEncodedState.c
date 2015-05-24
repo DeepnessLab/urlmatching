@@ -167,7 +167,7 @@ void setStateData_LE(State *state, uchar *chars, STATE_PTR_TYPE *gotos, short *p
 	}
 }
 
-int getNextState_LE(State *linearEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
+int getNextState_LE(State *linearEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
 {
 	uchar c;
 	StateHeader *header;

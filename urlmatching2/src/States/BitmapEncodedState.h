@@ -14,7 +14,7 @@
 
 // chars, gotos, matches are expected to be sorted by chars alphabetically order
 //State *createState_BM(int size, char *chars, STATE_PTR_TYPE *gotos, int *matches, STATE_PTR_TYPE failure);
-int getNextState_BM(State *bitmapEncodedState, char *str, int length, int *idx, NextStateResult *result
+int getNextState_BM(State *bitmapEncodedState, const char *str, int length, int *idx, NextStateResult *result
 		, StateMachine *machine, PatternTable *patternTable, int verbose);
 void printState_BM(State *state);
 State *createEmptyState_BM(int id, int size, int numPtrsToFirstOrSecondLevel);

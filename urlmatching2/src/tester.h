@@ -28,9 +28,20 @@ void getWorkingDirectory(std::string& out ) {
 }
 
 
-#define RUN_TEST(name) std::cout<<"TEST \""<<#name<<"\" STARTED now" << std::endl; \
+#define GETTIMING double(end - begin) / (CLOCKS_PER_SEC)
+#define START_TIMING 	do {begin = std::clock();} while(0)
+#define STOP_TIMING 	do {end = std::clock();} while(0)
+#define PREPARE_TIMING clock_t begin,end
+
+
+#define RUN_TEST(name) PREPARE_TIMING; \
+	std::cout<<"TEST \""<<#name<<"\" STARTED now" << std::endl; \
+	START_TIMING ; \
 	name(); \
-	std::cout<<"TEST \""<<#name<<"\" ENDED" << std::endl;
+	STOP_TIMING; \
+	double test_time = GETTIMING; \
+	std::cout<<"TEST \""<<#name<<"\" ENDED, took " << test_time / 60 << " min."<< std::endl;
+
 
 class UrlCompressor;
 

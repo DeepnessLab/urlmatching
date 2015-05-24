@@ -13,7 +13,7 @@
 #include "../Common/Types.h"
 
 //State *createState_LE(int size, char *chars, STATE_PTR_TYPE *gotos, int *matches, STATE_PTR_TYPE failure);
-int getNextState_LE(State *linearEncodedState, char *str, int length, int *idx, NextStateResult *result
+int getNextState_LE(State *linearEncodedState, const char *str, int length, int *idx, NextStateResult *result
 		, StateMachine *machine, PatternTable *patternTable, int verbose);
 void printState_LE(State *state);
 State *createEmptyState_LE(int id, int size, int numPtrsToFirstOrSecondLevel);

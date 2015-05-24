@@ -120,7 +120,7 @@ int matchRecursive(StateMachine *machine, char *input, int length, int *idx, Sta
 }
 
 
-int matchIterative(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose, MachineStats *stats)
+int matchIterative(StateMachine *machine, const char *input, int length, int *idx, State *s, int verbose, MachineStats *stats)
 {
 	State *nextState;
 	int res;
@@ -212,8 +212,6 @@ int matchIterative(StateMachine *machine, char *input, int length, int *idx, Sta
 			}
 				break;
 			case STATE_TYPE_PATH_COMPRESSED:
-//				getNextState_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose
-//						, patternFunc, data);	//made this function inline instead of the macro
 				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose);	//know memory leak here
 				//TODO: insert handlePatternFunc to other options below and remove the concat_no_free inside
 				break;
@@ -256,7 +254,7 @@ int matchIterative(StateMachine *machine, char *input, int length, int *idx, Sta
 }
 
 
-int matchIterativeSimple(StateMachine *machine, char *input, int length, int *idx, State *s, int verbose, MachineStats *stats) {
+int matchIterativeSimple(StateMachine *machine, const char *input, int length, int *idx, State *s, int verbose, MachineStats *stats) {
 	State *nextState;
 	int res, id;
 	NextStateResult next;
@@ -315,7 +313,7 @@ int matchIterativeSimple(StateMachine *machine, char *input, int length, int *id
 	return res;
 }
 
-int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats)
+int match(StateMachine *machine,const char *input, int length, int verbose, MachineStats *stats)
 {
 	//matching should not be possible if data for matching data not provided.
 	assert (machine->handlePatternData != NULL);

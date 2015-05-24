@@ -185,7 +185,6 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	module.list = _patternsList;
 
 	const char* str = input_str.c_str();
-	char* str2= new char[strlen(input_str.c_str())+10];
 
 	//TODO: insert the following into input string to init
 	module.input_string = (char *) str;
@@ -194,20 +193,15 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	module.matching_symbols_arr[module.matching_symbols_idx] = symbol_of_first_char;
 	module.matching_symbols_idx++;
 
-	strcpy(str2,str);
-//	matchTableMachine(_machine, str, strlen(str),
-//			TRUE, NULL, NULL, NULL, NULL 	//all others are statistics - use NULL
-//			,handle_pattern, &module);	//use patterncollector
 	MachineStats stats;
 	_machine->handlePatternFunc = handle_pattern;
 	_machine->handlePatternData = &module;
 	//to support multithreaded - make a copy of _machine and set its handlePatternData member
-	match(_machine,/*(char *)*/ str2, strlen(str)
+	match(_machine,/*(char *)*/ str, strlen(str)
 			, 1 /* verbose to make matching call handlePatternFunc when a pattern is found*/
 			, &stats);
 	finalize_result(module,result);
 
-	delete[] str2;
 	return true;
 }
 

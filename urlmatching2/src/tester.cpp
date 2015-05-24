@@ -19,9 +19,6 @@
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
-#define GETTIMING double(end - begin) / (CLOCKS_PER_SEC)
-#define START_TIMING 	do {begin = std::clock();} while(0)
-#define STOP_TIMING 	do {end = std::clock();} while(0)
 
 
 #define BUFFSIZE 500
@@ -29,7 +26,7 @@
 void test_url_dictionary_load_from_url_txt_file() {
 	using namespace std;
 
-	clock_t begin,end;
+	PREPARE_TIMING;
 
 //	int bytes = GetModuleFileName(NULL, pBuf, 1000);
 //	std::string path(pBuf, bytes);
@@ -39,12 +36,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-//	std::string urls_file = "test_files/9000_urls.txt";
-	std::string urls_file = "test_files/blacklist_syn.txt";
+	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 4000, n2: 4000, r: 0.7, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.7, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -85,6 +82,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"reading file and allocating memory... "<<std::endl;
 	std::deque<std::string> urls;
 	std::deque<uint32_t*> codedbuffers;
+	uint32_t total_input_size = 0;
 	buff_size = BUFFSIZE;
 	{
 		LineIterator lit(urls_file.c_str(),'\n');
@@ -97,15 +95,16 @@ void test_url_dictionary_load_from_url_txt_file() {
 				urls.push_back(str);
 				uint32_t* codedbuff = new uint32_t[str.length()];
 				codedbuffers.push_back(codedbuff);
+				total_input_size += str.length();
 			}
 		}
 	}
 
-	uint32_t start_at = 100000;
+	uint32_t start_at = 0;
 	uint32_t howmanytocode;
-	howmanytocode = 100000;
-//	howmanytocode = urls.size()-2 ;
-	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 2  : howmanytocode;	//protection
+//	howmanytocode = 50000;
+	howmanytocode = urls.size()-1 ;
+	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 1  : howmanytocode;	//protection
 
 	uint32_t status_every = howmanytocode /10;
 
@@ -162,6 +161,27 @@ void test_url_dictionary_load_from_url_txt_file() {
 	// remember 1 B/ms == 1KB / sec
 	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
 	std::cout<<"--------------"<<std::endl;
+	std::cout<<DVAL(time_to_load) 	<< "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(size/time_to_encode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(size/time_to_decode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
+			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
+			<<" Mb/s"<<STDENDL;
+	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
+	const HeavyHittersStats* stats = urlc.get_stats();
+	stats->print();
+
+/*
+	//printing stats
+	// remember 1 B/ms == 1KB / sec
+	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
+	std::cout<<"--------------"<<std::endl;
 	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
@@ -170,13 +190,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
 			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
-			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
+			<< double((double) ( (double) total_input_size / (time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
 			<<" Mb/s"<<STDENDL;
 	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
 	const HeavyHittersStats* stats = urlc.get_stats();
-	stats->print();
+	stats->print();*/
 }
 
 

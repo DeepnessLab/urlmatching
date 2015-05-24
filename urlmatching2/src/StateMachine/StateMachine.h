@@ -40,7 +40,7 @@ typedef struct {
 } StateMachine;
 
 //int getNextState(StateMachine *machine, State *current, char *str, int length, int *idx, NextStateResult *result);
-int match(StateMachine *machine, char *input, int length, int verbose, MachineStats *stats);
+int match(StateMachine *machine, const char *input, int length, int verbose, MachineStats *stats);
 void compressStateTable(StateMachine *machine);
 int getStateID(State *state);
 #ifdef COUNT_CALLS
