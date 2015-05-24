@@ -71,7 +71,7 @@ void calcViPi(urlMatchingType& module) {
 
 	//calc V[index4PV] according to module.matching_symbols_arr[0]
 	ASSERT (index4PV < MAX_URL_LENGTH);
-	symbolT& symbol = module.V[index4PV];
+//	symbolT& symbol = module.V[index4PV];	//todo: remove this line
 	module.V[index4PV] = module.matching_symbols_arr[0];
 
 	Pattern* p = (*module.list)[module.matching_symbols_arr[0]];

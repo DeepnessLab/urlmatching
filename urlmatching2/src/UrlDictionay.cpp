@@ -95,18 +95,15 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 			frequencies[i]=1;
 
 		LineIterator lit(file_path.c_str(),'\n');
-		int line=0;
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			uchar* p = pckt.ptr;
-			line++;
 			for (uint32_t i = 0 ; i < pckt.size; i++) {
 				uchar c = *p;
 				p++;
 				frequencies[c] += 1;
 			}
 		}
-		std::cout<<"read "<<line<<" lines "<<STDENDL;
 
 		char chars[2];
 		chars[1] = '\0';

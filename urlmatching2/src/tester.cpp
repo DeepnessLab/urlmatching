@@ -101,12 +101,15 @@ void test_url_dictionary_load_from_url_txt_file() {
 		}
 	}
 
+	uint32_t start_at = 100000;
 	uint32_t howmanytocode;
 	howmanytocode = 100000;
 //	howmanytocode = urls.size()-2 ;
 	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 2  : howmanytocode;	//protection
 
-	uint32_t printevery = howmanytocode /10;
+	uint32_t status_every = howmanytocode /10;
+
+	std::cout<<"-- Online Testing on " << howmanytocode << " urls --" <<STDENDL;
 
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
@@ -114,13 +117,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	uint32_t encoded_size = 0;
 
 	START_TIMING;
-	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
+	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
-		if (i%printevery == 0)
+		if (i%status_every == 0)
 			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
@@ -129,13 +132,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	//decode all urls
 	std::cout<<"decoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
+	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (i%printevery == 0)
+		if (i%status_every == 0)
 					std::cout<<"  decoding passed "<<i<<std::endl;
 		if (decoded_str != urls[i]) {
 			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
@@ -166,7 +169,8 @@ void test_url_dictionary_load_from_url_txt_file() {
 			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
 			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<"Offline compression (load & encode all urls)\n  ~ "<< double((double) (size/(time_to_load+time_to_encode)))*8/1024
+	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
+			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
 			<<" Mb/s"<<STDENDL;
 	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
