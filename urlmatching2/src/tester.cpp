@@ -163,11 +163,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"--------------"<<std::endl;
 	std::cout<<DVAL(time_to_load) 	<< "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(size/time_to_encode)*8/1024/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(size/time_to_decode)*8/1024/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double((double) time_to_encode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double((double) time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
 			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
 			<<" Mb/s"<<STDENDL;
