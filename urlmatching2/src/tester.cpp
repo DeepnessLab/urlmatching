@@ -99,7 +99,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 	uint32_t howmanytocode;
 	howmanytocode = 10000;
-//	howmanytocode = urls.size();
+	howmanytocode = urls.size();
+	howmanytocode = (howmanytocode>urls.size()) ? urls.size() : howmanytocode;	//protection
+
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
 	uint32_t decoded_size = 0;
