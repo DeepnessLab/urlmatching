@@ -40,11 +40,11 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
 	std::string urls_file = "test_files/9000_urls.txt";
-//	std::string urls_file = "test_files/file.txt";
+//	std::string urls_file = "test_files/blacklist.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.5, kgrams_size: 4};
+	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.7, kgrams_size: 4};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -98,7 +98,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 
 	uint32_t howmanytocode;
-	howmanytocode = 1000;
+	howmanytocode = 10000;
 //	howmanytocode = urls.size();
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
@@ -155,9 +155,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<"Online compression: "<<STDENDL;
 	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_encode/size) <<"ms"<< STDENDL;
+			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_decode/size) <<"ms"<< STDENDL;
+			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "<< double((double) (size/(time_to_load+time_to_encode)))*8/1024
 			<<" Mb/s"<<STDENDL;
 	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
