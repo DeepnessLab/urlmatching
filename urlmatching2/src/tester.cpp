@@ -39,12 +39,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-	std::string urls_file = "test_files/9000_urls.txt";
-//	std::string urls_file = "test_files/blacklist.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.7, kgrams_size: 4};
+	HeavyHittersParams_t customParams = {n1: 4000, n2: 4000, r: 0.7, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -91,16 +91,22 @@ void test_url_dictionary_load_from_url_txt_file() {
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			std::string str((const char *) pckt.ptr,pckt.size);
-			urls.push_back(str);
-			uint32_t* codedbuff = new uint32_t[buff_size];
-			codedbuffers.push_back(codedbuff);
+			if ( (str.length() == 0 )||(str == "") ) {
+				std::cout<<"Skipping url in line" << urls.size() <<STDENDL;
+			} else{
+				urls.push_back(str);
+				uint32_t* codedbuff = new uint32_t[str.length()];
+				codedbuffers.push_back(codedbuff);
+			}
 		}
 	}
 
 	uint32_t howmanytocode;
-	howmanytocode = 10000;
-	howmanytocode = urls.size();
-	howmanytocode = (howmanytocode>urls.size()) ? urls.size() : howmanytocode;	//protection
+	howmanytocode = 100000;
+//	howmanytocode = urls.size()-2 ;
+	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 2  : howmanytocode;	//protection
+
+	uint32_t printevery = howmanytocode /10;
 
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
@@ -114,7 +120,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 		urlc.encode(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
-		if (i%1000 == 0)
+		if (i%printevery == 0)
 			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
@@ -129,7 +135,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 		uint32_t* codedbuff = codedbuffers[i];
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (i%1000 == 0)
+		if (i%printevery == 0)
 					std::cout<<"  decoding passed "<<i<<std::endl;
 		if (decoded_str != urls[i]) {
 			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
@@ -155,7 +161,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"--------------"<<std::endl;
 	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
-	std::cout<<"Online compression: "<<STDENDL;
+	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
 	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
 			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"

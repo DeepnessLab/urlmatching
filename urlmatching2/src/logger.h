@@ -28,7 +28,7 @@
 #define DBG_TO_STDOUT 2
 
 #ifdef BUILD_DEBUG
-#define DEBUG_OUTPUT DBG_TO_LOG
+#define DEBUG_OUTPUT DBG_TO_NONE
 #else
 #define DEBUG_OUTPUT DBG_TO_NONE
 #endif

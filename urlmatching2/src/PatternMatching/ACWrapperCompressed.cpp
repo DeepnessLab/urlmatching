@@ -170,6 +170,12 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 
 bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
 	assert(isLoaded());
+
+	if ( (input_str.length() == 0 )||
+			(input_str == "") ){
+		result[0]=S_NULL;
+		return true;
+	}
 	//prepare metadata
 	urlMatchingType module;
 	initModule(module);
