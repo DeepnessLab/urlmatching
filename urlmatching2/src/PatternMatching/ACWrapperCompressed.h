@@ -64,6 +64,7 @@ public:
 
 private:
 
+	inline
 	symbolT* create_symb_string (const char* c_string);
 
 	//members

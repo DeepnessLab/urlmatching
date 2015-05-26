@@ -147,6 +147,7 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	return true;
 }
 
+inline
 symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 	const char* delimiter = ";";
 
@@ -175,7 +176,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 	while (tk != NULL) {
 		patternsMapType::iterator itr = _patternsMap->find(tk);
 		if (itr == _patternsMap->end()) {
-			std::cout<<"error " << DVAL(tk) << " " << DVAL (c_string)<< " " << DVAL (counter)<<STDENDL;	//TODO: remove
+			ON_DEBUG_ONLY(std::cout<<"error not found \"" << DVAL(tk) << "\" from \"" << DVAL (c_string)<< "\" " << DVAL (counter)<<STDENDL);
 			ASSERT(itr == _patternsMap->end());
 		}
 		symb_string[counter] = itr->second;
@@ -186,7 +187,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		tk = strtok(NULL, delimiter);
 	}
 	if ((length-1) != counter) {	//lenght includes the S_NULL
-		std::cout<<"error "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL; 	//TODO: remove
+		ON_DEBUG_ONLY(std::cout<<"error lenght "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL);
 		ASSERT((length-1) != counter);
 	}
 
@@ -198,7 +199,6 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 
 /* use this function to build a complimentary patterns table for symbols*/
 void ACWrapperCompressed::make_pattern_to_symbol_list() {
-	////////////NOT IN USE//////////////
 	char ***patterns;
 	patterns=_machine->patternTable->patterns;
 
@@ -217,7 +217,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
 			symbolsTable[i]=NULL;
-			std::cout<<"patterns["<<i<<"]=NULL"<<std::endl;
+			ON_DEBUG_ONLY(std::cout<<"patterns["<<i<<"]=NULL"<<std::endl);
 			continue;
 		}
 		uint32_t num_of_j = 0;	//location of the terminating NULL
@@ -231,25 +231,26 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 		symbolsTable[i][num_of_j] = NULL;
 
 		if (num_of_j == 0) {
-			std::cout<<"patterns["<<i<<"][0]=EMPTY"<<std::endl;
+			ON_DEBUG_ONLY(std::cout<<"patterns["<<i<<"][0]=EMPTY"<<std::endl);
 			continue;
 		}
 
 		//assign symbols
 		for (uint32_t j=0;j<num_of_j;j++) {
 			symbolT* symb_string = create_symb_string (patterns[i][j]);
+#if BUILD_DEBUG
 			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j] << "->";
 			for(symbolT* sym = symb_string; *sym != S_NULL; sym++) {
 				std::cout<< *sym<< ":"<<(*_patternsList)[*sym]->_str <<"; ";
 			}
 			std::cout<<std::endl;
+#endif
 			symbolsTable[i][j] = symb_string;
 		}
 	}
 	_symbolsTable.table = symbolsTable;
 	_symbolsTable.size = size;
-	std::cout<<"FINISHED Print cached patterns table"<<std::endl;
-	////////////NOT IN USE//////////////
+	ON_DEBUG_ONLY(std::cout<<"FINISHED Print cached patterns table"<<std::endl);
 }
 
 bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
