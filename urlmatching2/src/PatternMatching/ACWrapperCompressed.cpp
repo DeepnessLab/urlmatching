@@ -132,6 +132,55 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	return true;
 }
 
+symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
+	const char* delimiter = ";";
+
+	const char* c = c_string;
+	uint32_t length = 1;
+	while (*c != '\0') {
+		if (*c == *delimiter) {
+			length++;
+		}
+		c++;
+	}
+	symbolT* symb_string = new symbolT[length];
+	assert(symb_string != NULL) ;
+	symb_string[length-1] = S_NULL;
+
+	char buffer[300];
+	char* cpy =buffer;
+	bool to_delete = false;
+	if (strlen(c_string) >= 300) {
+		cpy = new char[strlen(c_string)];
+		to_delete = true;
+	}
+	strcpy(cpy,c_string);
+	char* tk = strtok(cpy, delimiter);
+	uint32_t counter = 0;
+	while (tk != NULL) {
+		patternsMapType::iterator itr = _patternsMap->find(tk);
+		if (itr == _patternsMap->end()) {
+			std::cout<<"error " << DVAL(tk) << " " << DVAL (c_string)<< " " << DVAL (counter)<<STDENDL;	//TODO: remove
+			ASSERT(itr == _patternsMap->end());
+		}
+		symb_string[counter] = itr->second;
+
+		ASSERT(strcmp ( (*_patternsList)[itr->second]->_str.c_str(), tk) == 0 );
+
+		counter++;
+		tk = strtok(NULL, delimiter);
+	}
+	if (length != counter) {
+		std::cout<<"error "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL; 	//TODO: remove
+		ASSERT(length != counter);
+	}
+
+	if (to_delete) {
+		delete[] cpy;
+	}
+	return symb_string;
+}
+
 /* use this function to build a complimentary patterns table for symbols*/
 void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	////////////NOT IN USE//////////////
@@ -139,32 +188,43 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	patterns=_machine->patternTable->patterns;
 
 	uint32_t size =_machine->patternTable->size;
-	symbolT** patterns_as_symbols = new symbolT*[size];
+
+	//patterns_as_symbols is an array of array of "symbolT string" i.e S_NULL terminated
+	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
+	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
+	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
+	symbolT*** patterns_as_symbols = new symbolT**[size];
+	for (uint32_t i = 0; i < size; i++ ) {
+		patterns_as_symbols[i]=NULL;
+	}
 
 	symbolT symbol_counter = 1; //0 is reserved
-	std::cout<<"Print cached patterns table";
+	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
 	for (uint32_t i = 0; i < size; i++) {
-		std::cout<<std::endl;
-		std::cout<<"i="<<i<<":";
-		if (patterns[i] == NULL)
+		if (patterns[i] == NULL) {
 			patterns_as_symbols[i]=NULL;
+			std::cout<<"patterns["<<i<<"]=NULL"<<std::endl;
 			continue;
-		uint32_t j = 0;
-		//count patterns
-		while (patterns[i][j] != NULL) {
-			j++; //[11]
 		}
-		patterns_as_symbols[i] = new symbolT[j];
-		j--;
-		patterns_as_symbols[i][j]=S_NULL;
+		uint32_t num_of_j = 0;
+		//count patterns
+		char* pp =patterns[i][num_of_j];
+		while ( pp != NULL) {		// [0,1,2,3,NULL] j=4 is null, j returns with 5
+			num_of_j++; //[11]
+			pp= patterns[i][num_of_j];
+		}
+		patterns_as_symbols[i] = new symbolT*[num_of_j];
+		patterns_as_symbols[i][num_of_j - 1] = NULL;
+
 		//assign symbols
-		for (uint32_t new_j=0;new_j<j;j++) {
-			std::cout<<"(j="<<new_j<<",s="<<symbol_counter<<")"<<patterns[i][new_j];
-			patterns_as_symbols[i][new_j]=symbol_counter;
+		for (uint32_t j=0;j<num_of_j;j++) {
+			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j]<<std::endl;
+			symbolT* symb_string = create_symb_string (patterns[i][j]);
+			patterns_as_symbols[i][j] = symb_string;
 			symbol_counter++;
 		}
 	}
-	std::cout<<std::endl;
+	std::cout<<"FINISHED Print cached patterns table"<<std::endl;
 	////////////NOT IN USE//////////////
 }
 

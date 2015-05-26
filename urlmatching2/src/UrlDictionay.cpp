@@ -411,6 +411,9 @@ void UrlCompressor::prepare_database() {
 	calculate_symbols_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	// ----------------------------
+	algo.make_pattern_to_symbol_list();
+	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 
 }

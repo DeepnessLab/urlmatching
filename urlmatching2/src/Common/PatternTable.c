@@ -12,17 +12,20 @@
 #define MAX_PATTERN_LENGTH 1024
 
 PatternTable *patterntable_create(int size) {
+	int i;
 	PatternTable *table = (PatternTable*)malloc(sizeof(PatternTable));
 	char ***pats = (char***)malloc(sizeof(char**) * size);
 	table->patterns = pats;
 	table->size = size;
+	for (i=0; i < size ; i++)
+		pats[i]=NULL;
 	return table;
 }
 
 void patterntable_destroy(PatternTable *table) {
 	char ***patterns;
 	int i, j;
-	return ;
+//	return ;
 	patterns = table->patterns;
 
 	for (i = 0; i < table->size; i++) {

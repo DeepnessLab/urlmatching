@@ -48,15 +48,7 @@ void debugPrintModule (urlMatchingType& urlmatching);
 //some forward declarations
 //inline void  calcViPi(urlMatchingType& module);
 
-int handle_pattern(char* str,uint32_t idx, void* data) ; /*{
-	urlMatchingType* url_module = (urlMatchingType*) data;
-	assert(url_module!=NULL);
-//	ACWrapperClassic ac = ACWrapperClassic::getInstance();
-	std::string real_str(str);
-	std::cout<<"at idx="<<idx<<", pattern="<<real_str<<std::endl;
-//	ac.patterns[real_str(str)]=strlen(str);
-	return 1;
-}*/
+int handle_pattern(char* str,uint32_t idx, void* data) ;
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct);
 

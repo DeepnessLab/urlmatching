@@ -59,11 +59,11 @@ public:
 
 	//members:
 
+	void make_pattern_to_symbol_list();
 
 private:
 
-
-	void make_pattern_to_symbol_list();
+	symbolT* create_symb_string (const char* c_string);
 
 	//members
 	bool is_loaded;
