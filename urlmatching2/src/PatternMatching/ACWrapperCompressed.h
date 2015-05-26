@@ -23,6 +23,11 @@ extern "C"
 
 #define MAX_CHAR 1000
 
+typedef struct {
+	symbolT*** table;
+	uint32_t size;
+} symbolTableType;
+
 int special_handle_pattern(char* str,uint32_t idx, void* data) ;
 
 class ACWrapperCompressed : public PatternMatchingBaseClass {
@@ -73,6 +78,12 @@ private:
 	Symbol2pPatternVec* _patternsList;
 
 	patternsMapType* _patternsMap;
+
+	//patterns_as_symbols is an array of array of "symbolT string" i.e S_NULL terminated
+	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
+	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
+	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
+	symbolTableType _symbolsTable;
 
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated

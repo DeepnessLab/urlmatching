@@ -66,6 +66,8 @@ ACWrapperCompressed::ACWrapperCompressed() :
 		_patternsMap(NULL),
 		_machine(NULL)
 {
+	_symbolsTable.table=NULL;
+	_symbolsTable.size=0;
 	for (int i=0; i < MAX_CHAR; i++) {
 		_char_to_symbol[i]=S_NULL;
 	}
@@ -80,6 +82,19 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 		delete _patternsMap;
 		_patternsMap = NULL;
 	}
+
+	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
+		if (_symbolsTable.table[i] == NULL)
+			continue;
+		uint32_t counter = 0;
+		for (counter = 0; _symbolsTable.table[i][counter] != NULL; counter++) {
+			delete[] _symbolsTable.table[i][counter];
+		}
+		delete[] _symbolsTable.table[i];
+	}
+	if (_symbolsTable.table != NULL )
+		delete[] _symbolsTable.table;
+
 }
 
 
@@ -193,16 +208,16 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
 	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
 	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
-	symbolT*** patterns_as_symbols = new symbolT**[size];
+	symbolT*** symbolsTable = new symbolT**[size];
 	for (uint32_t i = 0; i < size; i++ ) {
-		patterns_as_symbols[i]=NULL;
+		symbolsTable[i]=NULL;
 	}
 
 	symbolT symbol_counter = 1; //0 is reserved
 	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
-			patterns_as_symbols[i]=NULL;
+			symbolsTable[i]=NULL;
 			std::cout<<"patterns["<<i<<"]=NULL"<<std::endl;
 			continue;
 		}
@@ -213,17 +228,19 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 			num_of_j++; //[11]
 			pp= patterns[i][num_of_j];
 		}
-		patterns_as_symbols[i] = new symbolT*[num_of_j];
-		patterns_as_symbols[i][num_of_j - 1] = NULL;
+		symbolsTable[i] = new symbolT*[num_of_j];
+		symbolsTable[i][num_of_j - 1] = NULL;
 
 		//assign symbols
 		for (uint32_t j=0;j<num_of_j;j++) {
 			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j]<<std::endl;
 			symbolT* symb_string = create_symb_string (patterns[i][j]);
-			patterns_as_symbols[i][j] = symb_string;
+			symbolsTable[i][j] = symb_string;
 			symbol_counter++;
 		}
 	}
+	_symbolsTable.table = symbolsTable;
+	_symbolsTable.size = size;
 	std::cout<<"FINISHED Print cached patterns table"<<std::endl;
 	////////////NOT IN USE//////////////
 }
