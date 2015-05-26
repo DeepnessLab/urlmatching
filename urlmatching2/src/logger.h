@@ -12,6 +12,15 @@
 #include <stdio.h>
 #include "easylogging++.h"
 
+
+#ifdef BUILD_DEBUG
+#define ON_DEBUG_ONLY(what) do {what ; } while (0)
+#else
+#define ON_DEBUG_ONLY(what) do {} while (0)
+#endif
+
+
+
 #ifdef BUILD_DEBUG
 #define ASSERT(what) if (!(what)) { \
 	el::Loggers::flushAll();\
