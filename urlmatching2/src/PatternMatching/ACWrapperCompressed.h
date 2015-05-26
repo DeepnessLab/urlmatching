@@ -23,10 +23,6 @@ extern "C"
 
 #define MAX_CHAR 1000
 
-typedef struct {
-	symbolT*** table;
-	uint32_t size;
-} symbolTableType;
 
 int special_handle_pattern(char* str,uint32_t idx, void* data) ;
 

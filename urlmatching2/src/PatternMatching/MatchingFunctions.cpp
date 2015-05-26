@@ -45,12 +45,14 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 	if (to_delete) { delete s ;}
 }
 
-int handle_pattern(char* str, uint32_t idx, void* data) {
+int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
+{
 	if (str == NULL) {
 		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
 		return 0;
 	}
 	urlMatchingType* url_module = (urlMatchingType*) data;
+	ASSERT(url_module!=NULL);
 	DBG("handle_pattern: \""<<str<< "\" at "<<idx);
 
 	//insert all literals
@@ -60,10 +62,15 @@ int handle_pattern(char* str, uint32_t idx, void* data) {
 		updateModule(*url_module,s,j);
 		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
-
-	ASSERT(url_module!=NULL);
-	update_for_all_patterns(";", str, idx,*url_module);
-	std::string real_str(str);
+	symbolT* symbols = url_module->symbolsTable->table[id][count];
+	ASSERT(symbols!=NULL);
+	symbolT last_symbol = S_NULL; //skip same copies of the same string
+	while (*symbols != S_NULL) {
+		if ( last_symbol != *symbols)
+			updateModule(*url_module,*symbols,idx);
+		last_symbol = *symbols;
+		symbols++;
+	}
 
 	return 1;
 

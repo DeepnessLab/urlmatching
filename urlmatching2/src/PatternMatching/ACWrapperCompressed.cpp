@@ -151,7 +151,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 	const char* delimiter = ";";
 
 	const char* c = c_string;
-	uint32_t length = 1;
+	uint32_t length = 2;	//symb_string = { symb, S_NULL } i.e length of 2
 	while (*c != '\0') {
 		if (*c == *delimiter) {
 			length++;
@@ -185,9 +185,9 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		counter++;
 		tk = strtok(NULL, delimiter);
 	}
-	if (length != counter) {
+	if ((length-1) != counter) {	//lenght includes the S_NULL
 		std::cout<<"error "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL; 	//TODO: remove
-		ASSERT(length != counter);
+		ASSERT((length-1) != counter);
 	}
 
 	if (to_delete) {
@@ -213,7 +213,6 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 		symbolsTable[i]=NULL;
 	}
 
-	symbolT symbol_counter = 1; //0 is reserved
 	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
@@ -221,22 +220,30 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 			std::cout<<"patterns["<<i<<"]=NULL"<<std::endl;
 			continue;
 		}
-		uint32_t num_of_j = 0;
+		uint32_t num_of_j = 0;	//location of the terminating NULL
 		//count patterns
 		char* pp =patterns[i][num_of_j];
 		while ( pp != NULL) {		// [0,1,2,3,NULL] j=4 is null, j returns with 5
 			num_of_j++; //[11]
 			pp= patterns[i][num_of_j];
 		}
-		symbolsTable[i] = new symbolT*[num_of_j];
-		symbolsTable[i][num_of_j - 1] = NULL;
+		symbolsTable[i] = new symbolT*[num_of_j+1];
+		symbolsTable[i][num_of_j] = NULL;
+
+		if (num_of_j == 0) {
+			std::cout<<"patterns["<<i<<"][0]=EMPTY"<<std::endl;
+			continue;
+		}
 
 		//assign symbols
 		for (uint32_t j=0;j<num_of_j;j++) {
-			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j]<<std::endl;
 			symbolT* symb_string = create_symb_string (patterns[i][j]);
+			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j] << "->";
+			for(symbolT* sym = symb_string; *sym != S_NULL; sym++) {
+				std::cout<< *sym<< ":"<<(*_patternsList)[*sym]->_str <<"; ";
+			}
+			std::cout<<std::endl;
 			symbolsTable[i][j] = symb_string;
-			symbol_counter++;
 		}
 	}
 	_symbolsTable.table = symbolsTable;
@@ -257,6 +264,7 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	urlMatchingType module;
 	initModule(module);
 	module.patternDB = _patternsMap;
+	module.symbolsTable = &_symbolsTable;
 
 	module.char_to_symbol = _char_to_symbol;
 	module.list = _patternsList;

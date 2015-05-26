@@ -212,7 +212,7 @@ int matchIterative(StateMachine *machine, const char *input, int length, int *id
 			}
 				break;
 			case STATE_TYPE_PATH_COMPRESSED:
-				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose);	//know memory leak here
+				GET_NEXT_STATE_PC(s, input, length, idx, &next, machine, machine->patternTable, verbose);
 				//TODO: insert handlePatternFunc to other options below and remove the concat_no_free inside
 				break;
 			case STATE_TYPE_LINEAR_ENCODED:

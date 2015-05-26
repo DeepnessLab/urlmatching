@@ -40,15 +40,15 @@ typedef struct urlMatchingType {
 	Symbol2pPatternVec* list;
 	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
 	symbolT* char_to_symbol;						//array [char] = symbols
+	symbolTableType* symbolsTable;
 } urlMatchingType;
-
 
 void debugPrintModule (urlMatchingType& urlmatching);
 
 //some forward declarations
 //inline void  calcViPi(urlMatchingType& module);
 
-int handle_pattern(char* str,uint32_t idx, void* data) ;
+int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct);
 

@@ -286,7 +286,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 //					pattern = concat_strings_nofree(pattern, patternTable->patterns[id][count]);
 					pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);
 //					printf("   in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,pattern);
-					patternFunc( patternTable->patterns[id][count] ,*idx,data );
+					patternFunc( patternTable->patterns[id][count] ,*idx, id, count, data );
 
 				}
 			}

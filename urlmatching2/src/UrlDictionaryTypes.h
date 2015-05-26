@@ -60,6 +60,10 @@ struct cmp_str
 typedef std::map<const char*, symbolT, cmp_str> patternsMapType;
 
 
+typedef struct {
+	symbolT*** table;
+	uint32_t size;
+} symbolTableType;
 
 
 

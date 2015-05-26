@@ -30,7 +30,7 @@ typedef struct {
 #endif
 } TableStateMachine;
 
-typedef int (*callBackWithPattern)(char *,unsigned int, void* );
+typedef int (*callBackWithPattern)(char *, unsigned int, int, int, void* );
 
 
 TableStateMachine *createTableStateMachine(unsigned int numStates);

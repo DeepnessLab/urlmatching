@@ -15,7 +15,7 @@
 
 
 //handle patterns from outside
-typedef int (*callBackWithPattern)(char *,unsigned int, void* );
+typedef int (*callBackWithPattern)(char *, unsigned int, int, int, void* );
 
 
 typedef struct {
