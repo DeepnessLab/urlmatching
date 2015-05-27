@@ -156,7 +156,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 
 	uint32_t size = urls.size();
-
+	uint32_t memory_footprint = encoded_size + memory_size;
 
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
@@ -177,7 +177,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(memory_size)<< 	"Bytes = " << double((double)memory_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(memory_footprint)<< 	"Bytes = " << double((double)memory_footprint / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
+	std::cout<<"coding ratio (memory_foot_print/decoded_size) = "<< double((double)memory_footprint/(double)decoded_size) * 100 << "%"<<STDENDL;
 	const HeavyHittersStats* stats = urlc.get_stats();
 	stats->print();
 
