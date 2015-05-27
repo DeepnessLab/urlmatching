@@ -1,6 +1,6 @@
 /*
  * Huffman.h
- *
+ *	Taken from http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
  *  Created on: 1 бреб 2014
  *      Author: Daniel
  */
