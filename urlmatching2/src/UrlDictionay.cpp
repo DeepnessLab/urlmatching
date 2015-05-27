@@ -28,7 +28,7 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1){
+UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1), _memory_allocated(0){
 //	_symbol2pattern_db_size=0;
 }
 
@@ -404,8 +404,12 @@ void UrlCompressor::prepare_database() {
 			Pattern* pat =_symbol2pattern_db[i];
 			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
+			add_memory_counter(pat->size());
 	}
+	add_memory_counter(_symbol2pattern_db.size() * SIZEOFPOINTER);
+
 	_huffman.load(freqArr,_nextSymbol);
+	add_memory_counter(_huffman.size());
 	delete[] freqArr;
 
 	calculate_symbols_score();	//evaluate each symbol encoded length
@@ -415,6 +419,7 @@ void UrlCompressor::prepare_database() {
 	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
+	add_memory_counter(algo.size());
 
 }
 

@@ -59,18 +59,20 @@ int special_handle_pattern(char* str,uint32_t idx, void* data) {
 }
 
 
-
 ACWrapperCompressed::ACWrapperCompressed() :
 		is_loaded(false),
 		_patternsList(NULL),
 		_patternsMap(NULL),
-		_machine(NULL)
+		_machine(NULL),
+		_size(0)
 {
 	_symbolsTable.table=NULL;
 	_symbolsTable.size=0;
 	for (int i=0; i < MAX_CHAR; i++) {
 		_char_to_symbol[i]=S_NULL;
 	}
+	_size+=MAX_CHAR;
+	_size+= sizeof(_machine);
 }
 
 ACWrapperCompressed::~ACWrapperCompressed() {
@@ -163,6 +165,9 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 	assert(symb_string != NULL) ;
 	symb_string[length-1] = S_NULL;
 
+	_size+= strlen(c_string);
+	_size+= length * sizeof(symbolT);
+
 	char buffer[300];
 	char* cpy =buffer;
 	bool to_delete = false;
@@ -212,6 +217,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	for (uint32_t i = 0; i < size; i++ ) {
 		symbolsTable[i]=NULL;
 	}
+	_size += size * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 
 	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
 	for (uint32_t i = 0; i < size; i++) {
@@ -228,6 +234,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 			pp= patterns[i][num_of_j];
 		}
 		symbolsTable[i] = new symbolT*[num_of_j+1];
+		_size += (num_of_j+1) * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 		symbolsTable[i][num_of_j] = NULL;
 
 		if (num_of_j == 0) {

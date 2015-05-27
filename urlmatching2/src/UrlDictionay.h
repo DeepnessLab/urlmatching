@@ -86,6 +86,8 @@ public:
 	 */
 	bool LoadStoredDBFromFiled(std::string& file_path);
 
+	uint32_t SizeOfMemory() { return _memory_allocated; }
+
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
@@ -130,6 +132,9 @@ public:
 	 */
 	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
+	inline
+	void add_memory_counter(uint32_t bytes) { _memory_allocated+= bytes;}
+
 	//TODO: get this into a struct
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
 //	uint32_t _symbol2pattern_db_size;	//length of this array
@@ -138,6 +143,8 @@ public:
 	bool _is_loaded;
 	symbolT _nextSymbol;
 	HeavyHittersStats_t _statistics;
+
+	uint32_t _memory_allocated;
 
 
 };

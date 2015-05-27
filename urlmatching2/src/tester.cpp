@@ -49,6 +49,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
+	uint32_t memory_size = urlc.SizeOfMemory();
 	assert (retB);
 
 //	urlc.print_database(true /*print codes*/);
@@ -173,8 +174,9 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
 			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
 			<<" Mb/s"<<STDENDL;
-	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(memory_size)<< 	"Bytes = " << double((double)memory_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
 	const HeavyHittersStats* stats = urlc.get_stats();
 	stats->print();

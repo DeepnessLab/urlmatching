@@ -22,6 +22,8 @@
 
 #define STDENDL std::endl
 
+#define SIZEOFPOINTER 8
+
 typedef std::map<std::string,int> Strings2FreqMap;
 typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
 
@@ -36,6 +38,14 @@ public:
 
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
 	uint32_t inline getHuffmanLength() { return (_huffman_length);	}
+
+	inline 	uint32_t size() {
+		uint32_t size = sizeof(_symbol)
+				+ sizeof(_frequency)
+				+ _str.size()
+				+ sizeof(_huffman_length);
+		return size;
+	}
 
 	//members
 	uint32_t _symbol;

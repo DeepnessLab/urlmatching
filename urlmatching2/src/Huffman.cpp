@@ -13,7 +13,7 @@
 #include "logger.h"
 
 Huffman::Huffman() :
-_is_loaded(false),_freq_size(0){
+_is_loaded(false),_freq_size(0), _size(0){
 	// TODO Auto-generated constructor stub
 
 }
@@ -97,11 +97,14 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	INode* root = BuildTree();
 
 	Huffman::GenerateCodes(root, HuffCode(), _codes);
+	_size+= _codes.size() * SIZEOFPOINTER * 2;
 
 	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
 	{
 		_codes2symbols.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
+		_size+= (sizeof(symbolT) + it->second.size());
 	}
+	_size+= _codes2symbols.size() * SIZEOFPOINTER * 2;
 
 //	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
 //	{
@@ -111,8 +114,8 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 //		std::cout << std::endl;
 //	}
 	//bfs scan the tree and free it
-	std::deque<INode*> bfs;
-	bfs.push_back(root);
+//	std::deque<INode*> bfs;
+//	bfs.push_back(root);
 //	while (!bfs.empty()) {
 //		INode* node = bfs.front();
 //		bfs.pop_front();

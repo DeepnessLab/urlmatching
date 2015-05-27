@@ -52,6 +52,8 @@ public:
 
 	virtual void printDB(std::ostream& os);
 
+	inline uint32_t size() { return _size; }
+
 	virtual inline
 	bool isLoaded() { return is_loaded; }
 
@@ -84,6 +86,8 @@ private:
 
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
+
+	uint32_t _size;
 
 };
 

@@ -100,6 +100,8 @@ public:
 		return stream.str();
 	}
 
+	inline uint32_t	size() { return _size; }
+
 
 private:
 	INode* BuildTree();
@@ -111,6 +113,7 @@ private:
 	bool _is_loaded ;
 	uint32_t* _frequencies = NULL;
 	uint32_t _freq_size ;
+	uint32_t _size;
 
 };
 
