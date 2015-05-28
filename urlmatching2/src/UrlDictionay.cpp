@@ -207,7 +207,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 	_huffman.load(freqArr,symbol_counter);
 	delete freqArr;
 
-	calculate_symbols_score();	//evaluate each symbol encoded length
+	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db,getDBsize());
 
@@ -346,14 +346,41 @@ Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(st
 	_symbol=symbol;
 	_frequency=frequency;
 	_huffman_length=UINT32_MAX;
-
+	_coded.buf = NULL;
+	_coded.length = 0;
 }
 
-void UrlCompressor::calculate_symbols_score() {
+void UrlCompressor::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator iter=_symbol2pattern_db.begin(); iter!=_symbol2pattern_db.end();++iter) {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
 		_symbol2pattern_db[i]->_huffman_length=code.size();
+	}
+}
+
+void UrlCompressor::prepare_huffman_code(Pattern& pat, HuffCode& code) {
+	pat._coded.length = code.size;
+	pat._coded.buf = (pat._coded.length / sizeof(uint32_t)) + 1;
+	uint32_t buf* = pat._coded.buf;
+
+	uint32_t reset_mask = 1 << (BITS_IN_UINT32_T -1 );
+	uint32_t mask = reset_mask;
+	uint32_t i = 0;	//idx in out_encoded_buf
+	buf[i] = 0;
+	for (HuffCode::const_iterator it = code.begin(); it != code.end(); ++it) {
+		if (*it == true) {
+			buf[i] = buf[i] | mask;
+		}
+		bit_counter++;
+		mask = mask / 2;	//move right
+		if (mask == 0) {
+			i++;
+			if (i >= buf_size) {
+				return STATUS_ERR_SMALL_BUF;
+			}
+			mask = reset_mask;
+			buf[i] = 0;
+		}
 	}
 }
 
@@ -412,7 +439,7 @@ void UrlCompressor::prepare_database() {
 	add_memory_counter(_huffman.size());
 	delete[] freqArr;
 
-	calculate_symbols_score();	//evaluate each symbol encoded length
+	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 	// ----------------------------

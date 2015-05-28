@@ -28,6 +28,11 @@ typedef std::map<std::string,int> Strings2FreqMap;
 typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
 
 
+typedef struct {
+	uint32_t* buf;
+	uint16_t length;
+} CodedHuffman;
+
 /**
  * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
  */
@@ -52,6 +57,7 @@ public:
 	uint32_t _frequency;
 	std::string _str;
 	uint32_t _huffman_length;
+	CodedHuffman _coded;
 
 };
 

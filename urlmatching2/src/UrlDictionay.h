@@ -110,12 +110,13 @@ public:
 	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
 
 	// calculates Huffman length and string lenght for every patterns
-	 void calculate_symbols_score();
+	 void calculate_symbols_huffman_score();
 	/** once all patterns are loaded with their frequencies -
 	  1. create huffman code
 	  2. create pattern matching algorithm
 	 */
 	void prepare_database();
+	void prepare_huffman_code(Pattern& pat, HuffCode& code);
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }
