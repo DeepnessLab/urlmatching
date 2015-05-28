@@ -36,12 +36,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-	std::string urls_file = "test_files/9000_urls.txt";
-//	std::string urls_file = "test_files/blacklist_syn.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.7, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {n1: 3000, n2: 3000, r: 0.8, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -64,6 +64,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
 	urlc.encode(my_string,codedbuff,buff_size);
+
 
 	std::string decoded_str;
 	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
@@ -179,7 +180,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<DVAL(memory_size)<< 	"Bytes = " << double((double)memory_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(memory_footprint)<< 	"Bytes = " << double((double)memory_footprint / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
-	std::cout<<"coding ratio (memory_foot_print/decoded_size) = "<< double((double)memory_footprint/(double)decoded_size) * 100 << "%"<<STDENDL;
+	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_size+memory_footprint)/(double)decoded_size) * 100 << "%"<<STDENDL;
 	const HeavyHittersStats* stats = urlc.get_stats();
 	stats->print();
 
