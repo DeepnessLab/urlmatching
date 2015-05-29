@@ -123,7 +123,7 @@ void patterntable_update_pattern(PatternTable *table, STATE_PTR_TYPE_WIDE source
 	next = (char*)malloc(sizeof(char) * (newlen + 1));
 
 	strcpy(next, old);
-	next[oldlen] = ';';
+	next[oldlen] = ACDELIMITER;
 	strcpy(&(next[oldlen + 1]), new);
 	/*
 	memcpy(&(next[oldlen + 1]), more, len);

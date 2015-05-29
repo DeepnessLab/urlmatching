@@ -11,6 +11,7 @@
 #include "../Common/Flags.h"
 #include "ACBuilder.h"
 #include "NodeQueue.h"
+#include "../Common/Types.h"
 
 #define READ_BUFFER_SIZE 1024
 #define MAX_STATES 65536
@@ -251,7 +252,7 @@ char *concat_strings(char *s1, char *s2, int len1, int len2, int freeS1, int fre
 	//len2 = strlen(s2);
 	res = (char*)malloc(sizeof(char) * (len1 + len2 + 2));
 	memcpy(res, s1, len1);
-	res[len1] = ';';
+	res[len1] = ACDELIMITER;
 	memcpy(&(res[len1+1]), s2, len2);
 	res[len1+len2+1] = '\0';
 

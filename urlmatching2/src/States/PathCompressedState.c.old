@@ -192,7 +192,7 @@ char *concat_strings_nofree(char *s1, char *s2) {
 	len2 = strlen(s2);
 	res = (char*)malloc(sizeof(char) * (len1 + len2 + 2));
 	strcpy(res, s1);
-	res[len1] = ';';
+	res[len1] = ACDELIMITER;
 	strcpy(&(res[len1+1]), s2);
 
 	return res;

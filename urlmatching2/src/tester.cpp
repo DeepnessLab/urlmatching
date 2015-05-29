@@ -36,12 +36,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-	std::string urls_file = "test_files/9000_urls.txt";
-//	std::string urls_file = "test_files/blacklist_syn.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.8, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {n1: 3000, n2: 3000, r: 0.8, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;

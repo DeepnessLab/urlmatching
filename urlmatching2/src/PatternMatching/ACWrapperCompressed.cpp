@@ -151,7 +151,7 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 
 inline
 symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
-	const char* delimiter = ";";
+	const char* delimiter = "`";
 
 	const char* c = c_string;
 	uint32_t length = 2;	//symb_string = { symb, S_NULL } i.e length of 2
