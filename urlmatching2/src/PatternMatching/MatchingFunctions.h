@@ -157,7 +157,7 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 		//new index, consolidate previous index
 		DBG("idx("<<idx<<") > module.index("<<module.index<<") -> calcViPi");
 		calcViPi(module);
-		ON_DEBUG_ONLY( debugPrintModule(module) );
+//		ON_DEBUG_ONLY( debugPrintModule(module) );
 		module.index = module.index+1;
 		module.matching_symbols_idx = 0;
 	}
@@ -182,7 +182,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 
 
 	calcViPi(module);
-	ON_DEBUG_ONLY( debugPrintModule(module) );
+//	ON_DEBUG_ONLY( debugPrintModule(module) );
 
 	// Finalize the successful patterns
 	uint32_t V_idx = module.index+1;

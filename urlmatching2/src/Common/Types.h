@@ -28,7 +28,7 @@
 
 #define PTR_SIZE 2
 
-#define  ACDELIMITER ';'
+#define  ACDELIMITER '`'
 
 typedef unsigned char uchar;
 typedef unsigned short STATE_PTR_TYPE;
