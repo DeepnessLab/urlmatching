@@ -284,7 +284,7 @@ UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encod
 	symbolT* symbol = result;
 	while (*symbol != S_NULL) {
 		Pattern* pat = _symbol2pattern_db[*symbol];
-//		std::cout<<"pat= "<<pat->_str<<STDENDL;
+//		std::cout<<"pat= "<<pat->_str<<" " << DVAL(lsb) <<STDENDL;
 		uint32_t i = 0;
 		uint16_t length = pat->_coded.length;
 		bit_counter+=length;
@@ -292,34 +292,36 @@ UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encod
 		//each iteration we code one buf - i.e buf[i]
 		while (length > 0 ) {
 			uint32_t buf = pat->_coded.buf[i];
-			std::cout << "-- " << DVAL(length) << " "<< DVAL(i)<<STDENDL;
-			std::cout << "buf "<<i<<" l-"<<length<<" ="; print(buf);
+//			std::cout << "-- " << DVAL(length) << " "<< DVAL(i)<<STDENDL;
+//			std::cout << "buf "<<i<<" l-"<<length<<" ="; print(buf);
 			//lsb = 2
 			buf >>= lsb;		//code the left most bit  01234567 >> lsb 2
-			std::cout << "buf  >>=   "; print(buf);
-			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+//			std::cout << "buf  >>=   "; print(buf);
+//			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
 			out_encoded_buf[i_out] |=  buf;					//xx012345
-			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+//			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
 			uint32_t lsb_tag = bitsinbuf - lsb;			// 6
 			length = (length > lsb_tag) ? (length - lsb_tag) : 0; // 8 - 2 = 6
 
 			// how many bits were code ?
 			if (length > 0 ) {	//we need to code another byte
 				buf = pat->_coded.buf[i];
-				std::cout << "- in   =   "; print(buf);
+//				std::cout << "- in   =   "; print(buf);
 				buf <<= lsb_tag;							// 6  --> 67000000
-				std::cout << "buf  <<=   "; print(buf);
+//				std::cout << "buf  <<=   "; print(buf);
 				i_out++;
 				out_encoded_buf[i_out] =  0;						//67xxxxxx
 				out_encoded_buf[i_out] |=  buf;						//67xxxxxx
-				std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+//				std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
 				length = (length > lsb) ? (length - lsb) : 0; // length - 2
 			}
 			i++;
 		}
 		lsb = next_lsb;
-		if (lsb==0)
+		if (lsb==0) {
 			i_out++;
+			out_encoded_buf[i_out] = 0;
+		}
 		symbol++;
 	}
 

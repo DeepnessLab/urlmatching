@@ -106,10 +106,10 @@ void test_url_dictionary_load_from_url_txt_file() {
 		}
 	}
 
-	uint32_t start_at = 9;
+	uint32_t start_at = 0;
 	uint32_t howmanytocode;
-	howmanytocode = 1;
-//	howmanytocode = urls.size()-1 ;
+//	howmanytocode = 1000;
+	howmanytocode = urls.size()-1 ;
 	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 1  : howmanytocode;	//protection
 
 	uint32_t status_every = ((howmanytocode /10) > 0 ) ? (howmanytocode /10) : 1;
