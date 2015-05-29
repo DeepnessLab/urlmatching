@@ -93,6 +93,7 @@ public:
 
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
+	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
 
 	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
@@ -116,7 +117,7 @@ public:
 	  2. create pattern matching algorithm
 	 */
 	void prepare_database();
-	void prepare_huffman_code(Pattern& pat, HuffCode& code);
+	void prepare_huffman_code(Pattern* pat, HuffCode& code);
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }

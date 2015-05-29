@@ -36,12 +36,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-//	std::string urls_file = "test_files/9000_urls.txt";
-	std::string urls_file = "test_files/blacklist_syn.txt";
+	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 3000, n2: 3000, r: 0.8, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.8, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
@@ -57,14 +57,15 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
 	//static test - encode/decode single string
-	std::string my_string = "http://www.google.com/gmail/drive";
+//	std::string my_string = "http://www.google.com/gmail/drive";
+	std::string my_string = "http://www.besound.com/pushead/home.html";
 	std::cout<<"matching string="<<my_string<<std::endl;
 
-	std::cout<<"encode string="<<my_string<<std::endl;
+	std::cout<<"encode string= "<<my_string<<std::endl;
 	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode(my_string,codedbuff,buff_size);
-
+	urlc.encode_2(my_string,codedbuff,buff_size);
+	std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
 
 	std::string decoded_str;
 	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
@@ -74,10 +75,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	if (my_string != decoded_str) {
 		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
 		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+		std::cout<<" had length "<<DVAL(codedbuff[0])<<STDENDL;
 		return;
 	}
 
 	delete[] codedbuff;
+
+
 
 	//encode/decode entire urlsfile
 	//count urls and prepare coding buffers
@@ -102,13 +106,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 		}
 	}
 
-	uint32_t start_at = 0;
+	uint32_t start_at = 9;
 	uint32_t howmanytocode;
-//	howmanytocode = 50000;
-	howmanytocode = urls.size()-1 ;
+	howmanytocode = 1;
+//	howmanytocode = urls.size()-1 ;
 	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 1  : howmanytocode;	//protection
 
-	uint32_t status_every = howmanytocode /10;
+	uint32_t status_every = ((howmanytocode /10) > 0 ) ? (howmanytocode /10) : 1;
 
 	std::cout<<"-- Online Testing on " << howmanytocode << " urls --" <<STDENDL;
 
@@ -121,7 +125,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
-		urlc.encode(urls[i],codedbuff,buff_size);
+		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
 		if (i%status_every == 0)
@@ -139,13 +143,14 @@ void test_url_dictionary_load_from_url_txt_file() {
 		uint32_t* codedbuff = codedbuffers[i];
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (i%status_every == 0)
-					std::cout<<"  decoding passed "<<i<<std::endl;
 		if (decoded_str != urls[i]) {
 			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
-			std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+			std::cout<<"  " << DVAL(i)<< " "<< DVAL(urls[i])<<" != "<<DVAL(decoded_str)<<STDENDL;
+			std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
 			return;
 		}
+		if (i%status_every == 0)
+					std::cout<<"  decoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
 	double time_to_decode = GETTIMING;
