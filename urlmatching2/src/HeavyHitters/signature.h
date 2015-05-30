@@ -17,8 +17,14 @@
 typedef struct signature {
     
     signature() {
+        this->hh_count              = 0;
+        this->real_count            = 0;
+        this->real_count_all_series = 0;
+        this->src_count             = 0;
+        this->cover_rate            = 0;
+        this->firstPacket = 0;
     }
-    
+
     signature(buffer_t& sig_data, int hh_count, int real_count, 
               int real_count_all_series, int src_count=0, double cover_rate=0.0,
 			  size_t firstPacket = 0)

@@ -24,7 +24,7 @@ LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, float r,
     this->_hh1        = LCU_Init(1.0 / n1);
     this->_hh2        = LCU_Init(1.0 / n2);
     this->_hh3        = NULL;
-    
+    this->_use_pcaps = false;
     this->_pckt_count = 0;
     
     this->_white_list_permutation = NULL;

@@ -11,6 +11,8 @@
 #include <string>
 #include <assert.h>
 #include <ctime>
+#include <windows.h>
+
 
 #include "tester.h"
 #include "Huffman.h"
@@ -19,7 +21,7 @@
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
-
+#define sleep(n) Sleep(1000 * n)
 
 #define BUFFSIZE 500
 
@@ -41,13 +43,17 @@ void test_url_dictionary_load_from_url_txt_file() {
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 3000, n2: 3000, r: 0.8, kgrams_size: 8};
+	HeavyHittersParams_t customParams = {/*n1*/ 3000, /*n2*/ 3000, /*r*/ 0.8, /*kgrams_size*/ 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
+//	std::cout<<"sleep 60 sec before loading"<<STDENDL;
+//	sleep(20);
 	START_TIMING;
 	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
+//	std::cout<<"sleep 60 sec after loading"<<STDENDL;
+//	sleep(20);
 	double time_to_load = GETTIMING;
 	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
 	assert (retB);

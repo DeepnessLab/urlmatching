@@ -242,7 +242,7 @@ void setStateData_BM(State *state, uchar *chars, STATE_PTR_TYPE *gotos, short *p
 			if (((tmp + 7) < (bitIdx)) && (bitmap)[j] & 128) sum++;		\
 			tmp += 8;													\
 		}																\
-	} while (0);
+	} while (0)
 
 int getNextState_BM(State *bitmapEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
 {

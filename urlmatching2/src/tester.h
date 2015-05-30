@@ -17,13 +17,13 @@
  #endif
 
 
-#define MAX_PATH 1000
+#define MAX_PATH_2 1000
 
 //Helpers
 inline
 void getWorkingDirectory(std::string& out ) {
-	char pBuf[1000];
-	GetCurrentDir(pBuf, MAX_PATH);
+	char pBuf[MAX_PATH_2];
+	GetCurrentDir(pBuf, MAX_PATH_2);
 	out.assign(pBuf);
 }
 

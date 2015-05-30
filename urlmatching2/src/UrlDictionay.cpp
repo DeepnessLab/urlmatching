@@ -508,7 +508,7 @@ void UrlCompressorStats::print() const {
 	std::cout<<  DVAL(number_of_urls)<<STDENDL;
 	std::cout<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
 	std::cout<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
-	std::cout<<	 "estimated "DVAL(memory_allocated) << "B"<<STDENDL;
+	std::cout<<	 "estimated " << DVAL(memory_allocated) << "B"<<STDENDL;
 	if (params_set) {
 		std::cout<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
 		std::cout<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;

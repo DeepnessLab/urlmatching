@@ -52,7 +52,7 @@ private:
     
     ifstream _infile;
     std::string line;
-    const unsigned char *_lineData;
+//    const unsigned char *_lineData;
     raw_buffer_t        _nextBuffer;
     char _delim = 0xff;
     bool _isFileOpenedSuccessfully;
