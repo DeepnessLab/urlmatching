@@ -48,7 +48,8 @@ public:
 		uint32_t size = sizeof(_symbol)
 				+ sizeof(_frequency)
 				+ _str.size()
-				+ sizeof(_huffman_length);
+				+ sizeof(_huffman_length)
+				+ ( (_coded.length / 8) + 1) ;
 		return size;
 	}
 
@@ -56,7 +57,7 @@ public:
 	uint32_t _symbol;
 	uint32_t _frequency;
 	std::string _str;
-	uint32_t _huffman_length;
+	uint32_t _huffman_length;	//TODO: this can be removed with refactoring
 	CodedHuffman _coded;
 
 };

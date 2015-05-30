@@ -49,7 +49,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
-	uint32_t memory_size = urlc.SizeOfMemory();
+	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
 	assert (retB);
 
 //	urlc.print_database(true /*print codes*/);
@@ -162,7 +162,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	}
 
 	uint32_t size = urls.size();
-	uint32_t memory_footprint = encoded_size + memory_size;
+	uint32_t encoded_and_memory = encoded_size + memory_footprint_estimation;
 
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
@@ -182,11 +182,11 @@ void test_url_dictionary_load_from_url_txt_file() {
 			<<" Mb/s"<<STDENDL;
 	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(memory_size)<< 	"Bytes = " << double((double)memory_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(memory_footprint)<< 	"Bytes = " << double((double)memory_footprint / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(memory_footprint_estimation)<< 	"Bytes = " << double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_and_memory)<< 	"Bytes = " << double((double)encoded_and_memory / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
-	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_size+memory_footprint)/(double)decoded_size) * 100 << "%"<<STDENDL;
-	const HeavyHittersStats* stats = urlc.get_stats();
+	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_and_memory)/(double)decoded_size) * 100 << "%"<<STDENDL;
+	const UrlCompressorStats* stats = urlc.get_stats();
 	stats->print();
 
 /*
@@ -299,66 +299,12 @@ void test_LLH() {
 
 
 void test_url_dictionary_load_from_stored_DB() {
-
-//	UrlCompressor dict;
-//	build_simple_dict(&dict);
-
-	std::string patterns_file = "d:\\Temp\\project\\patterns_abc.txt";
-	std::string my_string = "shaloma";
-
-	UrlCompressor urlc;
-	bool ret = urlc.LoadStoredDBFromFiled(patterns_file);
-	assert (ret);
-	urlc.print_database(true /*print codes*/);
-
-	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
-
-	std::cout<<"matching string="<<my_string<<std::endl;
-
-	symbolT result[1000];
-	urlc.algo.find_patterns(my_string,result);
-
-	my_string = "shalomashalomashalomashalomashaloma";
-	std::cout<<"encode string="<<my_string<<std::endl;
-	uint32_t buff_size = 100;
-	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode(my_string,codedbuff,buff_size);
-
-	std::string decoded_str;
-	urlc.decode(decoded_str,codedbuff,buff_size);
-	std::cout<<"dencoded string="<<decoded_str<<std::endl;
-
-	delete codedbuff;
-//	exit(1);
-
+	exit(1);
 }
 
 
-
-
 void test_url_matching() {
-
-//	UrlCompressor dict;
-//	build_simple_dict(&dict);
-
-	std::string patterns_file = "d:\\Temp\\project\\patterns_abc.txt";
-	std::string my_string = "shaloma";
-
-	UrlCompressor urlc;
-	bool ret = urlc.LoadStoredDBFromFiled(patterns_file);
-	assert (ret);
-	urlc.print_database(true /*print codes*/);
-
-	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
-
-	std::cout<<"matching string="<<my_string<<std::endl;
-
-	symbolT result[1000];
-	urlc.algo.find_patterns(my_string,result);
-//	ACWrapperClassic aho=ACWrapperClassic::getInstance();
-
-
-
+	exit(1);
 }
 
 void test_aho_compressed() {
@@ -378,20 +324,6 @@ void test_aho_compressed() {
 	fflush(stdout);
 	std::cout<<std::endl<<"finished matching"<<std::endl;
 
-}
-
-
-void build_simple_dict(UrlCompressor* dict) {
-	std::map<std::string,int> strings_and_freqs;
-	int i=1;
-	for (char c='a'; c<='z'; c++) {
-		std::string str (1,c);
-		strings_and_freqs[str]=i;
-		i++;
-	}
-	dict->load_strings_and_freqs(&strings_and_freqs);
-	dict->_huffman.print();
-	dict->print_strings_and_codes();
 }
 
 
@@ -415,24 +347,4 @@ void test_huffman() {
 		dict._huffman.print();
 
 		dict.print_strings_and_codes();
-
-	//
-	//	int frequencies[UniqueSymbols] = {0};
-	//	const char* ptr = SampleString;
-	//	while (*ptr != '\0')
-	//		++frequencies[*ptr++];
-	//
-	//	INode* root = Huffman::BuildTree(frequencies);
-	//
-	//	HuffCodeMap codes;
-	//	Huffman::GenerateCodes(root, HuffCode(), codes);
-	//	delete root;
-	//
-	//	for (HuffCodeMap::const_iterator it = codes.begin(); it != codes.end(); ++it)
-	//	{
-	//		std::cout << it->first << " ";
-	//		std::copy(it->second.begin(), it->second.end(),
-	//				std::ostream_iterator<bool>(std::cout));
-	//		std::cout << std::endl;
-	//	}
 }

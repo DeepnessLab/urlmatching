@@ -79,6 +79,7 @@ public:
 	virtual ~Huffman();
 
 	void load(uint32_t* frequencies, uint32_t size);
+	void free_encoding_memory();
 	void print();
 
 	HuffCode encode(uint32_t symbol);
@@ -105,11 +106,12 @@ public:
 
 private:
 	INode* BuildTree();
+	void FreeTree(const INode* node);
 	void GenerateCodes(const INode* node, const HuffCode& prefix,
 			HuffCodeMap& outCodes);
 
-	HuffCodeMap _codes;
-	HuffSymbMap _codes2symbols;
+	HuffCodeMap _symbol2codesMap;
+	HuffSymbMap _codes2symbolsMap;
 	bool _is_loaded ;
 	uint32_t* _frequencies = NULL;
 	uint32_t _freq_size ;

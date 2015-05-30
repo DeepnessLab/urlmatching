@@ -45,16 +45,22 @@ INode* Huffman::BuildTree()
     return trees.top();
 }
 
+void Huffman::free_encoding_memory() {
+//		#ifndef BUILD_DEBUG		//release only reduce memory
+		_symbol2codesMap.clear();
+//		#endif
+}
+
 HuffCode Huffman::encode(uint32_t symbol) {
 	assert(_is_loaded);
-	return _codes[symbol];
+	return _symbol2codesMap[symbol];
 }
 
 bool Huffman::decode(HuffCode code, symbolT& symbol) {
 	assert(_is_loaded);
 	HuffSymbMap::iterator it;
-	it = _codes2symbols.find(code);
-	if (it == _codes2symbols.end()) {
+	it = _codes2symbolsMap.find(code);
+	if (it == _codes2symbolsMap.end()) {
 		return false;
 	}
 	symbol = it->second;
@@ -96,47 +102,36 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 //	}
 	INode* root = BuildTree();
 
-	Huffman::GenerateCodes(root, HuffCode(), _codes);
-	_size+= _codes.size() * SIZEOFPOINTER * 2;
+	Huffman::GenerateCodes(root, HuffCode(), _symbol2codesMap);
 
-	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
+	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
-		_codes2symbols.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
+		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
 		_size+= (sizeof(symbolT) + it->second.size());
 	}
-	_size+= _codes2symbols.size() * SIZEOFPOINTER * 2;
+//	_size+= _codes2symbolsMap.size() * SIZEOFPOINTER ;
 
-//	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
-//	{
-//		std::cout << it->first << " ";
-//		std::copy(it->second.begin(), it->second.end(),
-//				std::ostream_iterator<bool>(std::cout));
-//		std::cout << std::endl;
-//	}
-	//bfs scan the tree and free it
-//	std::deque<INode*> bfs;
-//	bfs.push_back(root);
-//	while (!bfs.empty()) {
-//		INode* node = bfs.front();
-//		bfs.pop_front();
-//		if (const LeafNode* lf = dynamic_cast<const LeafNode*>(node))
-//		{
-//
-//		} else 	if (const InternalNode* in = dynamic_cast<const InternalNode*>(node)) {
-//			bfs.push_back(in->left);
-//			bfs.push_back(in->right);
-//		}
-//		delete node;
-//	}
-
-
-
+	FreeTree(root);
 	_is_loaded=true;
+}
+
+void Huffman::FreeTree(const INode* node)
+{
+	if (const LeafNode* lf = dynamic_cast<const LeafNode*>(node))
+	{
+		delete lf;
+	}
+	else if (const InternalNode* in = dynamic_cast<const InternalNode*>(node))
+	{
+		FreeTree(in->left);
+		FreeTree(in->right);
+		delete in;
+	}
 }
 
 void Huffman::print() {
 	std::cout<<"Huffman codes:"<<std::endl;
-	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
+	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
 		std::cout << (uint32_t) it->first << " ";
 		std::copy(it->second.begin(), it->second.end(),

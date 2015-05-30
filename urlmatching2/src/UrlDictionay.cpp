@@ -28,14 +28,13 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1), _memory_allocated(0){
-//	_symbol2pattern_db_size=0;
+UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1)
+{
+
 }
 
-UrlCompressor::~UrlCompressor() {
-//	if (_symbol2pattern_db!=NULL)	//TODO: remove
-//		delete _symbol2pattern_db;
-//	_symbol2pattern_db=NULL;
+UrlCompressor::~UrlCompressor()
+{
 
 	while (!_symbol2pattern_db.empty()) {
 		Pattern* p = _symbol2pattern_db.back();
@@ -46,32 +45,7 @@ UrlCompressor::~UrlCompressor() {
 	// TODO Auto-generated destructor stub
 }
 
-void UrlCompressor::load_strings_and_freqs(Strings2FreqMap* strings_to_freq)
-{
-	DBG("Entered load_strings_and_freqs");
-	uint32_t size = strings_to_freq->size();
-	uint32_t* myfreq = new uint32_t[size+1];
-	_strings_to_symbols.clear();
 
-	uint32_t ith_symbol = 0;
-	DBG("Print strings_to_freq:");
-	for (std::map<std::string,int>::iterator it=strings_to_freq->begin(); it!=strings_to_freq->end(); ++it) {
-		DBG( it->first << " freq => " << it->second );
-		_strings_to_symbols.insert( std::pair<std::string,uint32_t>(it->first,ith_symbol) );
-		myfreq[ith_symbol]=  it->second;
-		ith_symbol++;
-	}
-	DBG(" ");
-
-	DBG("Print _strings_to_symbols:");
-	for (std::map<std::string,uint32_t>::iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
-		DBG(it->first << " symbol => " << it->second );
-		_strings_to_symbols.insert( std::pair<std::string,uint32_t>(it->first,ith_symbol) );
-	}
-
-	_huffman.load(myfreq,size);
-
-}
 
 bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 									const HeavyHittersParams_t params,
@@ -103,6 +77,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 				p++;
 				frequencies[c] += 1;
 			}
+			_statistics.total_input_bytes+=pckt.size;
 		}
 
 		char chars[2];
@@ -139,6 +114,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 
 	prepare_database();
 
+	_huffman.free_encoding_memory();
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
 
 	return true;
@@ -149,7 +125,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
  * @param file_path - DB file path
  * @return true if loaded successfully
  */
-bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
+bool UrlCompressor::LoadStoredDBFromFile(std::string& file_path)
 {
 	std::string line;
 	std::ifstream file(file_path.c_str());
@@ -428,6 +404,9 @@ void UrlCompressor::calculate_symbols_huffman_score() {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
 		_symbol2pattern_db[i]->_huffman_length=code.size();
 		prepare_huffman_code(_symbol2pattern_db[i],code);
+		_statistics.max_huffman_length =
+				(_symbol2pattern_db[i]->_huffman_length > _statistics.max_huffman_length)?
+				_symbol2pattern_db[i]->_huffman_length : _statistics.max_huffman_length;
 	}
 }
 
@@ -523,10 +502,13 @@ void UrlCompressor::prepare_database() {
 
 
 
-void HeavyHittersStats::print() const {
+void UrlCompressorStats::print() const {
 	std::cout<<  DVAL(number_of_symbols)<<STDENDL;
 	std::cout<<  DVAL(number_of_patterns)<<STDENDL;
 	std::cout<<  DVAL(number_of_urls)<<STDENDL;
+	std::cout<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
+	std::cout<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
+	std::cout<<	 "estimated "DVAL(memory_allocated) << "B"<<STDENDL;
 	if (params_set) {
 		std::cout<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
 		std::cout<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;

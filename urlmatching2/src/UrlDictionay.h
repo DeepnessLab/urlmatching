@@ -36,18 +36,24 @@ typedef struct HeavyHittersParams {
 	size_t kgrams_size;
 } HeavyHittersParams_t;
 
-typedef struct HeavyHittersStats {
+typedef struct UrlCompressorStats {
 	uint32_t number_of_symbols;
 	uint32_t number_of_patterns;
 	uint32_t number_of_urls;
+	uint32_t max_huffman_length;
+	uint32_t total_input_bytes;
+	uint32_t memory_allocated;
 	HeavyHittersParams_t params;
 	bool params_set;
 
 	void reset() {
+		params_set = false;
 		number_of_patterns = 0;
 		number_of_symbols = 0;
 		number_of_urls = 0;
-		params_set = false;
+		max_huffman_length = 0;
+		total_input_bytes = 0;
+		memory_allocated = 0;
 	}
 
 	void reset(const HeavyHittersParams_t& params_) {
@@ -69,12 +75,21 @@ public:
 
 	bool isLoaded() { return _is_loaded; }
 
-	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
+	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
+	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
+	//This a much faster encoder
+	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
+	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
+
+	//Decode in_encoded_buf
+	//in_encoded_buf[0] contains the length of huffman coded bit
+	//in_buf_size size of buf in bytes
+	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
 
 	//load list of urls and build cached database
 	bool LoadUrlsFromFile(const std::string& file_path,
-							const HeavyHittersParams_t params,
-							const  bool contains_basic_symbols);
+			const HeavyHittersParams_t params,
+			const  bool contains_basic_symbols);
 
 	/** load pre-stored dictionary from file and build cached database
 	 * DB file format:
@@ -84,17 +99,17 @@ public:
 	 * Returns true if successfully loaded
 	 * will assert if symbols are not ordered and continues, i.e 0..n
 	 */
-	bool LoadStoredDBFromFiled(std::string& file_path);
+	bool LoadStoredDBFromFile(std::string& file_path);
 
-	uint32_t SizeOfMemory() { return _memory_allocated; }
+	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
 
+	//Debug API
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
-	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
-	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
-	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
-	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
+	//---- Deprecated API -----
+	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
+	//---- Deprecated API -----
 
 	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
 
@@ -107,7 +122,7 @@ public:
 	Huffman _huffman;
 	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
-//temp private:
+private:
 	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
 
 	// calculates Huffman length and string lenght for every patterns
@@ -135,7 +150,7 @@ public:
 	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
 	inline
-	void add_memory_counter(uint32_t bytes) { _memory_allocated+= bytes;}
+	void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated+= bytes;}
 
 	//TODO: get this into a struct
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
@@ -145,9 +160,6 @@ public:
 	bool _is_loaded;
 	symbolT _nextSymbol;
 	HeavyHittersStats_t _statistics;
-
-	uint32_t _memory_allocated;
-
 
 };
 
