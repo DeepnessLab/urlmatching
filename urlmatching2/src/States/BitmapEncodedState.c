@@ -244,7 +244,8 @@ void setStateData_BM(State *state, uchar *chars, STATE_PTR_TYPE *gotos, short *p
 		}																\
 	} while (0);
 
-int getNextState_BM(State *bitmapEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
+int getNextState_BM(State *bitmapEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
+{
 	uchar c;
 	StateHeader *header;
 	unsigned int i, size, found, j, count, id;
@@ -297,6 +298,7 @@ int getNextState_BM(State *bitmapEncodedState, char *str, int length, int *idx, 
 			}
 			id = (bitmapEncodedState[1] << 8) | bitmapEncodedState[2];
 			result->pattern = patternTable->patterns[id][count];
+			machine->handlePatternFunc( patternTable->patterns[id][count] ,*idx, id, count, machine->handlePatternData );
 		}
 
 		count = 0;

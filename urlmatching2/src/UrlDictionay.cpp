@@ -1,7 +1,7 @@
 /*
  * UrlDictionay.cpp
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -28,7 +28,7 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1){
+UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1), _memory_allocated(0){
 //	_symbol2pattern_db_size=0;
 }
 
@@ -78,6 +78,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 									const  bool contains_basic_symbols)
 {
 	init();
+	_statistics.reset(params);
 
 	/*
 	 * - create all 'single char' patterns in db
@@ -131,6 +132,8 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
+	_statistics.number_of_patterns = patterns_counter;
+	_statistics.number_of_urls = urls_count;
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
@@ -204,7 +207,7 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 	_huffman.load(freqArr,symbol_counter);
 	delete freqArr;
 
-	calculate_symbols_score();	//evaluate each symbol encoded length
+	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db,getDBsize());
 
@@ -215,15 +218,12 @@ bool UrlCompressor::LoadStoredDBFromFiled(std::string& file_path)
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
 UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
-
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
 	}
-
 	//find patterns cover over url
 	symbolT result[MAX_URL_LENGTH];
 	algo.find_patterns(url,result);
-
 
 	uint32_t reset_mask = 1 << (BITS_IN_UINT32_T -1 );
 	uint32_t mask = reset_mask;
@@ -253,7 +253,79 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 		}
 		symbol++;
 	}
-	buf_size = i;
+	buf_size = i + 1; //convert from last used space to size
+	return STATUS_OK;
+}
+
+void print(uint32_t buf) {
+	std::bitset<32> x(buf);
+	std::cout <<x<<STDENDL;
+}
+
+//out_buf_size[0] is the length of coded bits (number of coded + 1)
+UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+	ASSERT (buf_size > 2);
+	if (isLoaded() == false) {
+		return STATUS_ERR_NOT_LOADED;
+	}
+	//find patterns cover over url
+	symbolT result[MAX_URL_LENGTH];
+	algo.find_patterns(url,result);
+
+
+	//Huffman encode the symbols
+	uint32_t& bit_counter = out_encoded_buf[0];
+	bit_counter=0;
+	uint32_t i_out = 1;	//idx in out_encoded_buf
+	out_encoded_buf[i_out] = 0;
+
+	uint32_t lsb = 0;	//next bit code {0..31}
+	const uint32_t bitsinbuf = 8 * sizeof(uint32_t);
+	symbolT* symbol = result;
+	while (*symbol != S_NULL) {
+		Pattern* pat = _symbol2pattern_db[*symbol];
+//		std::cout<<"pat= "<<pat->_str<<" " << DVAL(lsb) <<STDENDL;
+		uint32_t i = 0;
+		uint16_t length = pat->_coded.length;
+		bit_counter+=length;
+		uint32_t next_lsb = (length + lsb) % bitsinbuf;
+		//each iteration we code one buf - i.e buf[i]
+		while (length > 0 ) {
+			uint32_t buf = pat->_coded.buf[i];
+//			std::cout << "-- " << DVAL(length) << " "<< DVAL(i)<<STDENDL;
+//			std::cout << "buf "<<i<<" l-"<<length<<" ="; print(buf);
+			//lsb = 2
+			buf >>= lsb;		//code the left most bit  01234567 >> lsb 2
+//			std::cout << "buf  >>=   "; print(buf);
+//			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+			out_encoded_buf[i_out] |=  buf;					//xx012345
+//			std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+			uint32_t lsb_tag = bitsinbuf - lsb;			// 6
+			length = (length > lsb_tag) ? (length - lsb_tag) : 0; // 8 - 2 = 6
+
+			// how many bits were code ?
+			if (length > 0 ) {	//we need to code another byte
+				buf = pat->_coded.buf[i];
+//				std::cout << "- in   =   "; print(buf);
+				buf <<= lsb_tag;							// 6  --> 67000000
+//				std::cout << "buf  <<=   "; print(buf);
+				i_out++;
+				out_encoded_buf[i_out] =  0;						//67xxxxxx
+				out_encoded_buf[i_out] |=  buf;						//67xxxxxx
+//				std::cout << "buf out["<<i_out<<"]=";print(out_encoded_buf[i_out]);
+				length = (length > lsb) ? (length - lsb) : 0; // length - 2
+			}
+			i++;
+		}
+		lsb = next_lsb;
+		if (lsb==0) {
+			i_out++;
+			out_encoded_buf[i_out] = 0;
+		}
+		symbol++;
+	}
+
+	buf_size = i_out + 1; //convert from last used space to size
 	return STATUS_OK;
 }
 
@@ -272,9 +344,10 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	uint32_t i;
 	for (i=1 /*[0] was number of coded bits*/; i < in_buf_size; i++) {
 		uint32_t buf = in_encoded_buf[i];
+#ifdef BUILD_DEBUG
 		std::bitset<32> x(buf);
 		DBG(" buf="<<x);
-
+#endif
 		for (uint16_t j=0; j < BITS_IN_UINT32_T ; j++) {
 			uint32_t bit = buf & most_left_bit;
 			if (bit == 0) { 	// 0
@@ -285,8 +358,9 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 			num_of_left_bits_to_read--;
 			buf = buf << 1;	//shift left buf
 //			DBG(s);
-			symbolT symbol = _huffman.decode(huff_code);
-			if (symbol != S_NULL) {
+			symbolT symbol ;
+			bool found = _huffman.decode(huff_code,symbol);
+			if (found) {
 // these are only for debugging:
 //				std::string code = _huffman.HuffCode_str(&huff_code);;
 //				std::cout<<"code="<<code<<"; "<<_symbol2pattern_db[symbol]->_str<<STDENDL;
@@ -297,15 +371,13 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 					break; 				//break this loop
 				}
 			}
-
 			if (num_of_left_bits_to_read == 0) {
 				return STATUS_ERR_LOST_DECODED_DATA;
 			}
-
 		}
 	}
 	DBG("finished decode");
-//	urlbuilder.print();
+	ON_DEBUG_ONLY( urlbuilder.debug_print() );
 	url = urlbuilder.get_url();
 
 	return STATUS_OK;
@@ -346,14 +418,40 @@ Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(st
 	_symbol=symbol;
 	_frequency=frequency;
 	_huffman_length=UINT32_MAX;
-
+	_coded.buf = NULL;
+	_coded.length = 0;
 }
 
-void UrlCompressor::calculate_symbols_score() {
+void UrlCompressor::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator iter=_symbol2pattern_db.begin(); iter!=_symbol2pattern_db.end();++iter) {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
 		_symbol2pattern_db[i]->_huffman_length=code.size();
+		prepare_huffman_code(_symbol2pattern_db[i],code);
+	}
+}
+
+void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
+	pat->_coded.length = code.size();
+	uint32_t buf_size = (pat->_coded.length / sizeof(uint32_t)) + 1 ;
+	pat->_coded.buf = new uint32_t[ buf_size ];
+	uint32_t* buf = pat->_coded.buf;
+
+	uint32_t mask_reset = 1 << (BITS_IN_UINT32_T -1 );	//MSb - 1 i.e 100000000..
+	uint32_t mask = mask_reset;
+	uint32_t i = 0;		//idx in buf
+	buf[i] = 0;			//buf[0] = 0;
+	for (HuffCode::const_iterator it = code.begin(); it != code.end(); ++it) {
+		if (*it == true) {
+			buf[i] = buf[i] | mask;
+		}
+		mask = mask / 2;	//move right
+		if (mask == 0) {
+			i++;
+			ASSERT( i < buf_size );
+			mask = mask_reset;
+			buf[i] = 0;
+		}
 	}
 }
 
@@ -365,6 +463,7 @@ void UrlCompressor::init(uint32_t reserved_size) {
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
 //	_symbol2pattern_db_size=1;
 	_nextSymbol = 1;
+	_statistics.reset();
 	ASSERT (_nextSymbol == getDBsize() );
 	setLoaded();
 }
@@ -403,14 +502,33 @@ void UrlCompressor::prepare_database() {
 			Pattern* pat =_symbol2pattern_db[i];
 			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
+			add_memory_counter(pat->size());
 	}
-	_huffman.load(freqArr,_nextSymbol);
-	delete freqArr;
+	add_memory_counter(_symbol2pattern_db.size() * SIZEOFPOINTER);
 
-	calculate_symbols_score();	//evaluate each symbol encoded length
+	_huffman.load(freqArr,_nextSymbol);
+	add_memory_counter(_huffman.size());
+	delete[] freqArr;
+
+	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 //	init_pattern_matching_algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	// ----------------------------
+	algo.make_pattern_to_symbol_list();
+	// ----------------------------
+	_statistics.number_of_symbols = _symbol2pattern_db.size();
+	add_memory_counter(algo.size());
 
 }
 
 
+
+void HeavyHittersStats::print() const {
+	std::cout<<  DVAL(number_of_symbols)<<STDENDL;
+	std::cout<<  DVAL(number_of_patterns)<<STDENDL;
+	std::cout<<  DVAL(number_of_urls)<<STDENDL;
+	if (params_set) {
+		std::cout<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
+		std::cout<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
+	}
+}

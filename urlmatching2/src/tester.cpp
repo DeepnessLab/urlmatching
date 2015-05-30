@@ -1,7 +1,7 @@
 /*
  * tester.cpp
  *
- *  Created on: 18 бреб 2014
+ *  Created on: 18 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -19,9 +19,6 @@
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
-#define GETTIMING double(end - begin) / (CLOCKS_PER_SEC)
-#define START_TIMING 	do {begin = std::clock();} while(0)
-#define STOP_TIMING 	do {end = std::clock();} while(0)
 
 
 #define BUFFSIZE 500
@@ -29,7 +26,7 @@
 void test_url_dictionary_load_from_url_txt_file() {
 	using namespace std;
 
-	clock_t begin,end;
+	PREPARE_TIMING;
 
 //	int bytes = GetModuleFileName(NULL, pBuf, 1000);
 //	std::string path(pBuf, bytes);
@@ -38,36 +35,52 @@ void test_url_dictionary_load_from_url_txt_file() {
 	getWorkingDirectory(path);
 	std::cout<<"running from path="<<path<<std::endl;
 
-	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/9000_urls_100times.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/blacklist_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {n1: 1000, n2: 1000, r: 0.5, kgrams_size: 4};
+	HeavyHittersParams_t customParams = {n1: 3000, n2: 3000, r: 0.8, kgrams_size: 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
 	START_TIMING;
-	bool ret = urlc.LoadUrlsFromFile(urls_file, params, false);
+	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
-	assert (ret);
+	uint32_t memory_size = urlc.SizeOfMemory();
+	assert (retB);
 
 //	urlc.print_database(true /*print codes*/);
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
 	//static test - encode/decode single string
-	std::string my_string = "http://www.google.com/gmail/drive";
+//	std::string my_string = "http://www.google.com/gmail/drive";
+	std::string my_string = "http://www.besound.com/pushead/home.html";
 	std::cout<<"matching string="<<my_string<<std::endl;
 
-	std::cout<<"encode string="<<my_string<<std::endl;
+	std::cout<<"encode string= "<<my_string<<std::endl;
 	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode(my_string,codedbuff,buff_size);
+	urlc.encode_2(my_string,codedbuff,buff_size);
+	std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
 
 	std::string decoded_str;
-	urlc.decode(decoded_str,codedbuff,buff_size);
+	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
+	if (ret != STATUS_OK)
+		std::cout<<"ERROR DECODING: "<<ret<<STDENDL;
 	std::cout<<"dencoded string="<<decoded_str<<std::endl;
+	if (my_string != decoded_str) {
+		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+		std::cout<<" had length "<<DVAL(codedbuff[0])<<STDENDL;
+		return;
+	}
+
+	delete[] codedbuff;
+
 
 
 	//encode/decode entire urlsfile
@@ -75,26 +88,48 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"reading file and allocating memory... "<<std::endl;
 	std::deque<std::string> urls;
 	std::deque<uint32_t*> codedbuffers;
+	uint32_t total_input_size = 0;
 	buff_size = BUFFSIZE;
 	{
 		LineIterator lit(urls_file.c_str(),'\n');
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			std::string str((const char *) pckt.ptr,pckt.size);
-			urls.push_back(str);
-			uint32_t* codedbuff = new uint32_t[buff_size];
-			codedbuffers.push_back(codedbuff);
+			if ( (str.length() == 0 )||(str == "") ) {
+				std::cout<<"Skipping url in line" << urls.size() <<STDENDL;
+			} else{
+				urls.push_back(str);
+				uint32_t* codedbuff = new uint32_t[str.length()];
+				codedbuffers.push_back(codedbuff);
+				total_input_size += str.length();
+			}
 		}
 	}
+
+	uint32_t start_at = 0;
+	uint32_t howmanytocode;
+//	howmanytocode = 1000;
+	howmanytocode = urls.size()-1 ;
+	howmanytocode = (howmanytocode>urls.size()) ? urls.size() - 1  : howmanytocode;	//protection
+
+	uint32_t status_every = ((howmanytocode /10) > 0 ) ? (howmanytocode /10) : 1;
+
+	std::cout<<"-- Online Testing on " << howmanytocode << " urls --" <<STDENDL;
+
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
+	uint32_t decoded_size = 0;
+	uint32_t encoded_size = 0;
+
 	START_TIMING;
-	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
+	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
-		urlc.encode(urls[i],codedbuff,buff_size);
-		if (i%500 == 0)
-			std::cout<<"  at "<<i<<std::endl;
+		urlc.encode_2(urls[i],codedbuff,buff_size);
+		decoded_size+=urls[i].length();
+		encoded_size+=buff_size;
+		if (i%status_every == 0)
+			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
 	double time_to_encode = GETTIMING;
@@ -102,26 +137,78 @@ void test_url_dictionary_load_from_url_txt_file() {
 	//decode all urls
 	std::cout<<"decoding ... "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <1000/* urls.size()*/; i++ ) {
+	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		std::string decoded_str;
 		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (i%500 == 0)
-					std::cout<<"  at "<<i<<std::endl;
+		if (decoded_str != urls[i]) {
+			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+			std::cout<<"  " << DVAL(i)<< " "<< DVAL(urls[i])<<" != "<<DVAL(decoded_str)<<STDENDL;
+			std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
+			return;
+		}
+		if (i%status_every == 0)
+					std::cout<<"  decoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
 	double time_to_decode = GETTIMING;
 
-	uint32_t size = urls.size();
+	//free what was never yours
+	for (uint32_t i = 0 ; i < urls.size(); i++ ) {
+		uint32_t* codedbuff = codedbuffers[i];
+		delete[] codedbuff;
+	}
 
+	uint32_t size = urls.size();
+	uint32_t memory_footprint = encoded_size + memory_size;
 
 	//printing stats
-	std::cout<<"Printing stats:"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "ms, average="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
-	std::cout<<DVAL(time_to_encode) << "ms, average="<< double(time_to_encode/size) <<"ms"<< STDENDL;
-	std::cout<<DVAL(time_to_decode )<< "ms, average="<< double(time_to_decode/size) <<"ms"<< STDENDL;
+	// remember 1 B/ms == 1KB / sec
+	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
+	std::cout<<"--------------"<<std::endl;
+	std::cout<<DVAL(time_to_load) 	<< "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+
+	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double((double) time_to_encode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s"
+			<< "  average/url="<< double((double) time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+
+	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
+			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
+			<<" Mb/s"<<STDENDL;
+	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(memory_size)<< 	"Bytes = " << double((double)memory_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(memory_footprint)<< 	"Bytes = " << double((double)memory_footprint / 1024) <<"KB"<< STDENDL;
+	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
+	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_size+memory_footprint)/(double)decoded_size) * 100 << "%"<<STDENDL;
+	const HeavyHittersStats* stats = urlc.get_stats();
+	stats->print();
+
+/*
+	//printing stats
+	// remember 1 B/ms == 1KB / sec
+	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
+	std::cout<<"--------------"<<std::endl;
+	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
+			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
+			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
+			<< double((double) ( (double) total_input_size / (time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
+			<<" Mb/s"<<STDENDL;
+	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
+	const HeavyHittersStats* stats = urlc.get_stats();
+	stats->print();*/
 }
 
 

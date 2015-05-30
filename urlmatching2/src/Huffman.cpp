@@ -1,7 +1,7 @@
 /*
  * Huffman.cpp
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -13,7 +13,7 @@
 #include "logger.h"
 
 Huffman::Huffman() :
-_is_loaded(false),_freq_size(0){
+_is_loaded(false),_freq_size(0), _size(0){
 	// TODO Auto-generated constructor stub
 
 }
@@ -50,14 +50,15 @@ HuffCode Huffman::encode(uint32_t symbol) {
 	return _codes[symbol];
 }
 
-uint32_t Huffman::decode(HuffCode code) {
+bool Huffman::decode(HuffCode code, symbolT& symbol) {
 	assert(_is_loaded);
 	HuffSymbMap::iterator it;
 	it = _codes2symbols.find(code);
 	if (it == _codes2symbols.end()) {
-		return S_NULL;
+		return false;
 	}
-	return it->second;
+	symbol = it->second;
+	return true;
 }
 
 void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeMap& outCodes)
@@ -96,11 +97,14 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	INode* root = BuildTree();
 
 	Huffman::GenerateCodes(root, HuffCode(), _codes);
+	_size+= _codes.size() * SIZEOFPOINTER * 2;
 
 	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
 	{
 		_codes2symbols.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
+		_size+= (sizeof(symbolT) + it->second.size());
 	}
+	_size+= _codes2symbols.size() * SIZEOFPOINTER * 2;
 
 //	for (HuffCodeMap::const_iterator it = _codes.begin(); it != _codes.end(); ++it)
 //	{
@@ -109,6 +113,24 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 //				std::ostream_iterator<bool>(std::cout));
 //		std::cout << std::endl;
 //	}
+	//bfs scan the tree and free it
+//	std::deque<INode*> bfs;
+//	bfs.push_back(root);
+//	while (!bfs.empty()) {
+//		INode* node = bfs.front();
+//		bfs.pop_front();
+//		if (const LeafNode* lf = dynamic_cast<const LeafNode*>(node))
+//		{
+//
+//		} else 	if (const InternalNode* in = dynamic_cast<const InternalNode*>(node)) {
+//			bfs.push_back(in->left);
+//			bfs.push_back(in->right);
+//		}
+//		delete node;
+//	}
+
+
+
 	_is_loaded=true;
 }
 

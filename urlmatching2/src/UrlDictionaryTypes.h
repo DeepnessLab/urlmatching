@@ -22,9 +22,16 @@
 
 #define STDENDL std::endl
 
+#define SIZEOFPOINTER 8
+
 typedef std::map<std::string,int> Strings2FreqMap;
 typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
 
+
+typedef struct {
+	uint32_t* buf;
+	uint16_t length;
+} CodedHuffman;
 
 /**
  * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
@@ -37,11 +44,20 @@ public:
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
 	uint32_t inline getHuffmanLength() { return (_huffman_length);	}
 
+	inline 	uint32_t size() {
+		uint32_t size = sizeof(_symbol)
+				+ sizeof(_frequency)
+				+ _str.size()
+				+ sizeof(_huffman_length);
+		return size;
+	}
+
 	//members
 	uint32_t _symbol;
 	uint32_t _frequency;
 	std::string _str;
 	uint32_t _huffman_length;
+	CodedHuffman _coded;
 
 };
 
@@ -60,6 +76,10 @@ struct cmp_str
 typedef std::map<const char*, symbolT, cmp_str> patternsMapType;
 
 
+typedef struct {
+	symbolT*** table;
+	uint32_t size;
+} symbolTableType;
 
 
 

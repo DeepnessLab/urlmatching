@@ -13,6 +13,7 @@
 inline
 void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		uint32_t idx_of_last_char, urlMatchingType& url_module) {
+
 	//assuming here the patterns are in decreasing length order (the longest is the first)
 	DBG("go_over_all_patterns for \"" << string_with_patterns <<"\"");
 	char buffer[1000];
@@ -23,7 +24,6 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 		to_delete = true;
 	}
 
-
 	strcpy(s, string_with_patterns);
 	char* tk = strtok(s, delimiter);
 	int counter = 0;
@@ -33,21 +33,26 @@ void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
 			DBG("daniel " << DVAL(tk) << " " << DVAL (string_with_patterns)<< " " << DVAL (counter));
 			ASSERT(ret == url_module.patternDB->end());
 		}
-		symbolT s = ret->second;
-		updateModule(url_module,s,idx_of_last_char);
+		symbolT symb = ret->second;
+		updateModule(url_module,symb,idx_of_last_char);
 		DBG(" > Added \"" << tk <<"\" at "<< idx_of_last_char);
 		tk = strtok(NULL, delimiter);
 		counter++;
 	}
+//	if (counter > 1 ) {
+//		std::cout<<"DANIEL found pattern with ; " <<DVAL(counter) <<" " << DVAL (string_with_patterns) <<STDENDL;
+//	}
 	if (to_delete) { delete s ;}
 }
 
-int handle_pattern(char* str, uint32_t idx, void* data) {
+int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
+{
 	if (str == NULL) {
 		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
 		return 0;
 	}
 	urlMatchingType* url_module = (urlMatchingType*) data;
+	ASSERT(url_module!=NULL);
 	DBG("handle_pattern: \""<<str<< "\" at "<<idx);
 
 	//insert all literals
@@ -57,10 +62,15 @@ int handle_pattern(char* str, uint32_t idx, void* data) {
 		updateModule(*url_module,s,j);
 		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
-
-	ASSERT(url_module!=NULL);
-	update_for_all_patterns(";", str, idx,*url_module);
-	std::string real_str(str);
+	symbolT* symbols = url_module->symbolsTable->table[id][count];
+	ASSERT(symbols!=NULL);
+	symbolT last_symbol = S_NULL; //skip same copies of the same string
+	while (*symbols != S_NULL) {
+		if ( last_symbol != *symbols)
+			updateModule(*url_module,*symbols,idx);
+		last_symbol = *symbols;
+		symbols++;
+	}
 
 	return 1;
 

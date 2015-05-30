@@ -209,7 +209,7 @@ char *concat_strings_nofree(char *s1, char *s2) {
 	len2 = strlen(s2);
 	res = (char*)malloc(sizeof(char) * (len1 + len2 + 2));
 	strcpy(res, s1);
-	res[len1] = ';';
+	res[len1] = ACDELIMITER;
 	strcpy(&(res[len1+1]), s2);
 
 	return res;
@@ -286,7 +286,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 //					pattern = concat_strings_nofree(pattern, patternTable->patterns[id][count]);
 					pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);
 //					printf("   in patternTable->patterns[id=%d][count=%d]=%s\n",id,count,pattern);
-					patternFunc( patternTable->patterns[id][count] ,*idx,data );
+					patternFunc( patternTable->patterns[id][count] ,*idx, id, count, data );
 
 				}
 			}

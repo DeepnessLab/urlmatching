@@ -1,7 +1,7 @@
 /*
  * UrlDictionay.h
  *
- *  Created on: 1 бреб 2014
+ *  Created on: 1 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -36,6 +36,30 @@ typedef struct HeavyHittersParams {
 	size_t kgrams_size;
 } HeavyHittersParams_t;
 
+typedef struct HeavyHittersStats {
+	uint32_t number_of_symbols;
+	uint32_t number_of_patterns;
+	uint32_t number_of_urls;
+	HeavyHittersParams_t params;
+	bool params_set;
+
+	void reset() {
+		number_of_patterns = 0;
+		number_of_symbols = 0;
+		number_of_urls = 0;
+		params_set = false;
+	}
+
+	void reset(const HeavyHittersParams_t& params_) {
+		reset();
+		params = params_;
+		params_set = true;
+	}
+
+	void print() const ;
+
+} HeavyHittersStats_t;
+
 extern HeavyHittersParams_t default_hh_params;
 
 class UrlCompressor {
@@ -62,12 +86,17 @@ public:
 	 */
 	bool LoadStoredDBFromFiled(std::string& file_path);
 
+	uint32_t SizeOfMemory() { return _memory_allocated; }
+
 	void print_database(bool print_codes=false);
 	void print_strings_and_codes();
 
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
+	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
+
+	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
 
 
 	struct patternsIterator {
@@ -82,12 +111,13 @@ public:
 	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
 
 	// calculates Huffman length and string lenght for every patterns
-	 void calculate_symbols_score();
+	 void calculate_symbols_huffman_score();
 	/** once all patterns are loaded with their frequencies -
 	  1. create huffman code
 	  2. create pattern matching algorithm
 	 */
 	void prepare_database();
+	void prepare_huffman_code(Pattern* pat, HuffCode& code);
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }
@@ -104,6 +134,9 @@ public:
 	 */
 	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
+	inline
+	void add_memory_counter(uint32_t bytes) { _memory_allocated+= bytes;}
+
 	//TODO: get this into a struct
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
 //	uint32_t _symbol2pattern_db_size;	//length of this array
@@ -111,7 +144,9 @@ public:
 	ACWrapperCompressed algo;
 	bool _is_loaded;
 	symbolT _nextSymbol;
+	HeavyHittersStats_t _statistics;
 
+	uint32_t _memory_allocated;
 
 
 };
@@ -124,7 +159,7 @@ public:
 	virtual void reset() {_url.empty(); }
 	virtual void append (symbolT symbol);
 	virtual std::string get_url() {return _url; }
-	virtual void print();
+	virtual void debug_print();
 
 private:
 	typedef std::deque<symbolT> SymbolDeque ;

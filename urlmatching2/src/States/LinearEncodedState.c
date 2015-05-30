@@ -167,7 +167,8 @@ void setStateData_LE(State *state, uchar *chars, STATE_PTR_TYPE *gotos, short *p
 	}
 }
 
-int getNextState_LE(State *linearEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
+inline int getNextState_LE(State *linearEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose)
+{
 	uchar c;
 	StateHeader *header;
 	int i, size, found, j, count, id;
@@ -207,6 +208,7 @@ int getNextState_LE(State *linearEncodedState, char *str, int length, int *idx, 
 			}
 			id = (linearEncodedState[1] << 8) | linearEncodedState[2];
 			result->pattern = patternTable->patterns[id][count];
+			machine->handlePatternFunc (result->pattern, *idx , id, count, machine->handlePatternData);
 		}
 
 		count = 0;

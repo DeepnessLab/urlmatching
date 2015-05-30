@@ -23,6 +23,7 @@ extern "C"
 
 #define MAX_CHAR 1000
 
+
 int special_handle_pattern(char* str,uint32_t idx, void* data) ;
 
 class ACWrapperCompressed : public PatternMatchingBaseClass {
@@ -51,6 +52,8 @@ public:
 
 	virtual void printDB(std::ostream& os);
 
+	inline uint32_t size() { return _size; }
+
 	virtual inline
 	bool isLoaded() { return is_loaded; }
 
@@ -59,11 +62,12 @@ public:
 
 	//members:
 
+	void make_pattern_to_symbol_list();
 
 private:
 
-
-	void make_pattern_to_symbol_list();
+	inline
+	symbolT* create_symb_string (const char* c_string);
 
 	//members
 	bool is_loaded;
@@ -74,8 +78,16 @@ private:
 
 	patternsMapType* _patternsMap;
 
+	//patterns_as_symbols is an array of array of "symbolT string" i.e S_NULL terminated
+	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
+	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
+	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
+	symbolTableType _symbolsTable;
+
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
+
+	uint32_t _size;
 
 };
 

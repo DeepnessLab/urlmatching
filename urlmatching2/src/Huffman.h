@@ -1,6 +1,6 @@
 /*
  * Huffman.h
- *
+ *	Taken from http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
  *  Created on: 1 бреб 2014
  *      Author: Daniel
  */
@@ -82,7 +82,7 @@ public:
 	void print();
 
 	HuffCode encode(uint32_t symbol);
-	uint32_t decode(HuffCode code);
+	bool decode(HuffCode code, symbolT& out_decoded_symbol);
 
 	inline
 	void printHuffCode(HuffCode* code) {
@@ -100,6 +100,8 @@ public:
 		return stream.str();
 	}
 
+	inline uint32_t	size() { return _size; }
+
 
 private:
 	INode* BuildTree();
@@ -111,6 +113,7 @@ private:
 	bool _is_loaded ;
 	uint32_t* _frequencies = NULL;
 	uint32_t _freq_size ;
+	uint32_t _size;
 
 };
 

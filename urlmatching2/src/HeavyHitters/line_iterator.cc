@@ -27,7 +27,7 @@ LineIterator::LineIterator(const char *filePath) {
 
 LineIterator::LineIterator(const char *filePath, const char delim) {
 
-	_infile.open(filePath);
+	_infile.open(filePath, std::ifstream::in);
 	if (!_infile.is_open()){
 		_isFileOpenedSuccessfully = false;
 		std::cerr << "Failed to open file: path=" << filePath << std::endl;

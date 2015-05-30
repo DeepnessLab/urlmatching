@@ -1,7 +1,7 @@
 /*
  * UrlMatchingFunctions.h
  *
- *  Created on: 7 áãöî 2014
+ *  Created on: 7 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -40,23 +40,15 @@ typedef struct urlMatchingType {
 	Symbol2pPatternVec* list;
 	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
 	symbolT* char_to_symbol;						//array [char] = symbols
+	symbolTableType* symbolsTable;
 } urlMatchingType;
-
 
 void debugPrintModule (urlMatchingType& urlmatching);
 
 //some forward declarations
 //inline void  calcViPi(urlMatchingType& module);
 
-int handle_pattern(char* str,uint32_t idx, void* data) ; /*{
-	urlMatchingType* url_module = (urlMatchingType*) data;
-	assert(url_module!=NULL);
-//	ACWrapperClassic ac = ACWrapperClassic::getInstance();
-	std::string real_str(str);
-	std::cout<<"at idx="<<idx<<", pattern="<<real_str<<std::endl;
-//	ac.patterns[real_str(str)]=strlen(str);
-	return 1;
-}*/
+int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct);
 
@@ -71,7 +63,7 @@ void calcViPi(urlMatchingType& module) {
 
 	//calc V[index4PV] according to module.matching_symbols_arr[0]
 	ASSERT (index4PV < MAX_URL_LENGTH);
-	symbolT& symbol = module.V[index4PV];
+//	symbolT& symbol = module.V[index4PV];	//todo: remove this line
 	module.V[index4PV] = module.matching_symbols_arr[0];
 
 	Pattern* p = (*module.list)[module.matching_symbols_arr[0]];
@@ -165,7 +157,7 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 		//new index, consolidate previous index
 		DBG("idx("<<idx<<") > module.index("<<module.index<<") -> calcViPi");
 		calcViPi(module);
-		debugPrintModule(module);
+//		ON_DEBUG_ONLY( debugPrintModule(module) );
 		module.index = module.index+1;
 		module.matching_symbols_idx = 0;
 	}
@@ -190,7 +182,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 
 
 	calcViPi(module);
-	debugPrintModule(module);
+//	ON_DEBUG_ONLY( debugPrintModule(module) );
 
 	// Finalize the successful patterns
 	uint32_t V_idx = module.index+1;
@@ -224,6 +216,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 inline
 void initModule(urlMatchingType& module) {
 	module.P[0]=0;
+	module.V[0]=0;
 	module.index=0;
 	module.list=NULL;
 	module.matching_symbols_idx=0;

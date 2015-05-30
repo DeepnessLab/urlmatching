@@ -12,6 +12,15 @@
 #include <stdio.h>
 #include "easylogging++.h"
 
+
+#ifdef BUILD_DEBUG
+#define ON_DEBUG_ONLY(what) do {what ; } while (0)
+#else
+#define ON_DEBUG_ONLY(what) do {} while (0)
+#endif
+
+
+
 #ifdef BUILD_DEBUG
 #define ASSERT(what) if (!(what)) { \
 	el::Loggers::flushAll();\
@@ -23,25 +32,29 @@
 #define STR(s) #s
 #define XSTR(a) STR(a)
 
-#define DEBUG_NONE 0
-#define DEBUG_LOG 1
-#define DEBUG_STDOUT 2
+#define DBG_TO_NONE 0
+#define DBG_TO_LOG 1
+#define DBG_TO_STDOUT 2
 
-#define DEBUG_OUTPUT DEBUG_LOG
+#ifdef BUILD_DEBUG
+#define DEBUG_OUTPUT DBG_TO_NONE
+#else
+#define DEBUG_OUTPUT DBG_TO_NONE
+#endif
+
 
 #define DVAL(what) #what"="<< (what)
 #define BVAL(x) #x"="<<((x)?"true":"false")
 
-#if DEBUG_OUTPUT == DEBUG_LOG
+#if DEBUG_OUTPUT == DBG_TO_LOG
 
 #define DBG(what) do { std::stringstream s; \
 	s << what; \
-	LOG(DEBUG) << s.str(); } while(0)\
-
-#elif DEBUG_OUTPUT == DEBUG_STDOUT
+	LOG(DEBUG) << s.str(); } while(0)
+#elif DEBUG_OUTPUT == DBG_TO_STDOUT
 #define DBG(what) std::cout<< what <<std::endl
 
-#elif DEBUG_OUTPUT == DEBUG_NONE
+#elif DEBUG_OUTPUT == DBG_TO_NONE
 #define DBG(what) do { } while(0)
 
 #endif
