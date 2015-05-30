@@ -109,9 +109,9 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
 		_size+= (sizeof(symbolT) + it->second.size());
 	}
-//	_size+= _codes2symbolsMap.size() * SIZEOFPOINTER ;
 
-	FreeTree(root);
+//	FreeTree(root);
+	delete root;
 	_is_loaded=true;
 }
 
