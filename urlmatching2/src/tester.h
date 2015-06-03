@@ -10,7 +10,9 @@
 
 #ifdef WINDOWS
     #include <direct.h>
+	#include <windows.h>
     #define GetCurrentDir _getcwd
+	#define sleep(n) Sleep(1000 * n)
 #else
     #include <unistd.h>
     #define GetCurrentDir getcwd
@@ -54,7 +56,7 @@ void test_LLH();
 void test_url_dictionary_load_from_url_txt_file();
 
 
-
+void take_a_break(int seconds, std::string why);
 
 
 #endif /* TESTER_H_ */

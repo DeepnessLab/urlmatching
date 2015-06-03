@@ -11,7 +11,7 @@
 #include <string>
 #include <assert.h>
 #include <ctime>
-#include <windows.h>
+
 
 
 #include "tester.h"
@@ -21,7 +21,7 @@
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
-#define sleep(n) Sleep(1000 * n)
+
 
 #define BUFFSIZE 500
 
@@ -38,22 +38,23 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-//	std::string urls_file = "test_files/9000_urls.txt";
-	std::string urls_file = "test_files/blacklist_syn.txt";
+	std::string urls_file = "test_files/9000_urls.txt";
+//	std::string urls_file = "test_files/blacklist_syn.txt";
+//	std::string urls_file = "test_files/bigfile_syn.txt";
 	path = path + urls_file;
 
 	std::cout<<"test file path="<<path<<std::endl;
-	HeavyHittersParams_t customParams = {/*n1*/ 3000, /*n2*/ 3000, /*r*/ 0.8, /*kgrams_size*/ 8};
+	int n = 1000;
+	HeavyHittersParams_t customParams = {/*n1*/ n, /*n2*/ n, /*r*/ 0.8, /*kgrams_size*/ 8};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
-//	std::cout<<"sleep 60 sec before loading"<<STDENDL;
-//	sleep(20);
+	int break_time=20;
+	take_a_break(break_time," before loading");
 	START_TIMING;
 	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	STOP_TIMING;
-//	std::cout<<"sleep 60 sec after loading"<<STDENDL;
-//	sleep(20);
+	take_a_break(break_time," after loading");
 	double time_to_load = GETTIMING;
 	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
 	assert (retB);
@@ -145,16 +146,16 @@ void test_url_dictionary_load_from_url_txt_file() {
 	START_TIMING;
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 
-		buff_size = BUFFSIZE;
-		uint32_t* codedbuff = codedbuffers[i];
-		std::string decoded_str;
-		urlc.decode(decoded_str,codedbuff,buff_size);
-		if (decoded_str != urls[i]) {
-			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
-			std::cout<<"  " << DVAL(i)<< " "<< DVAL(urls[i])<<" != "<<DVAL(decoded_str)<<STDENDL;
-			std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
-			return;
-		}
+//		buff_size = BUFFSIZE;
+//		uint32_t* codedbuff = codedbuffers[i];
+//		std::string decoded_str;
+//		urlc.decode(decoded_str,codedbuff,buff_size);
+//		if (decoded_str != urls[i]) {
+//			std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+//			std::cout<<"  " << DVAL(i)<< " "<< DVAL(urls[i])<<" != "<<DVAL(decoded_str)<<STDENDL;
+//			std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
+//			return;
+//		}
 		if (i%status_every == 0)
 					std::cout<<"  decoding passed "<<i<<std::endl;
 	}
@@ -353,4 +354,13 @@ void test_huffman() {
 		dict._huffman.print();
 
 		dict.print_strings_and_codes();
+}
+
+
+void take_a_break(int seconds, std::string why) {
+	if (seconds == 0)
+		return;
+	std::cout<<"sleep "<<seconds<<" sec: "<< ((why.length()>0)?why:""  )<<std::endl;
+	sleep(seconds);
+	std::cout<<" --> continuing"<<STDENDL;
 }
