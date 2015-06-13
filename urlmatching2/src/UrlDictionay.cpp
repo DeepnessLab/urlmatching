@@ -45,6 +45,95 @@ UrlCompressor::~UrlCompressor()
 	// TODO Auto-generated destructor stub
 }
 
+//bool UrlCompressor::LoadUrlsToList(const std::string& urls_file, std::deque<std::string>& url_list) {
+//	LineIteratorFile lit(urls_file.c_str(),'\n');
+//	while (lit.has_next() ) {
+//		const raw_buffer_t &pckt = lit.next();
+//		std::string str((const char *) pckt.ptr,pckt.size);
+//		if ( (str.length() == 0 )||(str == "") ) {
+//			std::cout<<"Skipping url in line" << urls.size() <<STDENDL;
+//		} else{
+//			url_list.push_back(str);
+//		}
+//	}
+//	return true;
+//}
+
+//
+//bool UrlCompressor::LoadUrlsFromList(const std::deque<std::string> list,
+//		const HeavyHittersParams_t params,
+//		const  bool contains_basic_symbols)
+//{
+//	init();
+//	_statistics.reset(params);
+//
+//	/*
+//	 * - create all 'single char' patterns in db
+//	 * - go over input file and count  frequencies
+//	 * - Load file_path into LDHH (Heavy Hitters) with 2 pass constructor
+//	 * - run LDHH
+//	 * - go over all signatures and add to module
+//	 * 4. go over file_path again and count literals
+//	 * ...
+//	 */
+//	{	//in separate block so 'lit' will close the file
+//		uint32_t frequencies[CHAR_MAX+1];
+//		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
+//			frequencies[i]=1;
+//
+////		for (std::deque<std::string>::iterator itr = list.begin())
+//		LineIteratorFile lit(file_path.c_str(),'\n');
+//		while (lit.has_next() ) {
+//			const raw_buffer_t &pckt = lit.next();
+//			uchar* p = pckt.ptr;
+//			for (uint32_t i = 0 ; i < pckt.size; i++) {
+//				uchar c = *p;
+//				p++;
+//				frequencies[c] += 1;
+//			}
+//			_statistics.total_input_bytes+=pckt.size;
+//		}
+//
+//		char chars[2];
+//		chars[1] = '\0';
+//		for (unsigned char c=1; c <= CHAR_MAX ; c++) {
+//			chars[0] = (char) (c);
+//			std::string patStr(chars);
+//			addPattern(patStr,frequencies[c]);
+//		}
+//	}
+//
+//	LDHH ldhh(file_path, params.n1, params.n2, params.r, params.kgrams_size);
+//	if (ldhh.run() != true)
+//		return unload_and_return_false();
+//
+//	std::list<signature_t>& common_strings = ldhh.get_signatures();
+//	size_t                  urls_count     = ldhh.get_pckt_count();
+//	DBG("** scanned " << urls_count << " urls " << std::endl );
+//
+//	int patterns_counter = 0;
+//	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
+//		signature_t& sig = *it;
+//		std::string patStr;
+//		const char* str =(const char *) &sig.data[0];
+//		patStr.assign(str,  sig.data.size());
+//		uint32_t frequency = sig.calcHitsInSource();
+//		addPattern(patStr,frequency);
+//		patterns_counter++;
+//	}
+//	_statistics.number_of_patterns = patterns_counter;
+//	_statistics.number_of_urls = urls_count;
+//	DBG("total of "<< patterns_counter <<" patterns were found");
+//	DBG("total of "<< _nextSymbol <<" symbols were inserted");
+//
+//	prepare_database();
+//
+//	_huffman.free_encoding_memory();
+//	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
+//
+//
+//	return true;
+//}
 
 
 bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
@@ -68,7 +157,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
 			frequencies[i]=1;
 
-		LineIterator lit(file_path.c_str(),'\n');
+		LineIteratorFile lit(file_path.c_str(),'\n');
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			uchar* p = pckt.ptr;
@@ -89,7 +178,8 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 		}
 	}
 
-	LDHH ldhh(file_path, params.n1, params.n2, params.r, params.kgrams_size);
+	LineIteratorFile lit(file_path.c_str(),'\n');
+	LDHH ldhh(lit, params.n1, params.n2, params.r, params.kgrams_size);
 	if (ldhh.run() != true)
 		return unload_and_return_false();
 

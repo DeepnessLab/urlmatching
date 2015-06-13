@@ -15,8 +15,8 @@ void _init_ldelimiter() {
     ldelimiter.push_back(0xc3);
 }
 
-LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, float r, 
-         size_t kgram_size) : _line_it(pcap_filepath.c_str() , ENDL_DELIMITER) {
+LDHH::LDHH(LineIterator& line_it, int n1, int n2, float r,
+         size_t kgram_size) : _line_it(line_it/*pcap_filepath.c_str() , ENDL_DELIMITER*/) {
     
     this->_kgram_size = kgram_size;
     this->_r          = r;
@@ -33,8 +33,8 @@ LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, float r,
 }
 
 //TODO: differ between pcap_filepath or simple '\n' delimiter file
-LDHH::LDHH(const std::string& pcap_filepath, int n1, int n2, int n3, float r, size_t kgram_size, 
-         std::list<signature_t>* white_list) : _line_it(pcap_filepath.c_str()) {
+LDHH::LDHH(LineIterator& line_it, int n1, int n2, int n3, float r, size_t kgram_size,
+         std::list<signature_t>* white_list) : _line_it(line_it) {
     
     this->_kgram_size = kgram_size;
     this->_r          = r;
@@ -63,7 +63,7 @@ LDHH::~LDHH() {
 
 bool LDHH::run() {
     
-	if (!_line_it.isLoadedSuccessfully() ){
+	if (!_line_it.canRun() ){
 		return false;
 	}
 

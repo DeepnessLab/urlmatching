@@ -86,6 +86,9 @@ public:
 	//in_buf_size size of buf in bytes
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
 
+	//Cache urls in input file into deque of std::string of urls
+	static bool LoadUrlsToList(const std::string& urls_file, std::deque<std::string>& url_list);
+
 	//load list of urls and build cached database
 	bool LoadUrlsFromFile(const std::string& file_path,
 			const HeavyHittersParams_t params,

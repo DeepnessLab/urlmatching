@@ -12,7 +12,20 @@
 
 using std::ifstream;
 
-LineIterator::LineIterator(const char *filePath) {
+LineIterator* LineIterator::getLineIterator(const char *filePath) {
+	return (new LineIteratorFile(filePath));
+}
+
+LineIterator* LineIterator::getLineIterator(const char *filePath, const char delim) {
+	return (new LineIteratorFile(filePath, delim));
+}
+
+LineIterator* LineIterator::getLineIterator(const std::deque<std::string> *deque) {
+	return (new LineIteratorDeque(deque));
+}
+
+
+LineIteratorFile::LineIteratorFile(const char *filePath) {
 
 	_infile.open(filePath);
 	if (!_infile.is_open()){
@@ -25,7 +38,7 @@ LineIterator::LineIterator(const char *filePath) {
 	_delim = NULL_DELIMITER;
 }
 
-LineIterator::LineIterator(const char *filePath, const char delim) {
+LineIteratorFile::LineIteratorFile(const char *filePath, const char delim) {
 
 	_infile.open(filePath, std::ifstream::in);
 	if (!_infile.is_open()){
@@ -38,6 +51,6 @@ LineIterator::LineIterator(const char *filePath, const char delim) {
 	_delim = delim;
 }
 
-LineIterator::~LineIterator() {
+LineIteratorFile::~LineIteratorFile() {
 	_infile.close();
 }

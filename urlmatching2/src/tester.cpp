@@ -49,7 +49,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	UrlCompressor urlc;
-	int break_time=20;
+	int break_time=0;
 	take_a_break(break_time," before loading");
 	START_TIMING;
 	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
@@ -98,7 +98,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	uint32_t total_input_size = 0;
 	buff_size = BUFFSIZE;
 	{
-		LineIterator lit(urls_file.c_str(),'\n');
+		LineIteratorFile lit(urls_file.c_str(),'\n');
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			std::string str((const char *) pckt.ptr,pckt.size);
@@ -235,7 +235,8 @@ void test_LLH() {
     this->line_del = '\n';
  */
 	std::string urls_file = "D:\\Temp\\project\\patterns_url.txt";
-	LDHH ldhh(urls_file, 1000, 1000, 0.1, 8 );
+	LineIteratorFile lit(urls_file.c_str(),'\n');
+	LDHH ldhh(lit, 1000, 1000, 0.1, 8 );
 	ldhh.run();
 
 	std::list<signature_t>& peace_signatures = ldhh.get_signatures();

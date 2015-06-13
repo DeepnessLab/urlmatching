@@ -18,10 +18,14 @@ class LDHH {
     
 public:
     
-    LDHH(const std::string& pcap_filepath, int n1, int n2, float r, size_t kgram_size);
+//    LDHH(const std::string& pcap_filepath, int n1, int n2, float r, size_t kgram_size);
+    LDHH(LineIterator& line_it, int n1, int n2, float r, size_t kgram_size);
+
+    LDHH(LineIterator& line_it, int n1, int n2, int n3, float r,
+            size_t kgram_size, std::list<signature_t>* white_list = NULL);
     
-    LDHH(const std::string& pcap_filepath, int n1, int n2, int n3, float r, 
-        size_t kgram_size, std::list<signature_t>* white_list = NULL);
+//    LDHH(const std::string& pcap_filepath, int n1, int n2, int n3, float r,
+//        size_t kgram_size, std::list<signature_t>* white_list = NULL);
     
     virtual ~LDHH();
     
@@ -41,7 +45,7 @@ private:
     void          _input_to_hh3(const raw_buffer_ordered_set_t& signature_set);
     
 private:
-    LineIterator		   _line_it;
+    LineIterator&		   _line_it;
     size_t                 _pckt_count;
     
     size_t                 _kgram_size;
