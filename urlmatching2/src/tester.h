@@ -8,12 +8,12 @@
 #ifndef TESTER_H_
 #define TESTER_H_
 
-#ifdef WINDOWS
+#ifdef _WIN32
     #include <direct.h>
 	#include <windows.h>
     #define GetCurrentDir _getcwd
 	#define sleep(n) Sleep(1000 * n)
-#else
+#elif defined  __unix__
     #include <unistd.h>
     #define GetCurrentDir getcwd
  #endif

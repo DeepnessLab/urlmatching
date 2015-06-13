@@ -38,8 +38,8 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"running from path="<<path<<std::endl;
 
 //	std::string urls_file = "test_files/9000_urls_100times.txt";
-	std::string urls_file = "test_files/9000_urls.txt";
-//	std::string urls_file = "test_files/blacklist_syn.txt";
+//	std::string urls_file = "test_files/9000_urls.txt";
+	std::string urls_file = "test_files/blacklist_syn.txt";
 //	std::string urls_file = "test_files/bigfile_syn.txt";
 	path = path + urls_file;
 
