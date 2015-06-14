@@ -48,7 +48,7 @@ void test_main(CmdLineOptions& options) {
 	}
 	std::deque<std::string>* input_for_urlcompressor = &url_deque;
 
-	if (options.use_split_for_LPM) {
+	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
 		urlc.SplitUrlsList(url_deque, *splitted_deque);
 		input_for_urlcompressor = splitted_deque;
@@ -63,7 +63,7 @@ void test_main(CmdLineOptions& options) {
 	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
 	assert (retB);
 
-	if (options.use_split_for_LPM) {	//free unecessary memory
+	if (options.split_for_LPM) {	//free unecessary memory
 		delete input_for_urlcompressor;
 	}
 
@@ -101,7 +101,7 @@ void test_main(CmdLineOptions& options) {
 	buff_size = BUFFSIZE;
 	for (std::deque<std::string>::iterator it = url_deque.begin(); it != url_deque.end(); ++it) {
 		if ( (it->length() == 0 )||(*it == "") ) {
-			std::cout<<"Skipping url in line " << urls.size() <<STDENDL;
+			std::cout<<"Skipping url in line " << urls.size() +1<<STDENDL;
 		} else{
 			urls.push_back(*it);
 			uint32_t* codedbuff = new uint32_t[it->length()];
@@ -111,7 +111,7 @@ void test_main(CmdLineOptions& options) {
 	}
 
 	uint32_t start_at = 0;
-	uint32_t howmanytocode = urls.size()-1 ;
+	uint32_t howmanytocode = urls.size() ;
 	uint32_t status_every = ((howmanytocode /10) > 0 ) ? (howmanytocode /10) : 1;
 
 	std::cout<<std::endl;
@@ -166,11 +166,15 @@ void test_main(CmdLineOptions& options) {
 	uint32_t size = urls.size();
 	uint32_t encoded_and_memory = encoded_size + memory_footprint_estimation;
 
+	std::cout<<STDENDL;
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
-	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
-	std::cout<<"--------------"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+	std::cout<<" ---"<<std::endl;
+	std::cout<<"Runtime Statistics: for "<<size<<" urls"<<std::endl;
+	std::cout<<"------------------"<<std::endl;
+
+	std::cout<<"Loading: for "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<"  Time" <<time_to_load << "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
@@ -184,35 +188,34 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
 			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
 			<<" Mb/s"<<STDENDL;
+	std::cout<<" ---"<<std::endl;
+	std::cout<<"Compression Statistics:"<<STDENDL;
+	std::cout<<"----------------------"<<std::endl;
 	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(memory_footprint_estimation)<< 	"Bytes = " << double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_and_memory)<< 	"Bytes = " << double((double)encoded_and_memory / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
 	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_and_memory)/(double)decoded_size) * 100 << "%"<<STDENDL;
+	std::cout<<" ---"<<std::endl;
+	std::cout<<"Algorithm Statistics:"<<STDENDL;
+	std::cout<<"--------------------"<<std::endl;
 	const UrlCompressorStats* stats = urlc.get_stats();
 	stats->print();
 
-/*
-	//printing stats
-	// remember 1 B/ms == 1KB / sec
-	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
-	std::cout<<"--------------"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
-			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
-	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
-			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
-			<< double((double) ( (double) total_input_size / (time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
-			<<" Mb/s"<<STDENDL;
-	std::cout<<DVAL(decoded_size)<< "Bytes ="<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(encoded_size)<< "Bytes ="<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
-	const HeavyHittersStats* stats = urlc.get_stats();
-	stats->print();*/
+	ofstream out_file;
+	out_file.open (options.output_file_path.c_str(), ios::app );
+	out_file << "filename," <<"#urls,"
+			<<"n1,"<<"n2," <<"r,"<<"kgram,"
+			<<"#symbols,"<<"#patterns,"
+			<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec," <<"memory_footprint_estimation B,"
+			<< std::endl;
+	out_file << options.input_urls_file_path <<"," <<stats->number_of_urls<<","
+			<<stats->params.n1<<","<<stats->params.n2<<","<<stats->params.r<<","<<stats->params.kgrams_size
+			<<stats->number_of_symbols<<","<<stats->number_of_patterns<<","
+			<<time_to_load<<","<<decoded_size<<","<<encoded_size<<","<<time_to_encode<<","<<memory_footprint_estimation
+			<< std::endl;
+	out_file.close();
+
 }
 
 

@@ -53,9 +53,16 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 	while (lit.has_next() ) {
 		const raw_buffer_t &pckt = lit.next();
 		std::string str((const char *) pckt.ptr,pckt.size);
-		if ( (str.length() == 0 )||(str == "") ) {
-			std::cout<<"Skipping url in line" << url_list.size() <<STDENDL;
+		bool whiteSpacesOnly = std::all_of(str.begin(),str.end(),isspace);
+		//isprint(str[0]) is here since if the last line is empty then str contains EOF char
+		if ( (!isprint(str[0])) || whiteSpacesOnly || (str.length() == 0)||(str == "") ) {
+			std::cout<<"Skipped line " << url_list.size() +1 <<": Empty"<<STDENDL;
 		} else{
+			bool allPrintable = std::all_of(str.begin(),str.end(),isprint);
+			if (!allPrintable) {
+				std::cout<<"Skipped line " << url_list.size() +1 <<": Has non-printable chars " <<STDENDL;
+				continue;
+			}
 			url_list.push_back(str);
 		}
 	}
@@ -69,18 +76,14 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 	for (std::deque<std::string>::const_iterator it=input.begin(); it != input.end(); ++it) {
 		size_t start = 0;
 		size_t end = 0;
-		while (start != std::string::npos && end != std::string::npos)
-		{
+		while (start != std::string::npos && end != std::string::npos) {
 			start = it->find_first_not_of(delimiter, end);
-			if (start != std::string::npos)
-			{
+			if (start != std::string::npos) {
 				end = it->find_first_of(delimiter, start);
-				if (end != std::string::npos)
-				{
+				if (end != std::string::npos) {
 					output.push_back(it->substr(start, end - start));
 				}
-				else
-				{
+				else {
 					output.push_back(it->substr(start));
 				}
 			}

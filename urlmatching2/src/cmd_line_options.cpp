@@ -18,9 +18,9 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->kgram_size            = 8;
 	this->n1                    = 1000;
 	this->n2                    = 1000;
-	this->r                     = 0.1;
+	this->r                     = 0.8;
 	this->test_decoding			= false;
-	this->use_split_for_LPM		= false;
+	this->split_for_LPM		= false;
 	this->print_dicionary		= false;
 	this->dicionary_output_file = "";
 	this->line_del = '\n';
@@ -37,7 +37,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc, &argv[0], "f:o:k:1:2:r:l:p:b:d:c:"))) {
+	while (-1 != (o = getopt(argc, &argv[0], "f:o:k:1:2:r:lp:b:dc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -58,7 +58,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			this->r = atof(optarg);
 			break;
 		case 'l':
-			this->use_split_for_LPM = true;
+			this->split_for_LPM = true;
 			break;
 		case 'p':
 			this->print_dicionary = true;
@@ -82,13 +82,14 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		}
 	}
 
+	std::string break_time_string = (this->break_time > 0)? (", \"break_time\": " + this->break_time ): "";
 	std::string test_decoding = (this->test_decoding)?", \"Verify by Decode\"" : "";
 	std::cout << "parameters={"
 			<< "\"kgram_size\": " << this->kgram_size
 			<< ", \"n1\": " << this->n1
 			<< ", \"n2\": " << this->n2
 			<< ", \"r\": " << this->r
-			<< ", \"break_time\": " << this->break_time
+			<< break_time_string
 			<< test_decoding
 			<< "}"
 			<< std::endl;

@@ -32,13 +32,12 @@ int main(int argc, char* argv[])
 
     CmdLineOptions options(argc, argv);
     if (options.logger_config == "") {
-    	options.logger_config = "src/easylogging.conf";
+    	options.logger_config = path + "/src/easylogging.conf";
     }
 
 #ifdef BUILD_DEBUG
 	// Load configuration from file
 	std::string logger_config_file(options.logger_config.c_str());
-	logger_config_file = path + "/" + logger_config_file;
     el::Configurations conf(logger_config_file.c_str());
     // Reconfigure single logger
 //    el::Loggers::reconfigureLogger("default", conf);

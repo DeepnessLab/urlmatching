@@ -36,7 +36,7 @@ public:
 	int         n2;
 	float       r;
 	bool		test_decoding;	//LPM=Longest Prefix Match
-	bool		use_split_for_LPM;	//LPM=Longest Prefix Match
+	bool		split_for_LPM;	//LPM=Longest Prefix Match
 	bool		print_dicionary;
 	std::string dicionary_output_file;
 	int			break_time;
