@@ -5,14 +5,15 @@
  *      Author: Daniel
  */
 
-#include "UrlDictionay.h"
-#include "HeavyHitters/dhh_lines.h"
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <exception>
 #include <map>
 #include <bitset>
 #include <assert.h>
+#include "UrlDictionay.h"
+#include "HeavyHitters/dhh_lines.h"
 #include "common.h"
 #include "logger.h"
 
@@ -57,6 +58,32 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 		}
 	}
 	return true;
+}
+
+void
+UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output )
+{
+	std::string delimiter("/");
+	for (std::deque<std::string>::const_iterator it=input.begin(); it != input.end(); ++it) {
+		size_t start = 0;
+		size_t end = 0;
+		while (start != std::string::npos && end != std::string::npos)
+		{
+			start = it->find_first_not_of(delimiter, end);
+			if (start != std::string::npos)
+			{
+				end = it->find_first_of(delimiter, start);
+				if (end != std::string::npos)
+				{
+					output.push_back(it->substr(start, end - start));
+				}
+				else
+				{
+					output.push_back(it->substr(start));
+				}
+			}
+		}
+	}
 }
 
 

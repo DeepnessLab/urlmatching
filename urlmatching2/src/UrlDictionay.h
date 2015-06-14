@@ -88,6 +88,7 @@ public:
 
 	//Cache urls in input file into deque of std::string of urls
 	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
+	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
 
 	//load list of urls and build cached database
 	bool LoadUrlsFromFile(const std::string& file_path,
