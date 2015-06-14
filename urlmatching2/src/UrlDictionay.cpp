@@ -58,11 +58,7 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 		if ( (!isprint(str[0])) || whiteSpacesOnly || (str.length() == 0)||(str == "") ) {
 			std::cout<<"Skipped line " << url_list.size() +1 <<": Empty"<<STDENDL;
 		} else{
-#ifdef _WIN32
-			bool allPrintable = std::all_of(str.begin(),str.end(),isprint);
-#elif defined  __unix__
-			bool allPrintable = true; //this has issues with cygwin
-#endif
+			bool allPrintable = std::all_of(str.begin(),str.end(),isprint); //this has issues with cygwin
 			if (!allPrintable) {
 				std::cout<<"Skipped line " << url_list.size() +1 <<": Has non-printable chars " <<STDENDL;
 				continue;
