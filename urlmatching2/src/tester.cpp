@@ -51,8 +51,11 @@ void test_url_dictionary_load_from_url_txt_file() {
 	UrlCompressor urlc;
 	int break_time=0;
 	take_a_break(break_time," before loading");
+	std::deque<std::string> url_deque;
+	urlc.getUrlsListFromFile(urls_file, url_deque);
 	START_TIMING;
-	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
+//	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
+	bool retB = urlc.LoadUrlsFromList(url_deque, params, false);
 	STOP_TIMING;
 	take_a_break(break_time," after loading");
 	double time_to_load = GETTIMING;
