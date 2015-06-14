@@ -18,6 +18,7 @@
     #define GetCurrentDir getcwd
  #endif
 
+#include "cmd_line_options.h"
 
 #define MAX_PATH_2 1000
 
@@ -47,6 +48,7 @@ void getWorkingDirectory(std::string& out ) {
 
 class UrlCompressor;
 
+void test_main(CmdLineOptions& options);
 void test_url_dictionary_load_from_stored_DB();
 void test_url_matching() ;
 void build_simple_dict(UrlCompressor* dict) ;

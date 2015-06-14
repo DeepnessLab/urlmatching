@@ -48,6 +48,8 @@ UrlCompressor::~UrlCompressor()
 
 bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list) {
 	LineIteratorFile lit(urls_file.c_str(),'\n');
+	if (!lit.canRun())
+		return false;
 	while (lit.has_next() ) {
 		const raw_buffer_t &pckt = lit.next();
 		std::string str((const char *) pckt.ptr,pckt.size);
