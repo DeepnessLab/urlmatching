@@ -62,7 +62,7 @@ typedef struct UrlCompressorStats {
 		params_set = true;
 	}
 
-	void print() const ;
+	void print(std::ostream& out) const ;
 
 } HeavyHittersStats_t;
 
@@ -113,7 +113,8 @@ public:
 	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
 
 	//Debug API
-	void print_database(bool print_codes=false);
+//	void print_database(bool print_codes=false);
+	void print_database(std::ostream& ofs);
 	void print_strings_and_codes();
 
 	//---- Deprecated API -----

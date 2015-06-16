@@ -26,6 +26,11 @@
 
 #define BUFFSIZE 500
 
+#ifdef DVAL
+#undef DVAL
+#endif
+#define DVAL(what) #what" = "<< (what)
+
 void test_main(CmdLineOptions& options) {
 	using namespace std;
 
@@ -200,7 +205,15 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
 	const UrlCompressorStats* stats = urlc.get_stats();
-	stats->print();
+	stats->print(std::cout);
+
+	if (options.print_dicionary) {
+		ofstream printout_file;
+		printout_file.open (options.dicionary_output_file.c_str(),std::ofstream::out );
+		urlc.print_database(printout_file);
+		printout_file.close();
+		std::cout <<std::endl<< "Dicionary outputed to: "<<options.dicionary_output_file<<std::endl;
+	}
 
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(), ios::app );

@@ -60,7 +60,7 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 		} else{
 			bool allPrintable = std::all_of(str.begin(),str.end(),isprint); //this has issues with cygwin
 			if (!allPrintable) {
-				std::cout<<"Skipped line " << url_list.size() +1 <<": Has non-printable chars " <<STDENDL;
+				std::cout<<"Skipped line " << url_list.size() +1 <<": Has non-printable chars, make sure file is not Windows EOL " <<STDENDL;
 				continue;
 			}
 			url_list.push_back(str);
@@ -483,21 +483,39 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 }
 
 
-void UrlCompressor::print_database(bool print_codes) {
-	std::cout<<"UrlCompressor::print_database"<<std::endl;
-	std::cout<<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
+//void UrlCompressor::print_database(bool print_codes) {
+//	std::cout<<"UrlCompressor::print_database"<<std::endl;
+//	std::cout<<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
+//	for (uint32_t i=0; i< getDBsize() ;i++) {
+////	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
+//		Pattern* ptrn = _symbol2pattern_db[i];
+//		std::cout << "symbol=" << ptrn->_symbol << ",freq=" << ptrn->_frequency
+//				<<",str_size="<<ptrn->getStringLength()
+//				<<",huff_len="<<ptrn->getHuffmanLength();
+//		if (print_codes) {
+//			HuffCode code = _huffman.encode(ptrn->_symbol);
+//			std::cout<<",code=";
+//			std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(std::cout));
+//		}
+//		std::cout<<", pattern=" << ptrn->_str <<std::endl;
+//	}
+//}
+
+void UrlCompressor::print_database(std::ostream& ofs)
+{
+	ofs <<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
+	ofs << "symbol, freq, code length (bits), string len, string, code"<<std::endl;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
-//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
+	//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
 		Pattern* ptrn = _symbol2pattern_db[i];
-		std::cout << "symbol=" << ptrn->_symbol << ",freq=" << ptrn->_frequency
-				<<",str_size="<<ptrn->getStringLength()
-				<<",huff_len="<<ptrn->getHuffmanLength();
-		if (print_codes) {
-			HuffCode code = _huffman.encode(ptrn->_symbol);
-			std::cout<<",code=";
-			std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(std::cout));
+		ofs << ptrn->_symbol <<","<< ptrn->_frequency<<","
+				<<ptrn->getHuffmanLength()<<","
+				<<ptrn->getStringLength()<<",";
+		for (uint16_t j = 0, t=0 ; j < ptrn->getHuffmanLength(); j+=sizeof(uint32_t)*8, t++) {
+			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
 		}
-		std::cout<<", pattern=" << ptrn->_str <<std::endl;
+		ofs <<","<<ptrn->_str;
+		ofs << std::endl;
 	}
 }
 
@@ -625,15 +643,15 @@ void UrlCompressor::prepare_database() {
 
 
 
-void UrlCompressorStats::print() const {
-	std::cout<<  DVAL(number_of_symbols)<<STDENDL;
-	std::cout<<  DVAL(number_of_patterns)<<STDENDL;
-	std::cout<<  DVAL(number_of_urls)<<STDENDL;
-	std::cout<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
-	std::cout<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
-	std::cout<<	 "estimated " << DVAL(memory_allocated) << "B"<<STDENDL;
+void UrlCompressorStats::print(std::ostream& out) const {
+	out<<  DVAL(number_of_symbols)<<STDENDL;
+	out<<  DVAL(number_of_patterns)<<STDENDL;
+	out<<  DVAL(number_of_urls)<<STDENDL;
+	out<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
+	out<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
+	out<<	 "estimated " << DVAL(memory_allocated) << "B"<<STDENDL;
 	if (params_set) {
-		std::cout<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
-		std::cout<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
+		out<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
+		out<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
 	}
 }
