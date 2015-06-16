@@ -356,9 +356,9 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 	return STATUS_OK;
 }
 
-void print(uint32_t buf) {
+void print(std::ostream& o, uint32_t buf) {
 	std::bitset<32> x(buf);
-	std::cout <<x<<STDENDL;
+	o <<x<<STDENDL;
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
@@ -482,26 +482,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	return STATUS_OK;
 }
 
-
-//void UrlCompressor::print_database(bool print_codes) {
-//	std::cout<<"UrlCompressor::print_database"<<std::endl;
-//	std::cout<<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
-//	for (uint32_t i=0; i< getDBsize() ;i++) {
-////	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
-//		Pattern* ptrn = _symbol2pattern_db[i];
-//		std::cout << "symbol=" << ptrn->_symbol << ",freq=" << ptrn->_frequency
-//				<<",str_size="<<ptrn->getStringLength()
-//				<<",huff_len="<<ptrn->getHuffmanLength();
-//		if (print_codes) {
-//			HuffCode code = _huffman.encode(ptrn->_symbol);
-//			std::cout<<",code=";
-//			std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(std::cout));
-//		}
-//		std::cout<<", pattern=" << ptrn->_str <<std::endl;
-//	}
-//}
-
-void UrlCompressor::print_database(std::ostream& ofs)
+void UrlCompressor::print_database(std::ostream& ofs) const
 {
 	ofs <<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
 	ofs << "symbol, freq, code length (bits), string len, string, code"<<std::endl;
@@ -519,24 +500,16 @@ void UrlCompressor::print_database(std::ostream& ofs)
 	}
 }
 
-void UrlCompressor::print_strings_and_codes() {
-	std::cout<<"Entered print_strings_and_codes:"<<std::endl;
-	std::cout<<"Print strings and their huffman codes:"<<std::endl;
-	for (std::map<std::string,uint32_t>::iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
-		std::cout << it->first << " => symbol:" << it->second << "\tcode: ";
+void UrlCompressor::print_strings_and_codes(std::ostream& out)
+{
+	out<<"print_strings_and_codes: Print strings and their huffman codes:"<<std::endl;
+	for (std::map<std::string,uint32_t>::const_iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
+		out << it->first << " => symbol:" << it->second << "\tcode: ";
 		HuffCode code = _huffman.encode(it->second);
-		std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(std::cout));
-		std::cout << std::endl;
+		std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(out));
+		out << std::endl;
 	}
 
-}
-
-Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
-	_symbol=symbol;
-	_frequency=frequency;
-	_huffman_length=UINT32_MAX;
-	_coded.buf = NULL;
-	_coded.length = 0;
 }
 
 void UrlCompressor::calculate_symbols_huffman_score() {
@@ -641,17 +614,3 @@ void UrlCompressor::prepare_database() {
 
 }
 
-
-
-void UrlCompressorStats::print(std::ostream& out) const {
-	out<<  DVAL(number_of_symbols)<<STDENDL;
-	out<<  DVAL(number_of_patterns)<<STDENDL;
-	out<<  DVAL(number_of_urls)<<STDENDL;
-	out<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
-	out<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
-	out<<	 "estimated " << DVAL(memory_allocated) << "B"<<STDENDL;
-	if (params_set) {
-		out<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
-		out<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
-	}
-}

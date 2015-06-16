@@ -216,7 +216,7 @@ void test_main(CmdLineOptions& options) {
 	}
 
 	ofstream out_file;
-	out_file.open (options.output_file_path.c_str(), ios::app );
+	out_file.open (options.output_file_path.c_str(),ios::app );
 	out_file << "filename," <<"#urls,"
 			<<"n1,"<<"n2," <<"r,"<<"kgram,"
 			<<"#symbols,"<<"#patterns,"
@@ -410,7 +410,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
 	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_and_memory)/(double)decoded_size) * 100 << "%"<<STDENDL;
 	const UrlCompressorStats* stats = urlc.get_stats();
-	stats->print();
+	stats->print(std::cout);
 
 /*
 	//printing stats
@@ -550,28 +550,6 @@ void test_aho_compressed() {
 
 }
 
-
-void test_huffman() {
-	// Build frequency table
-		const char* SampleString = "this is an example for huffman encoding";
-	//	const char* SampleString = "aaaabbcd";
-		std::map<std::string,int> strings_and_freqs;
-
-		for (uint32_t i=0;i<strlen((char*) SampleString);i++) {
-			std::string str (1,SampleString[i]);
-			int freq = strings_and_freqs[str];
-	//		std::cout<<str<<", freq="<<freq<<std::endl;
-			strings_and_freqs[str]=freq+1;
-		}
-		std::cout<<std::endl;
-
-		UrlCompressor dict;
-		dict.load_strings_and_freqs(&strings_and_freqs);
-
-		dict._huffman.print();
-
-		dict.print_strings_and_codes();
-}
 
 
 void take_a_break(int seconds, std::string why) {

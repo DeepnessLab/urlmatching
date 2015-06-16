@@ -46,15 +46,7 @@ typedef struct UrlCompressorStats {
 	HeavyHittersParams_t params;
 	bool params_set;
 
-	void reset() {
-		params_set = false;
-		number_of_patterns = 0;
-		number_of_symbols = 0;
-		number_of_urls = 0;
-		max_huffman_length = 0;
-		total_input_bytes = 0;
-		memory_allocated = 0;
-	}
+	void reset() ;
 
 	void reset(const HeavyHittersParams_t& params_) {
 		reset();
@@ -113,16 +105,10 @@ public:
 	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
 
 	//Debug API
-//	void print_database(bool print_codes=false);
-	void print_database(std::ostream& ofs);
-	void print_strings_and_codes();
-
-	//---- Deprecated API -----
-	void load_strings_and_freqs(Strings2FreqMap* strings_to_freq);
-	//---- Deprecated API -----
+	void print_database(std::ostream& ofs) const;
+	void print_strings_and_codes(std::ostream& out) ;
 
 	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
-
 
 	struct patternsIterator {
 		Symbol2pPatternVec arr;
@@ -149,7 +135,7 @@ private:
 	bool unload_and_return_false();
 
 	inline
-	uint32_t getDBsize() { return _symbol2pattern_db.size(); }
+	uint32_t getDBsize() const { return _symbol2pattern_db.size(); }
 
 	/**
 	 * Add pattern to dictionary
