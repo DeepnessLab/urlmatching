@@ -1,5 +1,5 @@
 #include "UrlDictionay.h"
-#include "logger.h"
+#include "../logger.h"
 
 Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
 	_symbol=symbol;

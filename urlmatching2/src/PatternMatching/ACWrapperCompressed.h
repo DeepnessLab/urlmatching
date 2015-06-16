@@ -11,8 +11,7 @@
 #include <map>
 #include <string>
 #include <cstring>
-#include "../UrlDictionaryTypes.h"
-#include "../CommonCTypes.h"
+#include "../UrlToolkit/UrlDictionaryTypes.h"
 #include "PatternMatchingBaseClass.h"
 
 extern "C"

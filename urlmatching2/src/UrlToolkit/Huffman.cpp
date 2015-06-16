@@ -9,8 +9,8 @@
 #include <assert.h>
 
 #include "Huffman.h"
-#include "common.h"
-#include "logger.h"
+#include "../common.h"
+#include "../logger.h"
 
 Huffman::Huffman() :
 _is_loaded(false),_freq_size(0), _size(0){

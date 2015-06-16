@@ -17,9 +17,9 @@
 #include <string.h>
 #include <assert.h>
 #include <map>
-#include "../UrlDictionay.h"
 #include "MatchingFunctions.h"
-#include "../UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlDictionay.h"
+#include "../UrlToolkit/UrlDictionaryTypes.h"
 
 extern "C" {
 #include "../Common/Types.h"

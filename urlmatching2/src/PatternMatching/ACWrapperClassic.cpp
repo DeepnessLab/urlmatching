@@ -8,7 +8,7 @@
 #include "../PatternMatching/ACWrapperClassic.h"
 #include <string.h>
 #include <assert.h>
-#include "../UrlDictionay.h"
+#include "../UrlToolkit/UrlDictionay.h"
 #include "MatchingFunctions.h"
 extern "C" {
 #include "../Common/Types.h"

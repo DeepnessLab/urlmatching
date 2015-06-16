@@ -9,11 +9,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <sys/time.h>
 #include "../Common/Flags.h"
 #include "../Common/BitArray/BitArray.h"
 #include "TableStateMachine.h"
-#include "../CommonCTypes.h"
-#include <sys/time.h>
 
 
 #define MAX_PATTERN_LENGTH 1024

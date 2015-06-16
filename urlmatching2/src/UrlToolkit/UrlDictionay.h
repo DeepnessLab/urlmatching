@@ -14,7 +14,7 @@
 #include <map>
 #include "Huffman.h"
 //#include "PatternMatching/ACWrapperClassic.h"
-#include "PatternMatching/ACWrapperCompressed.h"
+#include "../PatternMatching/ACWrapperCompressed.h"
 #include "UrlDictionaryTypes.h"
 
 

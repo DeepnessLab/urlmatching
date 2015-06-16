@@ -9,7 +9,7 @@
 #define WRAPPERS_PATTERNMATCHINGBASECLASS_H_
 
 #include <string>
-#include "../UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlDictionaryTypes.h"
 
 //class PatternCollector {
 //public:

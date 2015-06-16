@@ -9,7 +9,6 @@
 #define TABLESTATEMACHINE_H_
 
 #include "../Common/Types.h"
-#include "../CommonCTypes.h"
 
 //#include "../Dedup/Dictionary.h"
 

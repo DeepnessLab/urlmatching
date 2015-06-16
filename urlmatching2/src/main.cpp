@@ -10,10 +10,10 @@
 #include <map>
 #include <string>
 
-#include "Huffman.h"
+#include "UrlToolkit/Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
 #include "tester.h"
-#include "UrlDictionay.h"
+#include "UrlToolkit/UrlDictionay.h"
 #include "cmd_line_options.h"
 #include "easylogging++.h"
 

@@ -13,9 +13,9 @@
 #include <bitset>
 #include <assert.h>
 #include "UrlDictionay.h"
-#include "HeavyHitters/dhh_lines.h"
-#include "common.h"
-#include "logger.h"
+#include "../HeavyHitters/dhh_lines.h"
+#include "../common.h"
+#include "../logger.h"
 
 #define MAX_DB_LINE_SIZE 100
 #define SEPERATOR ","

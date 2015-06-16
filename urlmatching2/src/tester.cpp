@@ -15,9 +15,9 @@
 
 
 #include "tester.h"
-#include "Huffman.h"
+#include "UrlToolkit/Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
-#include "UrlDictionay.h"
+#include "UrlToolkit/UrlDictionay.h"
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
