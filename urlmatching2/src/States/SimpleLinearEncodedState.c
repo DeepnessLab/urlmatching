@@ -73,7 +73,7 @@ void setTableStateData(State *state, uchar *chars, STATE_PTR_TYPE_WIDE *gotos, S
 	}
 }
 
-int getNextStateFromTableState(State *simpleTableEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
+int getNextStateFromTableState(State *simpleTableEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
 	uchar c;
 	StateHeader *header;
 	int found, j;
@@ -181,7 +181,7 @@ void setStateData_SLE(State *state, uchar *chars, STATE_PTR_TYPE_WIDE *gotos, ST
 	}
 }
 
-int getNextState_SLE(State *simpleLinearEncodedState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
+int getNextState_SLE(State *simpleLinearEncodedState, const char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
 	uchar c;
 	StateHeader *header;
 	int i, size, found, j;

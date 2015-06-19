@@ -126,7 +126,9 @@ int matchTableMachine(TableStateMachine *machine, const char *input, int length,
 	STATE_PTR_TYPE_WIDE current, next;
 	STATE_PTR_TYPE_WIDE *table;
 	unsigned char *matches;
+#ifdef PRINT_MATCHES
 	char **patterns;
+#endif
 	int idx;
 	int res;
 
@@ -142,7 +144,9 @@ int matchTableMachine(TableStateMachine *machine, const char *input, int length,
 	res = 0;
 	table = machine->table;
 	matches = machine->matches;
+#ifdef PRINT_MATCHES
 	patterns = machine->patterns;
+#endif
 	idx = 0;
 	current = 0;
 
