@@ -35,8 +35,9 @@ void test_main(CmdLineOptions& options) {
 	using namespace std;
 
 	PREPARE_TIMING;
-
-	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
+	std::cout<<"##################"<<std::endl;
+	options.PrintParameters(std::cout);
+//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
 	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
 

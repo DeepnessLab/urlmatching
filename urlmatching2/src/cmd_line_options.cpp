@@ -86,26 +86,19 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		}
 	}
 
-	std::string break_time_string = (this->break_time > 0)? (", \"break_time\": " + this->break_time ): "";
-	std::string test_decoding = (this->test_decoding)?", \"Verify by Decode\"" : "";
-	std::cout << "parameters={"
-			<< "\"kgram_size\": " << this->kgram_size
-			<< ", \"n1\": " << this->n1
-			<< ", \"n2\": " << this->n2
-			<< ", \"r\": " << this->r
-			<< break_time_string
-			<< test_decoding
-			<< "}"
-			<< std::endl;
-
 }
 
-void CmdLineOptions::PrintParameters(std::ofstream &log){
-	std::cout << "parameters={"
-			<< "\"kgram_size\": " << this->kgram_size
-			<< ", \"n1\": " << this->n1
-			<< ", \"n2\": " << this->n2
-			<< ", \"r\": " << this->r
+void CmdLineOptions::PrintParameters(std::ostream& log){
+	std::string break_time_string = (this->break_time > 0)? (", \"break_time\": " + this->break_time ): "";
+	std::string test_decoding = (this->test_decoding)?", \"Verify by Decode\"" : "";
+	log<< "parameters={"
+			<< "input file: \"" <<this->input_urls_file_path
+			<< "\", kgram_size: " << this->kgram_size
+			<< ", n1: " << this->n1
+			<< ", n2: " << this->n2
+			<< ", r: " << this->r
+			<< break_time_string
+			<< test_decoding
 			<< "}"
 			<< std::endl;
 }

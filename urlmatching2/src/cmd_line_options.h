@@ -19,7 +19,7 @@ class CmdLineOptions {
 
 public:
 	CmdLineOptions(int argc, char* argv[]);
-	void PrintParameters(std::ofstream &log);
+	void PrintParameters(std::ostream& log);
 	void usage();
 
 private:

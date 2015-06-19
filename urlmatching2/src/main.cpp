@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
 	std::string path;
 	getWorkingDirectory(path);
-	std::cout<<"running from path="<<path<<std::endl;
+//	std::cout<<"running from path="<<path<<std::endl;
 
     CmdLineOptions options(argc, argv);
     if (options.logger_config == "") {
