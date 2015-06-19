@@ -135,8 +135,8 @@ void test_main(CmdLineOptions& options) {
 		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
-		if (i%status_every == 0)
-			std::cout<<"  encoding passed "<<i<<std::endl;
+//		if (i%status_every == 0)
+//			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
 	STOP_TIMING;
 	double time_to_encode = GETTIMING;
@@ -170,7 +170,8 @@ void test_main(CmdLineOptions& options) {
 	}
 
 	uint32_t size = urls.size();
-	uint32_t encoded_and_memory = encoded_size + memory_footprint_estimation;
+	uint32_t dict_size = urlc.getDictionarySize();
+	uint32_t encoded_and_dict = encoded_size + dict_size;
 
 	std::cout<<STDENDL;
 	//printing stats
@@ -180,8 +181,9 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 
 	std::cout<<"Loading: for "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<"  Time" <<time_to_load << "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+	std::cout<<"  Time= " <<time_to_load << "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
+	std::cout<<"  Memory footprint est.="<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
 	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
@@ -194,14 +196,16 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
 			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
 			<<" Mb/s"<<STDENDL;
+
 	std::cout<<" ---"<<std::endl;
 	std::cout<<"Compression Statistics:"<<STDENDL;
 	std::cout<<"----------------------"<<std::endl;
 	std::cout<<DVAL(decoded_size)<< "Bytes = "<< double((double)decoded_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(encoded_size)<< "Bytes = "<< double((double)encoded_size / 1024) <<"KB"<< STDENDL;
-	std::cout<<DVAL(encoded_and_memory)<< 	"Bytes = " << double((double)encoded_and_memory / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(dict_size)<< "Bytes = "<< double((double)dict_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(encoded_and_dict)<< 	"Bytes = " << double((double)encoded_and_dict / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
-	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_and_memory)/(double)decoded_size) * 100 << "%"<<STDENDL;
+	std::cout<<"coding ratio (encoded_size+dict_size/decoded_size) = "<< double((double)(encoded_and_dict)/(double)decoded_size) * 100 << "%"<<STDENDL;
 	std::cout<<" ---"<<std::endl;
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
@@ -222,13 +226,15 @@ void test_main(CmdLineOptions& options) {
 		out_file << "filename," <<"#urls,"
 				<<"n1,"<<"n2," <<"r,"<<"kgram,"
 				<<"#symbols,"<<"#patterns,"
-				<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec," <<"memory_footprint_estimation B,"
+				<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec,"
+				<<"memory_footprint_estimation B,"<<"dictionary size B"
 				<< std::endl;
 	}
 	out_file << options.input_urls_file_path <<"," <<stats->number_of_urls<<","
 			<<stats->params.n1<<","<<stats->params.n2<<","<<stats->params.r<<","<<stats->params.kgrams_size
-			<<","<<stats->number_of_symbols<<","<<stats->number_of_patterns<<","
-			<<time_to_load<<","<<decoded_size<<","<<encoded_size<<","<<time_to_encode<<","<<memory_footprint_estimation
+			<<","<<stats->number_of_symbols<<","<<stats->number_of_patterns
+			<<","<<time_to_load<<","<<decoded_size<<","<<encoded_size<<","<<time_to_encode
+			<<","<<memory_footprint_estimation<<","<<dict_size
 			<< std::endl;
 	out_file.close();
 

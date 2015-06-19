@@ -103,6 +103,7 @@ public:
 	bool LoadStoredDBFromFile(std::string& file_path);
 
 	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
+	uint32_t getDictionarySize();
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
