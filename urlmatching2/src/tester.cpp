@@ -217,11 +217,13 @@ void test_main(CmdLineOptions& options) {
 
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(),ios::app );
-	out_file << "filename," <<"#urls,"
-			<<"n1,"<<"n2," <<"r,"<<"kgram,"
-			<<"#symbols,"<<"#patterns,"
-			<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec," <<"memory_footprint_estimation B,"
-			<< std::endl;
+	if (options.add_header_to_output_file) {
+		out_file << "filename," <<"#urls,"
+				<<"n1,"<<"n2," <<"r,"<<"kgram,"
+				<<"#symbols,"<<"#patterns,"
+				<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec," <<"memory_footprint_estimation B,"
+				<< std::endl;
+	}
 	out_file << options.input_urls_file_path <<"," <<stats->number_of_urls<<","
 			<<stats->params.n1<<","<<stats->params.n2<<","<<stats->params.r<<","<<stats->params.kgrams_size
 			<<","<<stats->number_of_symbols<<","<<stats->number_of_patterns<<","

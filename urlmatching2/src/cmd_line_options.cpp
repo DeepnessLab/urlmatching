@@ -38,7 +38,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc, &argv[0], "f:oa:k:1:2:r:lp:b:dc:"))) {
+	while (-1 != (o = getopt(argc, &argv[0], "f:o:ak:1:2:r:lp:b:dc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -47,7 +47,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			this->output_file_path = optarg;
 			break;
 		case 'a':
-			this->add_header_to_output_file = optarg;
+			this->add_header_to_output_file = true;
 			break;
 		case 'k':
 			this->kgram_size = atoi(optarg);
