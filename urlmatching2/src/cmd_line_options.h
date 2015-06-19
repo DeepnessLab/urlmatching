@@ -29,6 +29,7 @@ public:
 
 	std::string cmd;
 	std::string input_urls_file_path;
+	bool		add_header_to_output_file;
 	std::string output_file_path;
 	std::string logger_config;
 	size_t      kgram_size;

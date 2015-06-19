@@ -224,7 +224,7 @@ void test_main(CmdLineOptions& options) {
 			<< std::endl;
 	out_file << options.input_urls_file_path <<"," <<stats->number_of_urls<<","
 			<<stats->params.n1<<","<<stats->params.n2<<","<<stats->params.r<<","<<stats->params.kgrams_size
-			<<stats->number_of_symbols<<","<<stats->number_of_patterns<<","
+			<<","<<stats->number_of_symbols<<","<<stats->number_of_patterns<<","
 			<<time_to_load<<","<<decoded_size<<","<<encoded_size<<","<<time_to_encode<<","<<memory_footprint_estimation
 			<< std::endl;
 	out_file.close();

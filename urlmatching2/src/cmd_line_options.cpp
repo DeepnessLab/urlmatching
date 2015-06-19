@@ -15,6 +15,7 @@
 CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 
 	this->output_file_path		= "output.txt";
+	this->add_header_to_output_file	= false;
 	this->kgram_size            = 8;
 	this->n1                    = 1000;
 	this->n2                    = 1000;
@@ -37,13 +38,16 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc, &argv[0], "f:o:k:1:2:r:lp:b:dc:"))) {
+	while (-1 != (o = getopt(argc, &argv[0], "f:oa:k:1:2:r:lp:b:dc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
 			break;
 		case 'o':
 			this->output_file_path = optarg;
+			break;
+		case 'a':
+			this->add_header_to_output_file = optarg;
 			break;
 		case 'k':
 			this->kgram_size = atoi(optarg);
@@ -112,15 +116,16 @@ void CmdLineOptions::usage() {
 			<< std::endl
 			<< "                -f String[urls filepath]  - required" << std::endl
 			<< "                -o String[ouput filepath], default: output.txt " << std::endl
+			<< "                -a       [add header to output_filepath], default: None " << std::endl
 			<< "                -k Int   [k-gram size], default: 8" << std::endl
 			<< "                -1 Int   [heavy hitters count for HH1], default: 1000" << std::endl
 			<< "                -2 Int   [heavy hitters count for HH2], default: 1000" << std::endl
 			<< "                -r fload [consecutive k-gram ratio], default: 0.8" << std::endl
-			<< "                -l Flag  [Longest Prefix Match - split dictionary by /], default: false" << std::endl
-			<< "                -p String[Print dictionary file path], default: none" << std::endl
+			<< "                -l       [Longest Prefix Match - split dictionary by /], default: false" << std::endl
+			<< "                -p String[Print dictionary file path], default: None" << std::endl
 			<< "                -b Int   [Take break time to measure program memory, Seconds], default: no" << std::endl
-			<< "                -d Flag  [Verify by Decode - longer], default: no" << std::endl
-			<< "                -c String[logger config file], default: none " << std::endl
+			<< "                -d       [Verify by Decode - longer], default: no" << std::endl
+			<< "                -c String[logger config file], default: None " << std::endl
 			<< std::endl
 			<< "        -h prints this message" << std::endl;
 }
