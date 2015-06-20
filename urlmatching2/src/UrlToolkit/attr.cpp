@@ -9,6 +9,11 @@ Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(st
 	_coded.length = 0;
 }
 
+Pattern::~Pattern()  {
+	if (_coded.buf != NULL)
+		delete[] _coded.buf;
+}
+
 void UrlCompressorStats::reset() {
 	params_set = false;
 	number_of_patterns = 0;

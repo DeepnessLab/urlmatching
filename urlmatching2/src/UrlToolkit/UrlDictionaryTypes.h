@@ -39,7 +39,7 @@ typedef struct {
 class Pattern {
 public:
 	Pattern(uint32_t symbol, uint32_t frequency, std::string str);
-	virtual ~Pattern() { /* Empty */}
+	virtual ~Pattern() ;
 
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
 	uint32_t inline getHuffmanLength() { return (_huffman_length);	}
