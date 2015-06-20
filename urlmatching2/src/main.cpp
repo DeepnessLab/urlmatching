@@ -48,12 +48,6 @@ int main(int argc, char* argv[])
     // Now all the loggers will use configuration from file
 #endif
 
-
-//	RUN_TEST(test_aho_compressed);
-//	RUN_TEST(test_url_matching);
-//	RUN_TEST(test_url_dictionary);
-//	RUN_TEST(test_LLH);
-//	RUN_TEST(test_url_dictionary_load_from_url_txt_file);
     clock_t begin,end;
     begin = std::clock(); ;
 	test_main(options);

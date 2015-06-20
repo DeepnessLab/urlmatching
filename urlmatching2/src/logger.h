@@ -13,6 +13,19 @@
 #include "easylogging++.h"
 
 
+#define DBG_TO_NONE 0
+#define DBG_TO_LOG 1
+#define DBG_TO_STDOUT 2
+
+//Debug output configuration:
+//--------------------------
+#ifdef BUILD_DEBUG
+#define DEBUG_OUTPUT DBG_TO_NONE
+#else
+#define DEBUG_OUTPUT DBG_TO_NONE
+#endif
+
+
 #ifdef BUILD_DEBUG
 #define ON_DEBUG_ONLY(what) do {what ; } while (0)
 #else
@@ -31,16 +44,6 @@
 
 #define STR(s) #s
 #define XSTR(a) STR(a)
-
-#define DBG_TO_NONE 0
-#define DBG_TO_LOG 1
-#define DBG_TO_STDOUT 2
-
-#ifdef BUILD_DEBUG
-#define DEBUG_OUTPUT DBG_TO_NONE
-#else
-#define DEBUG_OUTPUT DBG_TO_NONE
-#endif
 
 
 #define DVAL(what) #what"="<< (what)
