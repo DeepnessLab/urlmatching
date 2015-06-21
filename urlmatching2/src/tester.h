@@ -48,17 +48,16 @@ void getWorkingDirectory(std::string& out ) {
 
 class UrlCompressor;
 
+//The cmd tester (Main tester)
 void test_main(CmdLineOptions& options);
-void test_url_dictionary_load_from_stored_DB();
-void test_url_matching() ;
-void build_simple_dict(UrlCompressor* dict) ;
-void test_aho_compressed();
-void test_huffman();
+void take_a_break(int seconds, std::string why);
+
+//Other testers (need to set manually in main.cpp)
+void test_hashtable(CmdLineOptions& options);
 void test_LLH();
 void test_url_dictionary_load_from_url_txt_file();
 
 
-void take_a_break(int seconds, std::string why);
 
 
 #endif /* TESTER_H_ */

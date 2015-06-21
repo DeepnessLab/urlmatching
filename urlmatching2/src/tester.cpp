@@ -11,6 +11,7 @@
 #include <string>
 #include <assert.h>
 #include <ctime>
+#include <unordered_map>
 
 
 
@@ -237,11 +238,7 @@ void test_main(CmdLineOptions& options) {
 			<<","<<memory_footprint_estimation<<","<<dict_size
 			<< std::endl;
 	out_file.close();
-
 }
-
-
-
 
 
 
@@ -249,9 +246,6 @@ void test_url_dictionary_load_from_url_txt_file() {
 	using namespace std;
 
 	PREPARE_TIMING;
-
-//	int bytes = GetModuleFileName(NULL, pBuf, 1000);
-//	std::string path(pBuf, bytes);
 
 	std::string path;
 	getWorkingDirectory(path);
@@ -496,69 +490,7 @@ void test_LLH() {
 				<< STDENDL;
 	}
 	std::cout << "total of "<< counter <<" patterns were found"<< STDENDL;
-	/*
-	 * LDHH peace_dhh(options.peace_pcap_file_path, options.n1, options.n2, options.r, options.kgram_size);
-    peace_dhh.run();
-    STOPWATCH_MESSURE2("** peace time traffic DHH", utils::run_logfile);
-
-    std::list<signature_t>& peace_signatures = peace_dhh.get_signatures();
-    size_t                  pckt_count       = peace_dhh.get_pckt_count();
-    std::cout << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
-    utils::run_logfile << "** scanned " << pckt_count << " packets" << std::endl << std::endl;
-
-    std::string file_path = utils::log_dir + "/peace_signatures";
-    utils::signatures_to_file(file_path, peace_signatures, pckt_count);
-    std::cout << "** stored " << peace_signatures.size() << " peace signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-    utils::run_logfile << "** stored " << peace_signatures.size() << " peace signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-    std::list<signature_t> white_list;
-    std::list<signature_t> maybe_white_list;
-
-    _categorize_peace_signatures(peace_signatures, pckt_count,
-                                 options.peace_high_threshold, options.peace_low_threshold,
-                                 white_list, maybe_white_list);
-
-    file_path = utils::log_dir + "/white_list_signatures";
-    utils::signatures_to_file(file_path, white_list, pckt_count);
-    std::cout << "** stored " << white_list.size() << " white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-    utils::run_logfile << "** stored " << white_list.size() << " white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-    file_path = utils::log_dir + "/maybe_white_list_signatures";
-    utils::signatures_to_file(file_path, maybe_white_list, pckt_count);
-    std::cout << "** stored " << maybe_white_list.size() << " maybe white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-    utils::run_logfile << "** stored " << maybe_white_list.size() << " maybe white signatures in: " << relpath_to_abspath(file_path) << std::endl << std::endl;
-	 *
-	 */
-
 }
-
-
-void test_url_dictionary_load_from_stored_DB() {
-	exit(1);
-}
-
-
-void test_url_matching() {
-	exit(1);
-}
-
-void test_aho_compressed() {
-
-//	UrlCompressor dict;
-//	build_simple_dict(&dict);
-
-	std::string patterns_file = "d:\\Temp\\project\\patterns_only.txt";
-	std::string my_string = "shaloma";
-
-	ACWrapperCompressed ac;
-	ac.load_patterns(patterns_file);
-	std::cout<<"matching string="<<my_string<<std::endl;
-//	std::cout.flush();
-	symbolT result[100];
-	ac.find_patterns(my_string,result);
-	fflush(stdout);
-	std::cout<<std::endl<<"finished matching"<<std::endl;
-
-}
-
 
 
 void take_a_break(int seconds, std::string why) {
