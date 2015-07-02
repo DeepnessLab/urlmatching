@@ -168,7 +168,7 @@ bool UrlCompressor::LoadUrlsFromList(const std::deque<std::string> url_list,
 	return true;
 }
 
-
+//DEPRECATED
 bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 									const HeavyHittersParams_t params,
 									const  bool contains_basic_symbols)
@@ -239,6 +239,126 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 
 	_huffman.free_encoding_memory();
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
+
+	return true;
+}
+
+
+bool UrlCompressor::StoreDBtoFile(std::string& file_path)
+{
+	/* File Format:
+	 *	Header|
+	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
+	 *	Header
+	 */
+
+	std::ofstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	if (!file.is_open()) {
+		return false;
+	}
+
+	char* mem_block;
+	FileHeader header;
+	header.num_of_patterns = getDBsize();
+	header.version = URLC_VERSION;
+	mem_block = (char *) &header;
+	file.write(mem_block,sizeof(header));
+
+	for (uint32_t i=0; i< getDBsize() ;i++) {
+		//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
+		Pattern* ptrn = _symbol2pattern_db[i];
+		//write FlatPattern
+		FlatPattern fp;
+		fp.symbol 		= ptrn->_symbol;
+		fp.frequency 	= ptrn->_frequency;
+		fp.str_length	= ptrn->getStringLength();
+		fp.huffman_length= ptrn->getHuffmanLength(); //length in bits
+		mem_block = (char *) &fp;
+		file.write(mem_block,sizeof(FlatPattern));
+		//write cstring+NULL
+		file.write(ptrn->_str.c_str(),ptrn->_str.length()+1 /* for last NULL */);
+		//write huffman code buffer
+		uint16_t huff_buf_size = fp.huffman_length / sizeof(uint32_t);
+		huff_buf_size = (fp.huffman_length % sizeof(uint32_t) == 0)? huff_buf_size : huff_buf_size + 1;
+		mem_block = (char *) ptrn->_coded.buf;
+		file.write(mem_block,huff_buf_size );
+
+	}
+	mem_block = (char *) &header;
+	file.write(mem_block,sizeof(header));
+	file.close();
+	return true;
+}
+
+bool UrlCompressor::LoadDBfromFile(std::string& file_path)
+{
+	/* File Format:
+	 *	Header|
+	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
+	 *	Header
+	 */
+
+	std::ifstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	if (!file.is_open()) {
+		return false;
+	}
+
+
+	init();
+//	_statistics.reset(params);
+
+	char* mem_block;
+	FileHeader header;
+	mem_block = (char *) &header;
+	file.read(mem_block,sizeof(header));
+	if (header.version != URLC_VERSION) {
+		file.close();
+		std::cout<<"Wrong version of DB, expected "<<URLC_VERSION<<" found "<<header.version<<STDENDL;
+		return false;
+	}
+
+	char strbuf[1000];
+	int patterns_counter = 0;
+	for (uint32_t i=0; i< header.num_of_patterns ;i++) {
+		//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
+		Pattern* ptrn = _symbol2pattern_db[i];
+		//write FlatPattern
+		FlatPattern fp;
+		mem_block = (char *) &fp;
+		file.read(mem_block,sizeof(FlatPattern));
+		ASSERT(patterns_counter == fp.symbol );
+
+		fp.symbol 		= ptrn->_symbol;
+		fp.frequency 	= ptrn->_frequency;
+		fp.str_length	= ptrn->getStringLength();
+		fp.huffman_length= ptrn->getHuffmanLength(); //length in bits
+		file.read(strbuf,fp.str_length + 1);
+		std::string patStr = strbuf;
+		const char* str =(const char *) &sig.data[0];
+		patStr.assign(str,  sig.data.size());
+		uint32_t frequency = sig.calcHitsInSource();
+		addPattern(patStr,frequency);
+
+
+		patterns_counter++;
+
+
+
+		mem_block = (char *) &fp;
+		file.write(mem_block,sizeof(FlatPattern));
+		//write cstring+NULL
+		file.write(ptrn->_str.c_str(),ptrn->_str.length()+1 /* for last NULL */);
+		//write huffman code buffer
+		uint16_t huff_buf_size = fp.huffman_length / sizeof(uint32_t);
+		huff_buf_size = (fp.huffman_length % sizeof(uint32_t) == 0)? huff_buf_size : huff_buf_size + 1;
+		mem_block = (char *) ptrn->_coded.buf;
+		file.write(mem_block,huff_buf_size );
+
+	}
+	mem_block = (char *) &header;
+	file.write(mem_block,sizeof(header));
+	file.close();
+
 
 	return true;
 }

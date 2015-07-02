@@ -21,6 +21,8 @@
 #define MAX_URL_LENGTH 1000
 #define RESERVED_NUM_OF_PATTERNS 1000
 
+#define URLC_VERSION 1
+
 enum UrlCompressorStatus {
 	STATUS_OK = 1,
 	STATUS_FAIL = -1,
@@ -83,14 +85,19 @@ public:
 	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
 
 	//load list of urls and build cached database
+	//Deprecated!
 	bool LoadUrlsFromFile(const std::string& file_path,
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
+	//Load urlmatching dictionary from list of strings
 	bool LoadUrlsFromList(const std::deque<std::string> url_list,
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
+
+	bool StoreDBtoFile(std::string& file_path);
+	bool LoadDBfromFile(std::string& file_path);
 
 	/** load pre-stored dictionary from file and build cached database
 	 * DB file format:

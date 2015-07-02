@@ -82,7 +82,17 @@ typedef struct {
 	uint32_t size;
 } symbolTableType;
 
+typedef struct {
+	uint32_t version;
+	uint32_t num_of_patterns;
+} FileHeader;
 
+typedef struct {
+	uint32_t symbol;
+	uint32_t frequency;
+	uint16_t str_length;
+	uint16_t huffman_length; 	//in bits !
+} FlatPattern;
 
 
 
