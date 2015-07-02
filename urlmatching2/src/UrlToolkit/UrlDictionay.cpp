@@ -29,6 +29,14 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
+// return the min. Byte size that contains 'bits' bits
+inline
+uint16_t conv_bits_to_bytes(uint32_t bits) {
+	uint16_t byte_size = bits / sizeof(uint32_t);
+	byte_size = (bits % sizeof(uint32_t) == 0)? byte_size : byte_size + 1;
+	return byte_size;
+}
+
 UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1)
 {
 
@@ -278,8 +286,8 @@ bool UrlCompressor::StoreDBtoFile(std::string& file_path)
 		//write cstring+NULL
 		file.write(ptrn->_str.c_str(),ptrn->_str.length()+1 /* for last NULL */);
 		//write huffman code buffer
-		uint16_t huff_buf_size = fp.huffman_length / sizeof(uint32_t);
-		huff_buf_size = (fp.huffman_length % sizeof(uint32_t) == 0)? huff_buf_size : huff_buf_size + 1;
+
+		uint16_t huff_buf_size = conv_bits_to_bytes(fp.huffman_length );
 		mem_block = (char *) ptrn->_coded.buf;
 		file.write(mem_block,huff_buf_size );
 
@@ -320,45 +328,48 @@ bool UrlCompressor::LoadDBfromFile(std::string& file_path)
 	char strbuf[1000];
 	int patterns_counter = 0;
 	for (uint32_t i=0; i< header.num_of_patterns ;i++) {
-		//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
-		Pattern* ptrn = _symbol2pattern_db[i];
-		//write FlatPattern
+		//read FlatPattern
 		FlatPattern fp;
 		mem_block = (char *) &fp;
 		file.read(mem_block,sizeof(FlatPattern));
+		//create pattern with str and freq.
 		ASSERT(patterns_counter == fp.symbol );
-
-		fp.symbol 		= ptrn->_symbol;
-		fp.frequency 	= ptrn->_frequency;
-		fp.str_length	= ptrn->getStringLength();
-		fp.huffman_length= ptrn->getHuffmanLength(); //length in bits
 		file.read(strbuf,fp.str_length + 1);
+		ASSERT(strlen(strbuf) == fp.str_length );
 		std::string patStr = strbuf;
-		const char* str =(const char *) &sig.data[0];
-		patStr.assign(str,  sig.data.size());
-		uint32_t frequency = sig.calcHitsInSource();
-		addPattern(patStr,frequency);
+		symbolT s = addPattern(patStr,fp.frequency);
+		ASSERT(s == patterns_counter);
 
+		//update huffman code
+		CodedHuffman& coded = _symbol2pattern_db[s]->_coded;
+		coded.length = fp.huffman_length ;
+		uint16_t huff_buf_size = conv_bits_to_bytes(coded.length );
+		coded.buf = new uint32_t[ huff_buf_size ];
+		mem_block = (char *) coded.buf;
+		file.read(mem_block,huff_buf_size);
 
+		add_memory_counter(_symbol2pattern_db[s]->size());
 		patterns_counter++;
-
-
-
-		mem_block = (char *) &fp;
-		file.write(mem_block,sizeof(FlatPattern));
-		//write cstring+NULL
-		file.write(ptrn->_str.c_str(),ptrn->_str.length()+1 /* for last NULL */);
-		//write huffman code buffer
-		uint16_t huff_buf_size = fp.huffman_length / sizeof(uint32_t);
-		huff_buf_size = (fp.huffman_length % sizeof(uint32_t) == 0)? huff_buf_size : huff_buf_size + 1;
-		mem_block = (char *) ptrn->_coded.buf;
-		file.write(mem_block,huff_buf_size );
-
 	}
-	mem_block = (char *) &header;
-	file.write(mem_block,sizeof(header));
-	file.close();
 
+	//verify correct header
+	FileHeader header_tmp;
+	mem_block = (char *) &header_tmp;
+	file.read(mem_block,sizeof(header_tmp));
+	if (header_tmp.version != URLC_VERSION) {
+		file.close();
+		std::cout<<"Wrong version of DB, expected "<<URLC_VERSION<<" found "<<header_tmp.version<<STDENDL;
+		return false;
+	}
+
+	//	Load patterns to pattern matching algorithm();
+	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+
+	// Build the complimantry table symbol --> pattern
+	algo.make_pattern_to_symbol_list();
+	// ----------------------------
+	_statistics.number_of_symbols = _symbol2pattern_db.size();
+	add_memory_counter(algo.size());
 
 	return true;
 }
@@ -722,6 +733,7 @@ void UrlCompressor::prepare_database() {
 //	_symbol2pattern_db_size = _nextSymbol;
 
 
+	//Step 1: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
 	uint32_t* freqArr = new uint32_t[_nextSymbol];
 	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
@@ -737,9 +749,12 @@ void UrlCompressor::prepare_database() {
 	delete[] freqArr;
 
 	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
-//	init_pattern_matching_algorithm();
+
+	//Step 2: build AC patterns matching algorithm
+	//	Load patterns to pattern matching algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
-	// ----------------------------
+
+	// Build the complimantry table symbol --> pattern
 	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
