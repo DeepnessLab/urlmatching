@@ -279,9 +279,9 @@ void test_hashtable(CmdLineOptions& options) {
 
 	if (options.print_dicionary) {
 		ofstream printout_file;
-		printout_file.open (options.dicionary_output_file.c_str(),std::ofstream::out );
+		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
 		urlc.print_database(printout_file);
 		printout_file.close();
-		std::cout <<std::endl<< "Dicionary outputed to: "<<options.dicionary_output_file<<std::endl;
+		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 	}
 }

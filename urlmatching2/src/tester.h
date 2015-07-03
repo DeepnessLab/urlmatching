@@ -52,7 +52,8 @@ class UrlCompressor;
 void run_cmd_main(CmdLineOptions& options);
 
 //cmds:
-void build_dictionary_to_file(CmdLineOptions& options);
+void test_build_dictionary_to_file	(CmdLineOptions& options);
+void test_encode					(CmdLineOptions& options);
 
 //The cmd tester (Main tester)
 void test_main(CmdLineOptions& options);
