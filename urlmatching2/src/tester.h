@@ -48,6 +48,12 @@ void getWorkingDirectory(std::string& out ) {
 
 class UrlCompressor;
 
+
+void run_cmd_main(CmdLineOptions& options);
+
+//cmds:
+void build_dictionary_to_file(CmdLineOptions& options);
+
 //The cmd tester (Main tester)
 void test_main(CmdLineOptions& options);
 void take_a_break(int seconds, std::string why);

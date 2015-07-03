@@ -50,8 +50,9 @@ int main(int argc, char* argv[])
 
     clock_t begin,end;
     begin = std::clock(); ;
-	test_main(options);
-//	test_hashtable(options);
+	run_cmd_main(options);
+//	test_main(options);			//todo remove this
+//	test_hashtable(options);	//todo remove this
 	end = std::clock();;
 	double test_time = double(end - begin) / (CLOCKS_PER_SEC);
 	std::cout<<"TEST ENDED, took " << test_time / 60 << " min."<< std::endl;

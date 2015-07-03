@@ -15,6 +15,12 @@
 #include <fstream>
 
 
+#define CMD_FULLTEST        "test"
+#define CMD_BUILDDIC        "build"
+#define CMD_ENCODE          "encode"
+#define CMD_HASHTABLE 		"testhash"
+
+
 class CmdLineOptions {
 
 public:

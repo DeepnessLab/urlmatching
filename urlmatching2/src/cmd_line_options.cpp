@@ -38,7 +38,9 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc, &argv[0], "f:o:ak:1:2:r:lp:b:dc:"))) {
+	this->cmd = argv[1];
+
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:o:ak:1:2:r:lp:b:dc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -86,6 +88,8 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		}
 	}
 
+	//TODO: verify arguments by cmd
+
 }
 
 void CmdLineOptions::PrintParameters(std::ostream& log){
@@ -105,20 +109,29 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 
 
 void CmdLineOptions::usage() {
-	std::cout << "Usage: urlcompressor -f <urls_path> [options]" << std::endl
+
+
+#define CMD_FULLTEST        "test"
+#define CMD_BUILDDIC        "build"
+#define CMD_ENCODE          "encode"
+#define CMD_HASHTABLE 		"testhash"
+
+
+	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
-			<< "                -f String[urls filepath]  - required" << std::endl
-			<< "                -o String[ouput filepath], default: output.txt " << std::endl
-			<< "                -a       [add header to output_filepath], default: None " << std::endl
-			<< "                -k Int   [k-gram size], default: 8" << std::endl
-			<< "                -1 Int   [heavy hitters count for HH1], default: 1000" << std::endl
-			<< "                -2 Int   [heavy hitters count for HH2], default: 1000" << std::endl
-			<< "                -r fload [consecutive k-gram ratio], default: 0.8" << std::endl
-			<< "                -l       [Longest Prefix Match - split dictionary by /], default: false" << std::endl
-			<< "                -p String[Print dictionary file path], default: None" << std::endl
-			<< "                -b Int   [Take break time to measure program memory, Seconds], default: no" << std::endl
-			<< "                -d       [Verify by Decode - longer], default: no" << std::endl
-			<< "                -c String[logger config file], default: None " << std::endl
+			<<  "   CMD: test, build, encode, testhash"<<std::endl
+			<< "                -f String [urls filepath]  - required" << std::endl
+			<< "                -o String [ouput filepath], default: output.txt " << std::endl
+			<< "                -a        [add header to output_filepath], default: None " << std::endl
+			<< "                -k Int    [k-gram size], default: 8" << std::endl
+			<< "                -1 Int    [heavy hitters count for HH1], default: 1000" << std::endl
+			<< "                -2 Int    [heavy hitters count for HH2], default: 1000" << std::endl
+			<< "                -r fload  [consecutive k-gram ratio], default: 0.8" << std::endl
+			<< "                -l        [Longest Prefix Match - split dictionary by /], default: false" << std::endl
+			<< "                -p String [Print dictionary file path], default: None" << std::endl
+			<< "                -b Int    [Take break time to measure program memory, Seconds], default: no" << std::endl
+			<< "                -d        [Verify by Decode - longer], default: no" << std::endl
+			<< "                -c String [logger config file], default: None " << std::endl
 			<< std::endl
 			<< "        -h prints this message" << std::endl;
 }

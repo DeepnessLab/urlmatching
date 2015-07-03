@@ -32,6 +32,105 @@
 #endif
 #define DVAL(what) #what" = "<< (what)
 
+void run_cmd_main(CmdLineOptions& options) {
+	if (options.cmd == CMD_FULLTEST) {
+
+		test_main(options);
+
+	} else if (options.cmd == CMD_BUILDDIC) {
+
+		build_dictionary_to_file(options);
+
+	} else if (options.cmd == CMD_ENCODE) {
+
+//		print_signatures_file(options);
+
+	} else if (options.cmd == CMD_HASHTABLE) {
+
+		test_hashtable(options);
+
+	} else {
+
+		options.usage();
+
+	}
+}
+
+void build_dictionary_to_file(CmdLineOptions& options) {
+	using namespace std;
+	std::cout<<std::endl<<"\t --- Build dictionary ---"<<std::endl;
+
+	PREPARE_TIMING;
+	options.PrintParameters(std::cout);
+	//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
+	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	HeavyHittersParams_t& params = customParams; //default_hh_params;
+
+	UrlCompressor urlc;
+
+	std::deque<std::string> url_deque;
+	if (! urlc.getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
+		std::cout<<"Error with input file"<<STDENDL;
+		exit (1);
+	}
+	if (url_deque.size() == 0) {
+		std::cout<<"ERROR: read 0 urls from file"<<STDENDL;
+		exit (1);
+	}
+	std::deque<std::string>* input_for_urlcompressor = &url_deque;
+
+	if (options.split_for_LPM) {
+		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
+		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		input_for_urlcompressor = splitted_deque;
+	}
+
+	uint32_t num_of_urls = input_for_urlcompressor->size();
+	uint32_t decoded_size = 0;
+	for (std::deque<std::string>::iterator it=input_for_urlcompressor->begin();
+			it != input_for_urlcompressor->end(); ++it) {
+		decoded_size += it->size();
+	}
+
+	take_a_break(options.break_time," before loading");
+	START_TIMING;
+	bool retB = urlc.LoadUrlsFromList(*input_for_urlcompressor, params, false);
+	STOP_TIMING;
+	take_a_break(options.break_time," after loading");
+	double time_to_load = GETTIMING;
+	assert (retB);
+
+	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
+
+	if (options.split_for_LPM) {	//free unecessary memory
+		delete input_for_urlcompressor;
+	}
+
+	std::string dictionaryfilename = options.input_urls_file_path;
+	dictionaryfilename = dictionaryfilename + ".dict";
+	std::cout<<" storing to file: "<< dictionaryfilename <<std::endl;
+
+	retB = urlc.StoreDBtoFile(dictionaryfilename );
+	if (!retB) {
+		std::cout<<"Faild to store to " << dictionaryfilename <<std::endl;
+		return;
+	}
+
+	std::cout<<STDENDL;
+	//printing stats
+	// remember 1 B/ms == 1KB / sec
+	std::cout<<" ---"<<std::endl;
+	std::cout<<"Runtime Statistics: for "<<num_of_urls<<" urls"<<std::endl;
+	std::cout<<"------------------"<<std::endl;
+
+	std::cout<<"Loading: for "<<num_of_urls << " urls" << std::endl;
+	std::cout<<"  Time= " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s"
+			<< "  average/url="<< double(time_to_load/num_of_urls) 	<<"ms"<< STDENDL;
+	std::cout<<"  Memory footprint est.="<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
+
+	return;
+}
+
 void test_main(CmdLineOptions& options) {
 	using namespace std;
 
@@ -182,7 +281,7 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 
 	std::cout<<"Loading: for "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<"  Time= " <<time_to_load << "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+	std::cout<<"  Time= " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<"  Memory footprint est.="<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 
