@@ -255,7 +255,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 bool UrlCompressor::StoreDictToFile(std::string& file_path)
 {
 	/* File Format:
-	 *	Header|
+	 *	Header|_statistics|
 	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
 	 *	Header
 	 */
@@ -271,6 +271,9 @@ bool UrlCompressor::StoreDictToFile(std::string& file_path)
 	header.version = URLC_VERSION;
 	mem_block = (char *) &header;
 	file.write(mem_block,sizeof(header));
+
+	mem_block = (char *) &_statistics;
+	file.write(mem_block,sizeof(_statistics));
 
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 		//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
@@ -301,7 +304,7 @@ bool UrlCompressor::StoreDictToFile(std::string& file_path)
 bool UrlCompressor::InitFromDictFile(std::string& file_path)
 {
 	/* File Format:
-	 *	Header|
+	 *	Header|_statistics|
 	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
 	 *	Header
 	 */
@@ -324,6 +327,10 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 		std::cout<<"Wrong version of DB, expected "<<URLC_VERSION<<" found "<<header.version<<STDENDL;
 		return false;
 	}
+
+	mem_block = (char *) &_statistics;
+	file.read(mem_block,sizeof(_statistics));
+
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
@@ -574,9 +581,13 @@ void UrlCompressor::print_database(std::ostream& ofs) const
 		ofs << ptrn->_symbol <<","<< ptrn->_frequency<<","
 				<<ptrn->getHuffmanLength()<<","
 				<<ptrn->getStringLength()<<",";
-		for (uint16_t j = 0, t=0 ; j < ptrn->getHuffmanLength(); j+=sizeof(uint32_t)*8, t++) {
+		uint16_t size_ = conv_bits_to_bytes(ptrn->getHuffmanLength());
+		for (uint16_t t=0 ; t < size_;  t++) {
 			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
 		}
+//		for (uint16_t j = 0, t=0 ; j < ptrn->getHuffmanLength(); j+=sizeof(uint32_t)*8, t++) {
+//			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
+//		}
 		ofs <<","<<ptrn->_str;
 		ofs << std::endl;
 	}
