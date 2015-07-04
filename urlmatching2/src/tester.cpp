@@ -23,8 +23,6 @@
 #include "logger.h"
 
 
-
-
 #define BUFFSIZE 500
 
 #ifdef DVAL
@@ -72,7 +70,7 @@ void test_encode(CmdLineOptions& options) {
 
 	take_a_break(options.break_time," before loading");
 	START_TIMING;
-	bool retB = urlc.LoadDBfromFile(dictionary_filename);
+	bool retB = urlc.InitFromDictFile(dictionary_filename);
 	STOP_TIMING;
 	take_a_break(options.break_time," after loading");
 	double time_to_load = GETTIMING;
@@ -272,7 +270,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 
 	take_a_break(options.break_time," before loading");
 	START_TIMING;
-	bool retB = urlc.LoadUrlsFromList(*input_for_urlcompressor, params, false);
+	bool retB = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	take_a_break(options.break_time," after loading");
 	double time_to_load = GETTIMING;
@@ -292,7 +290,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::string dictionary_filename = options.getDictionaryFilename();
 	std::cout<<" storing to file: "<< dictionary_filename <<std::endl;
 
-	retB = urlc.StoreDBtoFile(dictionary_filename );
+	retB = urlc.StoreDictToFile(dictionary_filename );
 	if (!retB) {
 		std::cout<<"Faild to store to " << dictionary_filename <<std::endl;
 		return;
@@ -352,7 +350,7 @@ void test_main(CmdLineOptions& options) {
 
 	take_a_break(options.break_time," before loading");
 	START_TIMING;
-	bool retB = urlc.LoadUrlsFromList(*input_for_urlcompressor, params, false);
+	bool retB = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	take_a_break(options.break_time," after loading");
 	double time_to_load = GETTIMING;
@@ -560,7 +558,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	urlc.SplitUrlsList(url_deque, splitted_deque);
 	START_TIMING;
 //	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
-	bool retB = urlc.LoadUrlsFromList(splitted_deque, params, false);
+	bool retB = urlc.InitFromUrlsList(splitted_deque, params, false);
 	STOP_TIMING;
 	take_a_break(break_time," after loading");
 	double time_to_load = GETTIMING;

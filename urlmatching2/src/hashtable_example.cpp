@@ -114,7 +114,7 @@ void test_hashtable(CmdLineOptions& options) {
 	}
 
 	START_TIMING;
-	bool retB = urlc.LoadUrlsFromList(*input_for_urlcompressor, params, false);
+	bool retB = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
 	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();

@@ -100,7 +100,7 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 }
 
 
-bool UrlCompressor::LoadUrlsFromList(const std::deque<std::string> url_list,
+bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		const HeavyHittersParams_t params,
 		const  bool contains_basic_symbols)
 {
@@ -252,7 +252,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 }
 
 
-bool UrlCompressor::StoreDBtoFile(std::string& file_path)
+bool UrlCompressor::StoreDictToFile(std::string& file_path)
 {
 	/* File Format:
 	 *	Header|
@@ -298,7 +298,7 @@ bool UrlCompressor::StoreDBtoFile(std::string& file_path)
 	return true;
 }
 
-bool UrlCompressor::LoadDBfromFile(std::string& file_path)
+bool UrlCompressor::InitFromDictFile(std::string& file_path)
 {
 	/* File Format:
 	 *	Header|
@@ -325,8 +325,14 @@ bool UrlCompressor::LoadDBfromFile(std::string& file_path)
 		return false;
 	}
 
+	//remove symbol 0 - NULL
+	delete _symbol2pattern_db.back();
+	_symbol2pattern_db.pop_back();
+	ASSERT (_symbol2pattern_db.size() == 0);
+	_nextSymbol = 0;
+
 	char strbuf[1000];
-	int patterns_counter = 0;
+	uint32_t patterns_counter = 0;
 	for (uint32_t i=0; i< header.num_of_patterns ;i++) {
 		//read FlatPattern
 		FlatPattern fp;
@@ -375,76 +381,7 @@ bool UrlCompressor::LoadDBfromFile(std::string& file_path)
 	return true;
 }
 
-/**
- * This method will load and create encode/decode DB from a saved DB file
- * @param file_path - DB file path
- * @return true if loaded successfully
- */
-bool UrlCompressor::LoadStoredDBFromFile(std::string& file_path)
-{
-	std::string line;
-	std::ifstream file(file_path.c_str());
-	uint32_t symbol_counter=1;
-	if (!file.is_open()) {
-		return false;
-	}
-	char chars[MAX_DB_LINE_SIZE];
-	if (!getline(file,line)) {
-		return false;
-	}
-	strcpy(chars,line.c_str());
-	init(atoi(chars)); //get number of lines to load
 
-	//read all lines by the format <symbol#>,<frequency>,<pattern_string>\n
-	while (getline(file,line)) {
-		uint32_t symbol=0;
-		std::string patternStr;
-		uint32_t frequency=0;
-		if (line.length()> MAX_DB_LINE_SIZE)
-			return false;
-		strcpy(chars,line.c_str());
-		char *p = strtok(chars, SEPERATOR);
-		if (p) {
-			symbol= atoi(p);
-			ASSERT(symbol!=0); //0 is saved for S_NULL
-			p = strtok(NULL, SEPERATOR);
-		} else
-			return false;
-		if (p) {
-			frequency = atoi(p);
-			p = strtok(NULL, SEPERATOR);
-		} else
-			return false;
-		if (p) {
-			patternStr.assign(p);
-		} else
-			return false;
-		ASSERT(symbol==symbol_counter);
-		Pattern* patt = new Pattern(symbol,frequency,patternStr);
-		_symbol2pattern_db[symbol]=patt;
-		_strings_to_symbols[patternStr]=symbol;
-		symbol_counter++;
-	}
-	//symbol_counter is last symbol number +1
-	file.close();
-
-	//prepare array to load huffman dictionary
-	uint32_t* freqArr = new uint32_t[symbol_counter];
-	for (uint32_t i=0; i<symbol_counter;i++)  {  //skip symbol 0
-			Pattern* pat =_symbol2pattern_db[i];
-			ASSERT(pat->_symbol == i);
-			freqArr[i]=pat->_frequency;
-	}
-	_huffman.load(freqArr,symbol_counter);
-	delete freqArr;
-
-	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
-//	init_pattern_matching_algorithm();
-	algo.load_patterns(&_symbol2pattern_db,getDBsize());
-
-	DBG("load_dict_from_file: loaded "<<symbol_counter<<" patterns");
-	return true;
-}
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
 UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
@@ -699,7 +636,6 @@ void UrlCompressor::init(uint32_t reserved_size) {
 	}
 	_symbol2pattern_db.reserve(reserved_size);
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
-//	_symbol2pattern_db_size=1;
 	_nextSymbol = 1;
 	_statistics.reset();
 	ASSERT (_nextSymbol == getDBsize() );
