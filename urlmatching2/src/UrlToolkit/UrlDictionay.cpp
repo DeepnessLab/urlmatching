@@ -268,7 +268,7 @@ bool UrlCompressor::StoreDictToFile(std::string& file_path)
 	char* mem_block;
 	FileHeader header;
 	header.num_of_patterns = getDBsize();
-	header.version = URLC_VERSION;
+	header.version = URLC_STORED_DICT_VERSION;
 	mem_block = (char *) &header;
 	file.write(mem_block,sizeof(header));
 
@@ -322,9 +322,9 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 	FileHeader header;
 	mem_block = (char *) &header;
 	file.read(mem_block,sizeof(header));
-	if (header.version != URLC_VERSION) {
+	if (header.version != URLC_STORED_DICT_VERSION) {
 		file.close();
-		std::cout<<"Wrong version of DB, expected "<<URLC_VERSION<<" found "<<header.version<<STDENDL;
+		std::cout<<"Wrong version of DB, expected "<<URLC_STORED_DICT_VERSION<<" found "<<header.version<<STDENDL;
 		return false;
 	}
 
@@ -369,9 +369,9 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 	FileHeader header_tmp;
 	mem_block = (char *) &header_tmp;
 	file.read(mem_block,sizeof(header_tmp));
-	if (header_tmp.version != URLC_VERSION) {
+	if (header_tmp.version != URLC_STORED_DICT_VERSION) {
 		file.close();
-		std::cout<<"Wrong version of DB, expected "<<URLC_VERSION<<" found "<<header_tmp.version<<STDENDL;
+		std::cout<<"Wrong version of DB, expected "<<URLC_STORED_DICT_VERSION<<" found "<<header_tmp.version<<STDENDL;
 		return false;
 	}
 

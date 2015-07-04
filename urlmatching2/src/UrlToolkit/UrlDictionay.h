@@ -21,7 +21,7 @@
 #define MAX_URL_LENGTH 1000
 #define RESERVED_NUM_OF_PATTERNS 1000
 
-#define URLC_VERSION 1
+#define URLC_STORED_DICT_VERSION 2
 
 enum UrlCompressorStatus {
 	STATUS_OK = 1,
