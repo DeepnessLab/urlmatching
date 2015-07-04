@@ -58,6 +58,7 @@ void test_encode					(CmdLineOptions& options);
 //The cmd tester (Main tester)
 void test_main(CmdLineOptions& options);
 void take_a_break(int seconds, std::string why);
+bool sanityTesting(UrlCompressor& urlc , bool verbose = false);
 
 //Other testers (need to set manually in main.cpp)
 void test_hashtable(CmdLineOptions& options);

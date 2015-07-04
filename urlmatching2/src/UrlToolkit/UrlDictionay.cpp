@@ -306,7 +306,7 @@ bool UrlCompressor::LoadDBfromFile(std::string& file_path)
 	 *	Header
 	 */
 
-	std::ifstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	std::ifstream file (file_path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
 		return false;
 	}
@@ -371,6 +371,7 @@ bool UrlCompressor::LoadDBfromFile(std::string& file_path)
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 	add_memory_counter(algo.size());
 
+	_is_loaded = true;
 	return true;
 }
 

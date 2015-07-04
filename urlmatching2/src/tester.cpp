@@ -56,21 +56,36 @@ void run_cmd_main(CmdLineOptions& options) {
 	}
 }
 
+
+
 void test_encode(CmdLineOptions& options) {
 	using namespace std;
 
 	PREPARE_TIMING;
 	std::cout<<std::endl<<"\t --- Encode ---"<<std::endl;
-	options.PrintParameters(std::cout);
-	//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
-	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	//load from stored DB file
 	std::string dictionary_filename = options.getDictionaryFilename();
 
+	std::cout<< "Using dictionary from: " << dictionary_filename << STDENDL;
 	UrlCompressor urlc;
 
+	take_a_break(options.break_time," before loading");
+	START_TIMING;
+	bool retB = urlc.LoadDBfromFile(dictionary_filename);
+	STOP_TIMING;
+	take_a_break(options.break_time," after loading");
+	double time_to_load = GETTIMING;
+	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
+	assert (retB);
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+
+//	sanityTesting(urlc);
+
+	// ----   encode/decode entire urlsfile   ----
+
+	//Read input_file into deque of urls
+	std::cout<<"Preparing: reading input file .. "<<std::endl;
 	std::deque<std::string> url_deque;
 	if (! urlc.getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
 		std::cout<<"Error with input file"<<STDENDL;
@@ -81,47 +96,10 @@ void test_encode(CmdLineOptions& options) {
 		exit (1);
 	}
 
-	take_a_break(options.break_time," before loading");
-	START_TIMING;
-	bool retB = urlc.LoadDBfromFile(dictionary_filename);
-	STOP_TIMING;
-	take_a_break(options.break_time," after loading");
-	double time_to_load = GETTIMING;
-	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
-	assert (retB);
-
-	//	urlc.print_database(true /*print codes*/);
-
-	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
-
-	//Sanity testing - encode/decode a single string
-	std::string my_string = "http://www.besound.com/pushead/home.html";
-	std::cout<<"Sanity testing on \""<<my_string<<"\""<<std::endl;
-	uint32_t buff_size = BUFFSIZE;
-	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode_2(my_string,codedbuff,buff_size);
-	std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
-
-	std::string decoded_str;
-	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
-	if (ret != STATUS_OK)
-		std::cout<<"ERROR DECODING: "<<ret<<STDENDL;
-	std::cout<<"dencoded string=\""<<decoded_str<<"\""<<std::endl;
-	if (my_string != decoded_str) {
-		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
-		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
-		std::cout<<" had length "<<DVAL(codedbuff[0])<<STDENDL;
-		return;
-	}
-	delete[] codedbuff;
-
-	// ----   encode/decode entire urlsfile   ----
 	//count urls and prepare coding buffers
-	std::cout<<"Preparing: reading file and allocating memory... "<<std::endl;
 	std::deque<std::string> urls;
 	std::deque<uint32_t*> codedbuffers;
 	uint32_t total_input_size = 0;
-	buff_size = BUFFSIZE;
 	for (std::deque<std::string>::iterator it = url_deque.begin(); it != url_deque.end(); ++it) {
 		if ( (it->length() == 0 )||(*it == "") ) {
 			std::cout<<"Skipping url in line " << urls.size() +1<<STDENDL;
@@ -133,20 +111,20 @@ void test_encode(CmdLineOptions& options) {
 		}
 	}
 
-	uint32_t start_at = 0;
-	uint32_t howmanytocode = urls.size() ;
-	uint32_t status_every = ((howmanytocode /10) > 0 ) ? (howmanytocode /10) : 1;
+	uint32_t num_of_urls = urls.size() ;
+	uint32_t status_every = ((num_of_urls /10) > 0 ) ? (num_of_urls /10) : 1;
 
 	std::cout<<std::endl;
-	std::cout<<"-- Online Testing on " << howmanytocode << " urls --" <<STDENDL;
+	std::cout<<"-- Online Testing on " << num_of_urls << " urls --" <<STDENDL;
 
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
 	uint32_t decoded_size = 0;
 	uint32_t encoded_size = 0;
 
+	uint32_t buff_size = BUFFSIZE;
 	START_TIMING;
-	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
+	for (uint32_t i = 0 ; i < num_of_urls; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
@@ -162,7 +140,7 @@ void test_encode(CmdLineOptions& options) {
 		//decode all urls
 		std::cout<<"decoding ... "<<std::endl;
 		START_TIMING;
-		for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
+		for (uint32_t i = 0; i < num_of_urls; i++ ) {
 			buff_size = BUFFSIZE;
 			uint32_t* codedbuff = codedbuffers[i];
 			std::string decoded_str;
@@ -197,21 +175,21 @@ void test_encode(CmdLineOptions& options) {
 	std::cout<<"Runtime Statistics: for "<<size<<" urls"<<std::endl;
 	std::cout<<"------------------"<<std::endl;
 
-	std::cout<<"Loading: for "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time= " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<"  Memory footprint est.="<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 
-	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
+	std::cout<<"Online compression: on "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
-			<< "  average/url="<< double((double) time_to_encode/howmanytocode) <<"ms"<< STDENDL;
+			<< "  average/url="<< double((double) time_to_encode/num_of_urls) <<"ms"<< STDENDL;
 	if (options.test_decoding) {
 		std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s"
-				<< "  average/url="<< double((double) time_to_decode/howmanytocode) <<"ms"<< STDENDL;
+				<< "  average/url="<< double((double) time_to_decode/num_of_urls) <<"ms"<< STDENDL;
 	}
 
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
-			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / howmanytocode) )))* 8 /1024/1024
+			<< double((double) ( (double) size/(time_to_load + ( time_to_encode * (double) size / num_of_urls) )))* 8 /1024/1024
 			<<" Mb/s"<<STDENDL;
 
 	std::cout<<" ---"<<std::endl;
@@ -810,4 +788,32 @@ void take_a_break(int seconds, std::string why) {
 	std::cout<<"sleep "<<seconds<<" sec: "<< ((why.length()>0)?why:""  )<<std::endl;
 	sleep(seconds);
 	std::cout<<" --> continuing"<<STDENDL;
+}
+
+bool sanityTesting(UrlCompressor& urlc , bool verbose) {
+
+	//Sanity testing - encode/decode a single string
+	std::string my_string = "http://www.besound.com/pushead/home.html";
+	if (verbose)
+		std::cout<<"Sanity testing on \""<<my_string<<"\""<<std::endl;
+	uint32_t buff_size = BUFFSIZE;
+	uint32_t* codedbuff = new uint32_t[buff_size];
+	urlc.encode_2(my_string,codedbuff,buff_size);
+	if (verbose)
+		std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
+
+	std::string decoded_str;
+	int ret = urlc.decode(decoded_str,codedbuff,buff_size);
+	if (ret != STATUS_OK)
+		std::cout<<"ERROR DECODING: "<<ret<<STDENDL;
+	std::cout<<"dencoded string=\""<<decoded_str<<"\""<<std::endl;
+	if (my_string != decoded_str) {
+		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+		std::cout<<" had length "<<DVAL(codedbuff[0])<<STDENDL;
+		return false;
+	}
+	delete[] codedbuff;
+	std::cout<<"Sanity.. PASSED"<<STDENDL;
+	return true;
 }
