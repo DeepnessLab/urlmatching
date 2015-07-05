@@ -21,6 +21,8 @@
 #define MAX_URL_LENGTH 1000
 #define RESERVED_NUM_OF_PATTERNS 1000
 
+#define URLC_STORED_DICT_VERSION 2
+
 enum UrlCompressorStatus {
 	STATUS_OK = 1,
 	STATUS_FAIL = -1,
@@ -65,62 +67,59 @@ public:
 	UrlCompressor();
 	virtual ~UrlCompressor();
 
-	bool isLoaded() { return _is_loaded; }
+	//Cache urls in input file into deque of std::string of urls
+	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
+	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
 
-	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
-	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
+	//Load urlmatching dictionary from list of strings
+	bool InitFromUrlsList(const std::deque<std::string> url_list,
+			const HeavyHittersParams_t params,
+			const  bool contains_basic_symbols);
+
+	bool InitFromDictFile(std::string& file_path);
+	bool StoreDictToFile(std::string& file_path);
+
 	//This a much faster encoder
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
+	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
+	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
 
 	//Decode in_encoded_buf
 	//in_encoded_buf[0] contains the length of huffman coded bit
 	//in_buf_size size of buf in bytes
 	UrlCompressorStatus decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size);
 
-	//Cache urls in input file into deque of std::string of urls
-	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
-	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
+
+
+	//Helpers
+	bool isLoaded() { return _is_loaded; }
+	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
+	uint32_t getDictionarySize();
+	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
+
+	//Debug API
+	void print_database(std::ostream& ofs) const;
+	void print_strings_and_codes(std::ostream& out) ;	//todo: can be removed
 
 	//load list of urls and build cached database
+	//Deprecated!
 	bool LoadUrlsFromFile(const std::string& file_path,
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
-	bool LoadUrlsFromList(const std::deque<std::string> url_list,
-			const HeavyHittersParams_t params,
-			const  bool contains_basic_symbols);
-
-
-	/** load pre-stored dictionary from file and build cached database
-	 * DB file format:
-	 * <number of db entries>
-	 * <symbol#>,<frequency>,<pattern_string>\n
-	 * ...
-	 * Returns true if successfully loaded
-	 * will assert if symbols are not ordered and continues, i.e 0..n
-	 */
-	bool LoadStoredDBFromFile(std::string& file_path);
-
-	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
-	uint32_t getDictionarySize();
-
-	//Debug API
-	void print_database(std::ostream& ofs) const;
-	void print_strings_and_codes(std::ostream& out) ;
-
-	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
-
-	struct patternsIterator {
-		Symbol2pPatternVec arr;
-		symbolT index;
-	};
+//todo: remove
+//	struct patternsIterator {
+//		Symbol2pPatternVec arr;
+//		symbolT index;
+//	};
 
 	Huffman _huffman;
+	//todo: remove _strings_to_symbols
 	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 private:
-	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
+	void reset(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
 
 	// calculates Huffman length and string lenght for every patterns
 	 void calculate_symbols_huffman_score();
@@ -130,6 +129,9 @@ private:
 	 */
 	void prepare_database();
 	void prepare_huffman_code(Pattern* pat, HuffCode& code);
+
+	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)
+	void prepare_huffman();
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }

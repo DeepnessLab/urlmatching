@@ -35,9 +35,13 @@
 
 
 #ifdef BUILD_DEBUG
-#define ASSERT(what) if (!(what)) { \
-	el::Loggers::flushAll();\
-	assert(what); }
+	#if DEBUG_OUTPUT == DBG_TO_LOG
+	#define ASSERT(what) if (!(what)) { \
+		el::Loggers::flushAll();\
+		assert(what); }
+	#else
+	#define ASSERT(what) assert(what)
+	#endif
 #else
 #define ASSERT(what) do {} while(0)
 #endif

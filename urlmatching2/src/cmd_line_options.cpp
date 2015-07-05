@@ -15,6 +15,8 @@
 CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 
 	this->output_file_path		= "output.txt";
+	this->use_dictionary_file	= false;
+	this->dictionary_file		= "";
 	this->add_header_to_output_file	= false;
 	this->kgram_size            = 8;
 	this->n1                    = 1000;
@@ -23,7 +25,7 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->test_decoding			= false;
 	this->split_for_LPM		= false;
 	this->print_dicionary		= false;
-	this->dicionary_output_file = "";
+	this->print_dicionary_file = "";
 	this->line_del = '\n';
 	this->break_time 			= 0;
 	this->logger_config			= "";
@@ -38,10 +40,16 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc, &argv[0], "f:o:ak:1:2:r:lp:b:dc:"))) {
+	this->cmd = argv[1];
+
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
+			break;
+		case 'd':
+			this->use_dictionary_file=true;
+			this->dictionary_file = optarg;
 			break;
 		case 'o':
 			this->output_file_path = optarg;
@@ -66,12 +74,12 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			break;
 		case 'p':
 			this->print_dicionary = true;
-			this->dicionary_output_file = optarg;
+			this->print_dicionary_file = optarg;
 			break;
 		case 'b':
 			this->break_time = atoi(optarg);
 			break;
-		case 'd':
+		case 'v':
 			this->test_decoding = true;
 			break;
 		case 'c':
@@ -85,6 +93,8 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			exit(0);
 		}
 	}
+
+	//TODO: verify arguments by cmd
 
 }
 
@@ -105,21 +115,41 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 
 
 void CmdLineOptions::usage() {
-	std::cout << "Usage: urlcompressor -f <urls_path> [options]" << std::endl
+
+
+#define CMD_FULLTEST        "test"
+#define CMD_BUILDDIC        "build"
+#define CMD_ENCODE          "encode"
+#define CMD_HASHTABLE 		"testhash"
+
+
+	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
-			<< "                -f String[urls filepath]  - required" << std::endl
-			<< "                -o String[ouput filepath], default: output.txt " << std::endl
-			<< "                -a       [add header to output_filepath], default: None " << std::endl
-			<< "                -k Int   [k-gram size], default: 8" << std::endl
-			<< "                -1 Int   [heavy hitters count for HH1], default: 1000" << std::endl
-			<< "                -2 Int   [heavy hitters count for HH2], default: 1000" << std::endl
-			<< "                -r fload [consecutive k-gram ratio], default: 0.8" << std::endl
-			<< "                -l       [Longest Prefix Match - split dictionary by /], default: false" << std::endl
-			<< "                -p String[Print dictionary file path], default: None" << std::endl
-			<< "                -b Int   [Take break time to measure program memory, Seconds], default: no" << std::endl
-			<< "                -d       [Verify by Decode - longer], default: no" << std::endl
-			<< "                -c String[logger config file], default: None " << std::endl
+			<<  "   CMD: test, build, encode, testhash"<<std::endl
+			<< "                -f String [urls filepath]  - required" << std::endl
+			<< "                -d String [dicionary filepath]			, default: None " << std::endl
+			<< "                -o String [ouput filepath]				, default: output.txt " << std::endl
+			<< "                -a        [add header to output_filepath], default: None " << std::endl
+			<< "                -k Int    [k-gram size], default: 8" << std::endl
+			<< "                -1 Int    [heavy hitters count for HH1]	, default: 1000" << std::endl
+			<< "                -2 Int    [heavy hitters count for HH2]	, default: 1000" << std::endl
+			<< "                -r fload  [consecutive k-gram ratio]	, default: 0.8" << std::endl
+			<< "                -l        [Longest Prefix Match - split dictionary by /], default: false" << std::endl
+			<< "                -p String [Print dictionary file path]	, default: None" << std::endl
+			<< "                -b Int    [Take break time to measure program memory, Seconds], default: no" << std::endl
+			<< "                -v        [Verify by Decode - longer]	, default: no" << std::endl
+			<< "                -c String [logger config file]			, default: None " << std::endl
 			<< std::endl
 			<< "        -h prints this message" << std::endl;
+}
+
+std::string CmdLineOptions::getDictionaryFilename() {
+	std::string ret;
+	if (!use_dictionary_file) {
+		ret = input_urls_file_path + ".dict";
+	} else {
+		ret = dictionary_file;
+	}
+	return ret;
 }
 

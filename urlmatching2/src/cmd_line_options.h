@@ -15,12 +15,23 @@
 #include <fstream>
 
 
+#define CMD_FULLTEST        "test"
+#define CMD_BUILDDIC        "build"
+#define CMD_ENCODE          "encode"
+#define CMD_HASHTABLE 		"testhash"
+#define CMD_COMPRESS        "compress"
+#define CMD_EXTRACT         "extract"
+
+
 class CmdLineOptions {
 
 public:
 	CmdLineOptions(int argc, char* argv[]);
 	void PrintParameters(std::ostream& log);
 	void usage();
+
+	std::string getDictionaryFilename() ; //return the dictionary filename that should be used
+
 
 private:
 	void _parse_command_line(int argc, char* argv[]);
@@ -29,6 +40,8 @@ public:
 
 	std::string cmd;
 	std::string input_urls_file_path;
+	bool		use_dictionary_file;
+	std::string dictionary_file;
 	bool		add_header_to_output_file;
 	std::string output_file_path;
 	std::string logger_config;
@@ -39,7 +52,7 @@ public:
 	bool		test_decoding;	//LPM=Longest Prefix Match
 	bool		split_for_LPM;	//LPM=Longest Prefix Match
 	bool		print_dicionary;
-	std::string dicionary_output_file;
+	std::string print_dicionary_file;
 	int			break_time;
 
 	char        line_del;

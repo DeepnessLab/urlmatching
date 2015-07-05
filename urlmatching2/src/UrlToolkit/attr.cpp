@@ -4,7 +4,6 @@
 Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
 	_symbol=symbol;
 	_frequency=frequency;
-	_huffman_length=UINT32_MAX;
 	_coded.buf = NULL;
 	_coded.length = 0;
 }
