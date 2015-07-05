@@ -82,6 +82,8 @@ public:
 	void free_encoding_memory();
 	void print();
 
+	inline bool isLoaded() {return _is_loaded;}
+
 	HuffCode encode(uint32_t symbol) ;
 	bool decode(HuffCode code, symbolT& out_decoded_symbol);
 

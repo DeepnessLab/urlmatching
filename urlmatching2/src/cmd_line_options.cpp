@@ -42,7 +42,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 
 	this->cmd = argv[1];
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:dc:"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;

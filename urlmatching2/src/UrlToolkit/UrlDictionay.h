@@ -100,7 +100,7 @@ public:
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
-	void print_strings_and_codes(std::ostream& out) ;
+	void print_strings_and_codes(std::ostream& out) ;	//todo: can be removed
 
 	//load list of urls and build cached database
 	//Deprecated!
@@ -108,17 +108,18 @@ public:
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
-
-	struct patternsIterator {
-		Symbol2pPatternVec arr;
-		symbolT index;
-	};
+//todo: remove
+//	struct patternsIterator {
+//		Symbol2pPatternVec arr;
+//		symbolT index;
+//	};
 
 	Huffman _huffman;
+	//todo: remove _strings_to_symbols
 	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 private:
-	void init(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
+	void reset(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
 
 	// calculates Huffman length and string lenght for every patterns
 	 void calculate_symbols_huffman_score();
@@ -128,6 +129,9 @@ private:
 	 */
 	void prepare_database();
 	void prepare_huffman_code(Pattern* pat, HuffCode& code);
+
+	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)
+	void prepare_huffman();
 
 	void setLoaded() { _is_loaded = true; }
 	void setUnloaded() { _is_loaded = false; }

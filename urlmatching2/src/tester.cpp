@@ -134,6 +134,14 @@ void test_encode(CmdLineOptions& options) {
 	STOP_TIMING;
 	double time_to_encode = GETTIMING;
 
+	if (options.print_dicionary) {
+		ofstream printout_file;
+		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
+		urlc.print_database(printout_file);
+		printout_file.close();
+		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
+	}
+
 	if (options.test_decoding) {
 		//decode all urls
 		std::cout<<"decoding ... "<<std::endl;
@@ -205,13 +213,13 @@ void test_encode(CmdLineOptions& options) {
 	const UrlCompressorStats* stats = urlc.get_stats();
 	stats->print(std::cout);
 
-	if (options.print_dicionary) {
-		ofstream printout_file;
-		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
-		urlc.print_database(printout_file);
-		printout_file.close();
-		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
-	}
+//	if (options.print_dicionary) {
+//		ofstream printout_file;
+//		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
+//		urlc.print_database(printout_file);
+//		printout_file.close();
+//		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
+//	}
 
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(),ios::app );

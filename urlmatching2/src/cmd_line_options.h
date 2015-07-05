@@ -19,6 +19,8 @@
 #define CMD_BUILDDIC        "build"
 #define CMD_ENCODE          "encode"
 #define CMD_HASHTABLE 		"testhash"
+#define CMD_COMPRESS        "compress"
+#define CMD_EXTRACT         "extract"
 
 
 class CmdLineOptions {
