@@ -291,6 +291,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<STDENDL;
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
+	uint32_t dict_size = urlc.getDictionarySize();
 
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Runtime Statistics: for "<<num_of_urls<<" urls"<<std::endl;
@@ -298,6 +299,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint est. = "<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(dict_size)<< " Bytes = "<< double((double)dict_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<"------------------"<<std::endl;
 
 	if (options.print_dicionary) {
