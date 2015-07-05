@@ -298,6 +298,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint est. = "<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
+	std::cout<<"------------------"<<std::endl;
 
 	if (options.print_dicionary) {
 		ofstream printout_file;

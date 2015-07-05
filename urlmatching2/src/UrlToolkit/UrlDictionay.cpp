@@ -29,14 +29,6 @@ typedef unsigned char uchar;
 //globals
 HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
 
-// return the min. Byte size that contains 'bits' bits
-inline
-uint16_t conv_bits_to_bytes(uint32_t bits) {
-	uint16_t byte_size = bits / (8*sizeof(uint32_t));
-	byte_size = (bits % (8*sizeof(uint32_t)) == 0)? byte_size : byte_size + 1;
-	return byte_size;
-}
-
 UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1)
 {
 
@@ -639,11 +631,10 @@ void UrlCompressor::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator iter=_symbol2pattern_db.begin(); iter!=_symbol2pattern_db.end();++iter) {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
-		_symbol2pattern_db[i]->_huffman_length=code.size();
 		prepare_huffman_code(_symbol2pattern_db[i],code);
 		_statistics.max_huffman_length =
-				(_symbol2pattern_db[i]->_huffman_length > _statistics.max_huffman_length)?
-				_symbol2pattern_db[i]->_huffman_length : _statistics.max_huffman_length;
+				(_symbol2pattern_db[i]->getHuffmanLength() > _statistics.max_huffman_length)?
+				_symbol2pattern_db[i]->getHuffmanLength() : _statistics.max_huffman_length;
 	}
 }
 

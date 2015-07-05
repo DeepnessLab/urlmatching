@@ -33,6 +33,14 @@ typedef struct {
 	uint16_t length;
 } CodedHuffman;
 
+// return the min. Byte size that contains 'bits' bits
+inline
+uint16_t conv_bits_to_bytes(uint32_t bits) {
+	uint16_t byte_size = bits / (8*sizeof(uint32_t));
+	byte_size = (bits % (8*sizeof(uint32_t)) == 0)? byte_size : byte_size + 1;
+	return byte_size;
+}
+
 /**
  * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
  */
@@ -42,14 +50,15 @@ public:
 	virtual ~Pattern() ;
 
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
-	uint32_t inline getHuffmanLength() { return (_huffman_length);	}
+	uint32_t inline getHuffmanLength() { return (_coded.length);	}
 
 	inline 	uint32_t size() {
 		uint32_t size = sizeof(_symbol)
 				+ sizeof(_frequency)
+				+ sizeof(std::string)
 				+ _str.size()
-				+ sizeof(_huffman_length)
-				+ ( (_coded.length / 8) + 1) ;
+				+ sizeof(CodedHuffman)
+				+ ( conv_bits_to_bytes(getHuffmanLength()) ) ;
 		return size;
 	}
 
@@ -57,7 +66,6 @@ public:
 	uint32_t _symbol;
 	uint32_t _frequency;
 	std::string _str;
-	uint32_t _huffman_length;	//TODO: this can be removed with refactoring
 	CodedHuffman _coded;
 
 };
