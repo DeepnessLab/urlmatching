@@ -1,0 +1,6 @@
+/Debug/
+/logs/
+/Release/
+/output/
+/test_files/bigfile_syn.txt
+/test_files/*.dict
