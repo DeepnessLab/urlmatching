@@ -19,6 +19,7 @@
 #include "UrlToolkit/Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlToolkit/UrlDictionay.h"
+#include "UrlToolkit/FileCompressor.h"
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
 
@@ -46,6 +47,14 @@ void run_cmd_main(CmdLineOptions& options) {
 	} else if (options.cmd == CMD_HASHTABLE) {
 
 		test_hashtable(options);
+
+	} else if (options.cmd == CMD_COMPRESS) {
+
+		test_compress(options);
+
+	} else if (options.cmd == CMD_EXTRACT) {
+
+		test_extract(options);
 
 	} else {
 
@@ -397,7 +406,7 @@ void test_main(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
-		encoded_size+=buff_size;
+		encoded_size+= conv_bits_to_bytes(codedbuff[0] ) + 1 /*for size */;
 //		if (i%status_every == 0)
 //			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
@@ -495,6 +504,47 @@ void test_main(CmdLineOptions& options) {
 	out_file.close();
 }
 
+
+void test_compress (CmdLineOptions& options) {
+	using namespace std;
+	std::cout<<std::endl<<"\t --- compress file ---"<<std::endl;
+	options.PrintParameters(std::cout);
+	std::cout<<std::endl<<"Compresing file: "<<options.input_urls_file_path<<std::endl;
+
+	if (!options.custom_output_file)
+		options.output_file_path=options.input_urls_file_path + ".compress";
+
+	PREPARE_TIMING;
+	START_TIMING;
+	FileCompressor::compress(options.input_urls_file_path,options.output_file_path);
+	STOP_TIMING;
+	double time_to_compress = GETTIMING;
+
+	std::cout<<std::endl<<"Compresed file: "<<options.output_file_path<<std::endl;
+	std::cout<<"------------------"<<std::endl;
+	std::cout<<"Time = " <<time_to_compress << STDENDL;
+
+}
+
+void test_extract (CmdLineOptions& options) {
+	using namespace std;
+	std::cout<<std::endl<<"\t --- extracting file ---"<<std::endl;
+	options.PrintParameters(std::cout);
+	std::cout<<std::endl<<"Extracting file: "<<options.input_urls_file_path<<std::endl;
+
+	if (!options.custom_output_file)
+		options.output_file_path=options.input_urls_file_path + ".extract";
+
+	PREPARE_TIMING;
+	START_TIMING;
+	FileCompressor::extract(options.input_urls_file_path,options.output_file_path);
+	STOP_TIMING;
+	double time_to_extract = GETTIMING;
+
+	std::cout<<std::endl<<"Extracted file: "<<options.output_file_path<<std::endl;
+	std::cout<<"------------------"<<std::endl;
+	std::cout<<"Time = " <<time_to_extract << STDENDL;
+}
 
 
 void test_url_dictionary_load_from_url_txt_file() {

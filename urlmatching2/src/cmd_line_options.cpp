@@ -14,6 +14,7 @@
 
 CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 
+	this->custom_output_file	= false;
 	this->output_file_path		= "output.txt";
 	this->use_dictionary_file	= false;
 	this->dictionary_file		= "";
@@ -23,10 +24,10 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->n2                    = 1000;
 	this->r                     = 0.8;
 	this->test_decoding			= false;
-	this->split_for_LPM		= false;
+	this->split_for_LPM			= false;
 	this->print_dicionary		= false;
-	this->print_dicionary_file = "";
-	this->line_del = '\n';
+	this->print_dicionary_file 	= "";
+	this->line_del 				= '\n';
 	this->break_time 			= 0;
 	this->logger_config			= "";
 	this->_parse_command_line(argc, argv);
@@ -52,6 +53,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			this->dictionary_file = optarg;
 			break;
 		case 'o':
+			this->custom_output_file=true;
 			this->output_file_path = optarg;
 			break;
 		case 'a':

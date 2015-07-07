@@ -27,7 +27,7 @@
 typedef unsigned char uchar;
 
 //globals
-HeavyHittersParams_t default_hh_params {3000, 3000, 0.1, 8};
+HeavyHittersParams_t default_hh_params {1000, 1000, 0.9, 8};
 
 UrlCompressor::UrlCompressor():_huffman(),_is_loaded(false), _nextSymbol(1)
 {
@@ -242,19 +242,29 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 	return true;
 }
 
-
 bool UrlCompressor::StoreDictToFile(std::string& file_path)
+{
+	std::ofstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
+	if (!file.is_open()) {
+		return false;
+	}
+
+	bool ret = false;
+	ret = StoreDictToFileStream(file);
+	file.close();
+
+	return ret;
+
+}
+
+
+bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 {
 	/* File Format:
 	 *	Header|_statistics|
 	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
 	 *	Header
 	 */
-
-	std::ofstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
-	if (!file.is_open()) {
-		return false;
-	}
 
 	char* mem_block;
 	FileHeader header;
@@ -289,27 +299,34 @@ bool UrlCompressor::StoreDictToFile(std::string& file_path)
 	}
 	mem_block = (char *) &header;
 	file.write(mem_block,sizeof(header));
-	file.close();
 
 	std::cout<<"Info: Stored Dictionary file contains "<<sizeof(header)+sizeof(_statistics)+sizeof(header)
-			<<" Bytes of header and statistics which are not needed for compression"<<std::endl;
+				<<" Bytes of header and statistics which are not needed for compression"<<std::endl;
 
 	return true;
 }
 
 bool UrlCompressor::InitFromDictFile(std::string& file_path)
 {
-	/* File Format:
-	 *	Header|_statistics|
-	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
-	 *	Header
-	 */
-
 	std::ifstream file (file_path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
 		return false;
 	}
 
+	bool ret = false;
+	ret = InitFromDictFileStream(file);
+	file.close();
+
+	return ret;
+}
+
+bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
+{
+	/* File Format:
+	 *	Header|_statistics|
+	 *	FlatPattern|cstring|NULL|huffman code buff|..|..|
+	 *	Header
+	 */
 
 	reset();
 //	_statistics.reset(params);
@@ -367,7 +384,6 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 	mem_block = (char *) &header_tmp;
 	file.read(mem_block,sizeof(header_tmp));
 	if (header_tmp.version != URLC_STORED_DICT_VERSION) {
-		file.close();
 		std::cout<<"Wrong version of DB, expected "<<URLC_STORED_DICT_VERSION<<" found "<<header_tmp.version<<STDENDL;
 		return false;
 	}
@@ -720,3 +736,26 @@ void UrlCompressor::prepare_database() {
 
 }
 
+bool UrlCompressor::sanity() {
+
+	if (!isLoaded()) {
+		return false;
+	}
+	//Sanity testing - encode/decode a single string
+	std::string my_string = "http://www.besound.com/pushead/home.html";
+	uint32_t buff_size = 100;
+	uint32_t codedbuff[100] ;
+	encode_2(my_string,codedbuff,buff_size);
+
+	std::string decoded_str;
+	int ret = decode(decoded_str,codedbuff,buff_size);
+	if (ret != STATUS_OK)
+		return false;
+	if (my_string != decoded_str) {
+		std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+		std::cout<<DVAL(my_string)<<" != "<<DVAL(decoded_str)<<STDENDL;
+		std::cout<<" had length "<<DVAL(codedbuff[0])<<STDENDL;
+		return false;
+	}
+	return true;
+}

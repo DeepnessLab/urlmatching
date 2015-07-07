@@ -43,6 +43,7 @@ public:
 	bool		use_dictionary_file;
 	std::string dictionary_file;
 	bool		add_header_to_output_file;
+	bool 		custom_output_file;
 	std::string output_file_path;
 	std::string logger_config;
 	size_t      kgram_size;

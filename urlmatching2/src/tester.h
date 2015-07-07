@@ -52,16 +52,19 @@ class UrlCompressor;
 void run_cmd_main(CmdLineOptions& options);
 
 //cmds:
+void test_main						(CmdLineOptions& options);
 void test_build_dictionary_to_file	(CmdLineOptions& options);
 void test_encode					(CmdLineOptions& options);
+void test_compress					(CmdLineOptions& options);
+void test_extract					(CmdLineOptions& options);
+void test_hashtable					(CmdLineOptions& options);
+
 
 //The cmd tester (Main tester)
-void test_main(CmdLineOptions& options);
 void take_a_break(int seconds, std::string why);
 bool sanityTesting(UrlCompressor& urlc , bool verbose = false);
 
 //Other testers (need to set manually in main.cpp)
-void test_hashtable(CmdLineOptions& options);
 void test_LLH();
 void test_url_dictionary_load_from_url_txt_file();
 

@@ -77,7 +77,9 @@ public:
 			const  bool contains_basic_symbols);
 
 	bool InitFromDictFile(std::string& file_path);
+	bool InitFromDictFileStream(std::ifstream& file);
 	bool StoreDictToFile(std::string& file_path);
+	bool StoreDictToFileStream(std::ofstream& file );
 
 	//This a much faster encoder
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
@@ -93,10 +95,11 @@ public:
 
 
 	//Helpers
-	bool isLoaded() { return _is_loaded; }
-	uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
+	inline bool isLoaded() { return _is_loaded; }
+	inline uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
 	uint32_t getDictionarySize();
-	const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
+	inline const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
+	bool sanity();
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
@@ -107,6 +110,7 @@ public:
 	bool LoadUrlsFromFile(const std::string& file_path,
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
+
 
 //todo: remove
 //	struct patternsIterator {
