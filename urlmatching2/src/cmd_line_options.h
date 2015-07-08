@@ -55,6 +55,7 @@ public:
 	bool		print_dicionary;
 	std::string print_dicionary_file;
 	int			break_time;
+	int			factor;
 
 	char        line_del;
 

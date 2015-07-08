@@ -30,6 +30,7 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->line_del 				= '\n';
 	this->break_time 			= 0;
 	this->logger_config			= "";
+	this->factor				= 1;
 	this->_parse_command_line(argc, argv);
 }
 
@@ -43,7 +44,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 
 	this->cmd = argv[1];
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:x:"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -87,6 +88,9 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		case 'c':
 			this->logger_config = optarg;
 			break;
+		case 'x':
+			this->factor = atoi(optarg);
+			break;
 		case 'h':
 			this->usage();
 			exit(0);
@@ -96,6 +100,10 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		}
 	}
 
+	if (this->factor < 1) {
+		std::cout<<"Error: -x " << this->factor <<" is lower than 1"<<std::endl;
+		exit(0);
+	}
 	//TODO: verify arguments by cmd
 
 }

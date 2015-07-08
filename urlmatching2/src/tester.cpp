@@ -133,9 +133,11 @@ void test_encode(CmdLineOptions& options) {
 	uint32_t buff_size = BUFFSIZE;
 	START_TIMING;
 	for (uint32_t i = 0 ; i < num_of_urls; i++ ) {
-		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
-		urlc.encode_2(urls[i],codedbuff,buff_size);
+		for (int j=0; j < options.factor; j++) {
+			buff_size = BUFFSIZE;
+			urlc.encode_2(urls[i],codedbuff,buff_size);
+		}
 		decoded_size+=urls[i].length();
 		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  ;
 		encoded_size_bits += codedbuff[0] ;
@@ -178,6 +180,7 @@ void test_encode(CmdLineOptions& options) {
 	uint32_t dict_size = urlc.getDictionarySize();
 	uint32_t encoded_and_dict = encoded_size + dict_size;
 
+	int& f = options.factor;
 	std::cout<<STDENDL;
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
@@ -190,7 +193,7 @@ void test_encode(CmdLineOptions& options) {
 	std::cout<<"  Memory footprint est. ="<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 
 	std::cout<<"Online compression: on "<<num_of_urls << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double((f*decoded_size)/time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	if (options.test_decoding) {
 		std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	}
@@ -407,9 +410,11 @@ void test_main(CmdLineOptions& options) {
 
 	START_TIMING;
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
-		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
-		urlc.encode_2(urls[i],codedbuff,buff_size);
+		for (int j=0; j < options.factor; j++) {
+			buff_size = BUFFSIZE;
+			urlc.encode_2(urls[i],codedbuff,buff_size);
+		}
 		decoded_size+=urls[i].length();
 		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  ;
 		encoded_size_bits += codedbuff[0] ;
@@ -454,6 +459,8 @@ void test_main(CmdLineOptions& options) {
 	uint32_t dict_size = urlc.getDictionarySize();
 	uint32_t encoded_and_dict = encoded_size + dict_size;
 
+	int& f = options.factor;
+
 	std::cout<<STDENDL;
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
@@ -464,13 +471,13 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint est. = "<<memory_footprint_estimation<< "Bytes = "<< double((double)memory_footprint_estimation / 1024) <<"KB"<< STDENDL;
 	std::cout<<"Online compression: on "<<size << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double((f * decoded_size)/time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	if (options.test_decoding) {
 		std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	}
 	std::cout<<"Offline compression (load & encode all urls):"<<STDENDL
-			<<"  Time = " <<time_to_load + time_to_encode <<",  Bandwidth ~"
-			<< double(decoded_size/ (time_to_load + time_to_encode) )*8/1024/1024 <<" Mb/s"<<STDENDL;
+			<<"  Time = " <<time_to_load + (time_to_encode/f) <<",  Bandwidth ~"
+			<< double(decoded_size/ (time_to_load + (time_to_encode/f)) )*8/1024/1024 <<" Mb/s"<<STDENDL;
 	std::cout<<"----------------------"<<std::endl;
 	std::cout<<"Compression Statistics:"<<STDENDL;
 	std::cout<<"----------------------"<<std::endl;
