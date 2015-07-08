@@ -291,7 +291,7 @@ bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 		file.write(ptrn->_str.c_str(),ptrn->_str.length()+1 /* for last NULL */);
 		//write huffman code buffer
 
-		uint16_t huff_buf_size = conv_bits_to_bytes(fp.huffman_length );
+		uint16_t huff_buf_size = conv_bits_to_uin32_size(fp.huffman_length );
 		huff_buf_size *= sizeof(uint32_t);
 		mem_block = (char *) ptrn->_coded.buf;
 		file.write(mem_block,huff_buf_size  );
@@ -369,7 +369,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 		//update huffman code
 		CodedHuffman& coded = _symbol2pattern_db[s]->_coded;
 		coded.length = fp.huffman_length ;
-		uint16_t huff_buf_size = conv_bits_to_bytes(coded.length );
+		uint16_t huff_buf_size = conv_bits_to_uin32_size(coded.length );
 		coded.buf = new uint32_t[ huff_buf_size ];
 		mem_block = (char *) coded.buf;
 		huff_buf_size *= sizeof(uint32_t);
@@ -601,7 +601,7 @@ uint32_t UrlCompressor::getDictionarySize() {
 		Pattern* ptrn = _symbol2pattern_db[i];
 		size += sizeof(uint32_t) ; //ptrn->_symbol
 		size += sizeof(uint32_t) ; //ptrn->_frequency
-		size += conv_bits_to_bytes(ptrn->getHuffmanLength()) ;
+		size += conv_bits_to_uin32_size(ptrn->getHuffmanLength()) ;
 		size += sizeof(uint32_t) ;// to store huffmanLength
 		size += ptrn->getStringLength();
 		size += sizeof(uint32_t) ; // to store stringLength
@@ -620,7 +620,7 @@ void UrlCompressor::print_database(std::ostream& ofs) const
 				<< ptrn->_frequency<<","
 				<<ptrn->getHuffmanLength()<<","
 				<<ptrn->getStringLength()<<",";
-		uint16_t size_ = conv_bits_to_bytes(ptrn->getHuffmanLength());
+		uint16_t size_ = conv_bits_to_uin32_size(ptrn->getHuffmanLength());
 		for (uint16_t t=0 ; t < size_;  t++) {
 			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
 		}

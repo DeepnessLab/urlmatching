@@ -33,13 +33,21 @@ typedef struct {
 	uint16_t length;
 } CodedHuffman;
 
-// return the min. Byte size that contains 'bits' bits
+// return the min. uint32_t size that contains 'bits' bits
 inline
-uint16_t conv_bits_to_bytes(uint32_t bits) {
+uint16_t conv_bits_to_uin32_size(uint32_t bits) {
 	uint16_t byte_size = bits / (8*sizeof(uint32_t));
 	byte_size = (bits % (8*sizeof(uint32_t)) == 0)? byte_size : byte_size + 1;
 	return byte_size;
 }
+
+inline
+uint16_t conv_bits_to_bytes(uint32_t bits) {
+	uint16_t byte_size = bits / (8);
+	byte_size = (bits % (8) == 0)? byte_size : byte_size + 1;
+	return byte_size;
+}
+
 
 /**
  * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
@@ -58,7 +66,7 @@ public:
 				+ sizeof(std::string)
 				+ _str.size()
 				+ sizeof(CodedHuffman)
-				+ ( conv_bits_to_bytes(getHuffmanLength()) ) ;
+				+ ( conv_bits_to_uin32_size(getHuffmanLength()) ) ;
 		return size;
 	}
 

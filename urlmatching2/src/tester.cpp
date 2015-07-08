@@ -406,7 +406,7 @@ void test_main(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
-		encoded_size+= conv_bits_to_bytes(codedbuff[0] ) + 1 /*for size */;
+		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  /*for size */;
 //		if (i%status_every == 0)
 //			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
