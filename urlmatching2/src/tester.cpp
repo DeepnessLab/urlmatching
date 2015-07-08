@@ -128,6 +128,7 @@ void test_encode(CmdLineOptions& options) {
 	std::cout<<"encoding ... "<<std::endl;
 	uint32_t decoded_size = 0;
 	uint32_t encoded_size = 0;
+	uint64_t encoded_size_bits = 0;
 
 	uint32_t buff_size = BUFFSIZE;
 	START_TIMING;
@@ -136,7 +137,8 @@ void test_encode(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
-		encoded_size+=buff_size;
+		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  ;
+		encoded_size_bits += codedbuff[0] ;
 		//		if (i%status_every == 0)
 		//			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
@@ -171,6 +173,8 @@ void test_encode(CmdLineOptions& options) {
 		delete[] codedbuff;
 	}
 
+	uint32_t encoded_size_tight = encoded_size_bits / (8);
+	encoded_size = (encoded_size_bits % (8) == 0)? encoded_size_tight : encoded_size_tight + 1;
 	uint32_t dict_size = urlc.getDictionarySize();
 	uint32_t encoded_and_dict = encoded_size + dict_size;
 
@@ -399,6 +403,7 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<"encoding ... "<<std::endl;
 	uint32_t decoded_size = 0;
 	uint32_t encoded_size = 0;
+	uint64_t encoded_size_bits = 0;
 
 	START_TIMING;
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
@@ -406,7 +411,9 @@ void test_main(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
-		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  /*for size */;
+		encoded_size+= conv_bits_to_bytes(codedbuff[0] )  ;
+		encoded_size_bits += codedbuff[0] ;
+
 //		if (i%status_every == 0)
 //			std::cout<<"  encoding passed "<<i<<std::endl;
 	}
@@ -441,6 +448,8 @@ void test_main(CmdLineOptions& options) {
 		delete[] codedbuff;
 	}
 
+	uint32_t encoded_size_tight = encoded_size_bits / (8);
+	encoded_size = (encoded_size_bits % (8) == 0)? encoded_size_tight : encoded_size_tight + 1;
 	uint32_t size = urls.size();
 	uint32_t dict_size = urlc.getDictionarySize();
 	uint32_t encoded_and_dict = encoded_size + dict_size;
