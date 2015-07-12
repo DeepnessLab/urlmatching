@@ -25,15 +25,15 @@ void UrlCompressorStats::reset() {
 
 
 void UrlCompressorStats::print(std::ostream& out) const {
-	out<<  DVAL(number_of_symbols)<<STDENDL;
-	out<<  DVAL(number_of_patterns)<<STDENDL;
-	out<<  DVAL(number_of_urls)<<STDENDL;
-	out<<	 DVAL(max_huffman_length)<< " bits"<<STDENDL;
-	out<<	 DVAL(total_input_bytes)<< "B"<<STDENDL;
-	out<<	 "estimated " << DVAL(memory_allocated) << "B"<<STDENDL;
+	out<< "number_of_symbols  = " << (number_of_symbols)<<STDENDL;
+	out<< "number_of_patterns = " << (number_of_patterns)<<STDENDL;
+	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
+	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
+	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B"<<STDENDL;
+	out<< "estimated memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
 	if (params_set) {
-		out<< "params: "<< DVAL(params.kgrams_size)<< " " <<DVAL(params.r)<<STDENDL;
-		out<< "params: "<< DVAL(params.n1)<< " " <<DVAL(params.n2)<<STDENDL;
+		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
+		out<< "params: n1 = "<< (params.n1)<< " n2 = " <<(params.n2)<<STDENDL;
 	}
 }
 
