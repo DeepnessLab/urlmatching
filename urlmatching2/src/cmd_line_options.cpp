@@ -135,23 +135,28 @@ void CmdLineOptions::usage() {
 
 	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
-			<<  "   CMD: test, build, encode, testhash"<<std::endl
-			<< "                -f String [urls filepath]  - required" << std::endl
-			<< "                -d String [dicionary filepath]			, default: None " << std::endl
-			<< "                -o String [ouput filepath]				, default: output.txt " << std::endl
-			<< "                -a        [add header to output_filepath], default: None " << std::endl
-			<< "                -k Int    [k-gram size], default: 8" << std::endl
-			<< "                -1 Int    [heavy hitters count for HH1]	, default: 1000" << std::endl
-			<< "                -2 Int    [heavy hitters count for HH2]	, default: 1000" << std::endl
-			<< "                -r fload  [consecutive k-gram ratio]	, default: 0.8" << std::endl
-			<< "                -l        [Longest Prefix Match - split dictionary by /], default: false" << std::endl
-			<< "                -p String [Print dictionary file path]	, default: None" << std::endl
-			<< "                -b Int    [Take break time to measure program memory, Seconds], default: no" << std::endl
-			<< "                -v        [Verify by Decode - longer]	, default: no" << std::endl
-			<< "                -c String [logger config file]			, default: None " << std::endl
+			<< " 1. testing CMD: test, build, encode, testhash"<<std::endl
+			<< "    -f String [urls filepath]  - required" << std::endl
+			<< "    -d String <dicionary filepath>	, default: None " << std::endl
+			<< "    -o String <ouput filepath>		, default: output.txt " << std::endl
+			<< "    -a        <add header to output_filepath>	, default: None " << std::endl
+			<< "    -p String <Print dictionary file path>	, default: None" << std::endl
+			<< "    -b Int    <Take break time to measure program memory, Seconds>, default: no" << std::endl
+			<< "    -v        <Verify by Decode - longer>	, default: no" << std::endl
+			<< "    -c String <logger config file>		, default: None " << std::endl
+			<< " 2. compress file CMD: compress, extract -f [input file] -o [output file] <compression params> "<<std::endl
 			<< std::endl
-			<< "        -h prints this message" << std::endl;
+			<<  "   Compression params: "<<std::endl
+			<< "    -l        <Longest Prefix Match - split dictionary by />, default: false" << std::endl
+			<< "    -k Int    <k-gram size>			, default: 8" << std::endl
+			<< "    -r fload  <consecutive k-gram ratio>	, default: 0.8" << std::endl
+			<< "    -1 Int    <heavy hitters count for HH1>	, default: 1000" << std::endl
+			<< "    -2 Int    <heavy hitters count for HH2>	, default: 1000" << std::endl
+			<< std::endl
+			<< "    -h prints this message" << std::endl;
 }
+#define CMD_COMPRESS        "compress"
+#define CMD_EXTRACT         "extract"
 
 std::string CmdLineOptions::getDictionaryFilename() {
 	std::string ret;
