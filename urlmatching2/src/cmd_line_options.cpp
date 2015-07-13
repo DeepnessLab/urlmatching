@@ -45,7 +45,11 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 	this->cmd = argv[1];
 
 	if (!this->cmd_ok()) {
-		std::cout<<"Uknown CMD, use -h for help";
+		if (this->cmd == "-h") {
+			usage();
+		} else {
+			std::cout<<"Uknown CMD, use -h for help"<<std::endl;
+		}
 		exit(0);
 	}
 
