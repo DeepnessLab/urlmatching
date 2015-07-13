@@ -30,7 +30,7 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
 	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B"<<STDENDL;
-	out<< "estimated memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
+	out<< "inner module memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
 		out<< "params: n1 = "<< (params.n1)<< " n2 = " <<(params.n2)<<STDENDL;

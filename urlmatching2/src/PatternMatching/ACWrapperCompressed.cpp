@@ -219,7 +219,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	}
 	_size += size * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 
-	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
+	ON_DEBUG_ONLY(std::cout<<"Print cached patterns table of size "<< size<<std::endl);
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
 			symbolsTable[i]=NULL;

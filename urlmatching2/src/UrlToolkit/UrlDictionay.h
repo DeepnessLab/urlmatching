@@ -111,13 +111,6 @@ public:
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
-
-//todo: remove
-//	struct patternsIterator {
-//		Symbol2pPatternVec arr;
-//		symbolT index;
-//	};
-
 	Huffman _huffman;
 	//todo: remove _strings_to_symbols
 	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
