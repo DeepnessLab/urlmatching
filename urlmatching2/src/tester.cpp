@@ -1000,6 +1000,7 @@ void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompre
 	for (std::deque<std::pair<std::string,std::string>>::iterator it = outmap.begin(); it != outmap.end(); ++it) {
 		out_file<<it->second<<",";
 	}
+	out_file<<std::endl;
 	out_file.close();
 }
 /*void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
