@@ -4,6 +4,7 @@
  *  Created on: 18 ���� 2014
  *      Author: Daniel
  */
+#define _GLIBCXX_USE_C99 1
 
 #include <cstring>
 #include <iostream>
@@ -969,24 +970,80 @@ void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stat
 
 void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
 	using namespace std;
+	std::deque<pair<std::string,std::string>> outmap;
+
+	outmap.push_back(std::pair<std::string,std::string>("filename",(options.input_urls_file_path)));
+	outmap.push_back(std::pair<std::string,std::string>("urls",std::to_string(stats->number_of_urls)));
+	outmap.push_back(pair<string,string>("n1",std::to_string(stats->params.n1)));
+	outmap.push_back(pair<string,string>("n2",std::to_string(stats->params.n2)));
+	outmap.push_back(pair<string,string>("r",std::to_string(stats->params.r)));
+	outmap.push_back(pair<string,string>("kgram",std::to_string(stats->params.kgrams_size)));
+	outmap.push_back(pair<string,string>("#symbols",std::to_string(stats->number_of_symbols)));
+	outmap.push_back(pair<string,string>("#patterns",std::to_string(stats->number_of_patterns)));
+	outmap.push_back(pair<string,string>("loading time sec",std::to_string(s.time_to_load)));
+	outmap.push_back(pair<string,string>("decoded size B",std::to_string(s.decoded_size)));
+	outmap.push_back(pair<string,string>("encoded size B",std::to_string(s.encoded_size)));
+	outmap.push_back(pair<string,string>("total decoded size B",std::to_string(s.decoded_stream_size)));
+	outmap.push_back(pair<string,string>("total encoded size B",std::to_string(s.encoded_stream_size)));
+	outmap.push_back(pair<string,string>("encoding time sec",std::to_string(s.time_to_encode)));
+	outmap.push_back(pair<string,string>("mem footprint ~ B",std::to_string(s.mem_footprint_est)));
+	outmap.push_back(pair<string,string>("dictionary size B",std::to_string(s.dictionary_size)));
+
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(),ios::app );
 	if (options.add_header_to_output_file) {
-		out_file << "filename," <<"#urls,"
-				<<"n1,"<<"n2," <<"r,"<<"kgram,"
-				<<"#symbols,"<<"#patterns,"
-				<<"loading time sec," << "decoded size B," << "encoded size B, " << "encoding time sec,"
-				<<"memory_footprint_estimation B,"<<"dictionary size B"
-				<< std::endl;
+		for (std::deque<std::pair<std::string,std::string>>::iterator it = outmap.begin(); it != outmap.end(); ++it) {
+			out_file<<it->first<<",";
+		}
+		out_file<<std::endl;
 	}
-	out_file << options.input_urls_file_path <<"," <<stats->number_of_urls<<","
-			<<stats->params.n1<<","<<stats->params.n2<<","<<stats->params.r<<","<<stats->params.kgrams_size
-			<<","<<stats->number_of_symbols<<","<<stats->number_of_patterns
-			<<","<<s.time_to_load<<","<<s.decoded_size<<","<<s.encoded_size<<","<<s.time_to_encode
-			<<","<<s.mem_footprint_est<<","<<s.dictionary_size
-			<< std::endl;
+	for (std::deque<std::pair<std::string,std::string>>::iterator it = outmap.begin(); it != outmap.end(); ++it) {
+		out_file<<it->second<<",";
+	}
 	out_file.close();
 }
+/*void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
+	using namespace std;
+	ofstream out_file;
+	out_file.open (options.output_file_path.c_str(),ios::app );
+	if (options.add_header_to_output_file) {
+		out_file << "filename,"
+				<<"#urls,"
+				<<"n1,"
+				<<"n2,"
+				<<"r,"
+				<<"kgram,"
+				<<"#symbols,"
+				<<"#patterns,"
+				<<"loading time sec,"
+				<< "decoded size B,"
+				<< "encoded size B, "
+				<< "total decoded size B,"
+				<< "total encoded size B,"
+				<< "encoding time sec,"
+				<<"memory_footprint_estimation B,"
+				<<"dictionary size B"
+				<< std::endl;
+	}
+	out_file << options.input_urls_file_path <<","
+			<<stats->number_of_urls<<","
+			<<stats->params.n1<<","
+			<<stats->params.n2<<","
+			<<stats->params.r<<","
+			<<stats->params.kgrams_size<<","
+			<<stats->number_of_symbols<<","
+			<<stats->number_of_patterns	<<","
+			<<s.time_to_load<<","
+			<<s.decoded_size<<","
+			<<s.encoded_size<<","
+			<<s.decoded_stream_size<<","
+			<<s.encoded_stream_size<<","
+			<<s.time_to_encode<<","
+			<<s.mem_footprint_est<<","
+			<<s.dictionary_size
+			<< std::endl;
+	out_file.close();
+}*/
 
 void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) {
 	using namespace std;

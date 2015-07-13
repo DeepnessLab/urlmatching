@@ -126,13 +126,6 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 
 void CmdLineOptions::usage() {
 
-
-#define CMD_FULLTEST        "test"
-#define CMD_BUILDDIC        "build"
-#define CMD_ENCODE          "encode"
-#define CMD_HASHTABLE 		"testhash"
-
-
 	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
 			<< " 1. testing CMD: test, build, encode, testhash"<<std::endl
@@ -155,8 +148,6 @@ void CmdLineOptions::usage() {
 			<< std::endl
 			<< "    -h prints this message" << std::endl;
 }
-#define CMD_COMPRESS        "compress"
-#define CMD_EXTRACT         "extract"
 
 std::string CmdLineOptions::getDictionaryFilename() {
 	std::string ret;
