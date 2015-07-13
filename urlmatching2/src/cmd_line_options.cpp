@@ -44,6 +44,11 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 
 	this->cmd = argv[1];
 
+	if (!this->cmd_ok()) {
+		std::cout<<"Uknown CMD, use -h for help";
+		exit(0);
+	}
+
 	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:x:"))) {
 		switch (o) {
 		case 'f':
@@ -106,6 +111,20 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 	}
 	//TODO: verify arguments by cmd
 
+}
+
+
+bool CmdLineOptions::cmd_ok() {
+	if ( (this->cmd == CMD_FULLTEST) ||
+			(this->cmd == CMD_BUILDDIC) ||
+			(this->cmd == CMD_ENCODE) ||
+			(this->cmd == CMD_HASHTABLE) ||
+			(this->cmd == CMD_COMPRESS) ||
+			(this->cmd == CMD_EXTRACT) )
+	{
+		return true;
+	}
+	return false;
 }
 
 void CmdLineOptions::PrintParameters(std::ostream& log){

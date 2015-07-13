@@ -23,6 +23,7 @@
 #define CMD_EXTRACT         "extract"
 
 
+
 class CmdLineOptions {
 
 public:
@@ -34,6 +35,7 @@ public:
 
 
 private:
+	bool cmd_ok();
 	void _parse_command_line(int argc, char* argv[]);
 
 public:
