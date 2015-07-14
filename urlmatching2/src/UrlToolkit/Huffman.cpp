@@ -107,10 +107,10 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
 		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
-		_size+= (sizeof(symbolT) + it->second.size());
+		_size+= (sizeof(symbolT) + it->second.capacity());
 	}
 
-//	FreeTree(root);
+	FreeTree(root);
 	delete root;
 	_is_loaded=true;
 }

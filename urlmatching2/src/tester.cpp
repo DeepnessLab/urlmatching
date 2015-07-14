@@ -309,7 +309,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
-	std::cout<<"  Memory footprint ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
+	std::cout<<"  Memory footprint (linux only) ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
 	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfMemory()<< "Bytes = "<< double((double)urlc.SizeOfMemory()/ 1024) <<"KB"<< STDENDL;
 
 
@@ -815,8 +815,8 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"Runtime Statistics: for "<<stats.num_of_urls<<" urls"<<std::endl;
 	ofs <<"------------------"<<std::endl;
 	ofs <<"Loading: " << STDENDL;
-	ofs <<"  Time = " <<stats.time_to_load << "s,  Bandwidth= "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
-	ofs <<"  Memory footprint ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
+	ofs <<"  Time = " <<stats.time_to_load << "s,  Bandwidth = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
+	ofs <<"  Memory footprint (linux only) ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
 	ofs <<"  UrlCompressor internal memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
 	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Bandwidth= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
@@ -899,7 +899,7 @@ void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) 
 		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
 		urlc.print_database(printout_file);
 		printout_file.close();
-		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
+		std::cout << "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 	}
 }
 
@@ -908,5 +908,5 @@ void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc
 	if (options.dump_ac_statetable) {
 		urlc.dump_ac_states(options.dump_ac_statetable_filename);
 	}
-	std::cout <<std::endl<< "Aho Corasic states dump: "<<options.dump_ac_statetable_filename<<std::endl;
+	std::cout << "Aho Corasic states dump: "<<options.dump_ac_statetable_filename<<std::endl;
 }
