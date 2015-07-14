@@ -28,7 +28,7 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->split_for_LPM			= false;
 	this->print_dicionary		= false;
 	this->print_dicionary_file 	= "";
-	this->dump_ac_statetable	= false;	//todo: return to false
+	this->dump_ac_statetable	= true;	//todo: return to false
 	this->dump_ac_statetable_filename = "";
 	this->line_del 				= '\n';
 	this->break_time 			= 0;

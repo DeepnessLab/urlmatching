@@ -104,7 +104,6 @@ public:
 	//Debug API
 	void print_database(std::ostream& ofs) const;
 	void dump_ac_states(std::string filename);
-	void print_strings_and_codes(std::ostream& out) ;	//todo: can be removed
 
 	//load list of urls and build cached database
 	//Deprecated!
@@ -113,8 +112,6 @@ public:
 			const  bool contains_basic_symbols);
 
 	Huffman _huffman;
-	//todo: remove _strings_to_symbols
-	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 private:
 	void reset(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
@@ -149,9 +146,9 @@ private:
 	inline
 	void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated+= bytes;}
 
-	//TODO: get this into a struct
+
+	//Members:
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
-//	uint32_t _symbol2pattern_db_size;	//length of this array
 
 	ACWrapperCompressed algo;
 	bool _is_loaded;
