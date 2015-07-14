@@ -93,8 +93,7 @@ void test_encode(CmdLineOptions& options) {
 	RunTimeStats s;
 
 	PREPARE_TIMING;
-	std::cout<<std::endl<<"\t --- Encode ---"<<std::endl;
-
+	std::cout<<" --- Encode mode ---"<<std::endl;
 	//load from stored DB file
 	std::string dictionary_filename = options.getDictionaryFilename();
 
@@ -237,7 +236,7 @@ void test_encode(CmdLineOptions& options) {
 
 void test_build_dictionary_to_file(CmdLineOptions& options) {
 	using namespace std;
-	std::cout<<std::endl<<"\t --- Build dictionary ---"<<std::endl;
+	std::cout<<" --- Build dictionary mode ---"<<std::endl;
 
 	PREPARE_TIMING;
 	options.PrintParameters(std::cout);
@@ -310,7 +309,10 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
-	std::cout<<"  Memory footprint est. = "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
+	std::cout<<"  Memory footprint ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
+	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfMemory()<< "Bytes = "<< double((double)urlc.SizeOfMemory()/ 1024) <<"KB"<< STDENDL;
+
+
 	std::cout<<DVAL(dict_size)<< " Bytes = "<< double((double)dict_size / 1024) <<"KB"<< STDENDL;
 	std::cout<<"------------------"<<std::endl;
 
@@ -475,7 +477,8 @@ void test_main(CmdLineOptions& options) {
 
 void test_compress (CmdLineOptions& options) {
 	using namespace std;
-	std::cout<<std::endl<<"\t --- compress file ---"<<std::endl;
+	std::cout<<" --- Compress file mode ---"<<std::endl;
+
 	options.PrintParameters(std::cout);
 	std::cout<<std::endl<<"Compresing file: "<<options.input_urls_file_path<<std::endl;
 
@@ -496,7 +499,8 @@ void test_compress (CmdLineOptions& options) {
 
 void test_extract (CmdLineOptions& options) {
 	using namespace std;
-	std::cout<<std::endl<<"\t --- extracting file ---"<<std::endl;
+	std::cout<<" --- Extracting file mode ---"<<std::endl;
+
 	options.PrintParameters(std::cout);
 	std::cout<<std::endl<<"Extracting file: "<<options.input_urls_file_path<<std::endl;
 
@@ -812,7 +816,8 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"------------------"<<std::endl;
 	ofs <<"Loading: " << STDENDL;
 	ofs <<"  Time = " <<stats.time_to_load << "s,  Bandwidth= "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
-	ofs <<"  Memory footprint est. = "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
+	ofs <<"  Memory footprint ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
+	ofs <<"  UrlCompressor internal memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
 	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Bandwidth= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	if (options.test_decoding) {

@@ -305,7 +305,7 @@ void ACWrapperCompressed::printDB(std::ostream& os) {
 	return;
 }
 
-void ACWrapperCompressed::dump_states(std::string filename) {
+void ACWrapperCompressed::dump_states(std::string filename) const {
 	if (!isLoaded()) {
 		std::cout<< "Error: can't dump state, ACWapperCompressed is not loaded"<<std::endl;
 		return;

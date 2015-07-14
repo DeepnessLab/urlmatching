@@ -95,15 +95,15 @@ public:
 
 
 	//Helpers
-	inline bool isLoaded() { return _is_loaded; }
-	inline uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
-	uint32_t getDictionarySize();
-	inline const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
-	bool sanity();
+	inline bool isLoaded() const { return _is_loaded; }
+	inline uint32_t SizeOfMemory() const { return _statistics.memory_allocated; }
+	uint32_t getDictionarySize()  const;
+	inline const HeavyHittersStats_t* get_stats() const {return  &_statistics; }
+	bool sanity() ;
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
-	void dump_ac_states(std::string filename);
+	void dump_ac_states(std::string filename) const;
 
 	//load list of urls and build cached database
 	//Deprecated!
