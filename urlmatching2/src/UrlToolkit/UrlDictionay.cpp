@@ -632,17 +632,6 @@ void UrlCompressor::print_database(std::ostream& ofs) const
 	}
 }
 
-void UrlCompressor::print_strings_and_codes(std::ostream& out)
-{
-	out<<"print_strings_and_codes: Print strings and their huffman codes:"<<std::endl;
-	for (std::map<std::string,uint32_t>::const_iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
-		out << it->first << " => symbol:" << it->second << "\tcode: ";
-		HuffCode code = _huffman.encode(it->second);
-		std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(out));
-		out << std::endl;
-	}
-
-}
 
 void UrlCompressor::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
@@ -695,7 +684,7 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
 //	_symbol2pattern_db[_nextSymbol]=pat;
 	_symbol2pattern_db.push_back( pat );
-	_strings_to_symbols[str]=_nextSymbol;
+//	_strings_to_symbols[str]=_nextSymbol;
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
 	ASSERT (_nextSymbol == _symbol2pattern_db.size());

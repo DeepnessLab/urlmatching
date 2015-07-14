@@ -25,7 +25,6 @@
 #define SIZEOFPOINTER 8
 
 typedef std::map<std::string,int> Strings2FreqMap;
-typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
 
 
 typedef struct {
