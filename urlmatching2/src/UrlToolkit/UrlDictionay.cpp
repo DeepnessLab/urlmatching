@@ -397,7 +397,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
-	add_memory_counter(algo.size());
+//	add_memory_counter(algo.size());
 
 	_is_loaded = true;
 	return true;
@@ -705,11 +705,12 @@ void UrlCompressor::prepare_database() {
 
 	DBG("prepare_database:" << DVAL(_nextSymbol));
 
+	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
 	prepare_huffman();
 
-	add_memory_counter(_symbol2pattern_db.size() * SIZEOFPOINTER);
+	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 
 	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 
