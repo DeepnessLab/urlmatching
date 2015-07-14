@@ -52,7 +52,7 @@ public:
 	InternalNode(INode* c0, INode* c1) :
 			INode(c0->f + c1->f), left(c0), right(c1) {
 	}
-	~InternalNode() {
+	virtual ~InternalNode() {
 		delete left;
 		delete right;
 	}
