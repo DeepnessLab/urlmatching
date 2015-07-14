@@ -311,9 +311,8 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint (linux only) ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
 	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfMemory()<< "Bytes = "<< double((double)urlc.SizeOfMemory()/ 1024) <<"KB"<< STDENDL;
-
-
-	std::cout<<DVAL(dict_size)<< " Bytes = "<< double((double)dict_size / 1024) <<"KB"<< STDENDL;
+	std::cout<<DVAL(dict_size)<< " Bytes = "<< Byte2KB(dict_size)<<"KB"<< STDENDL;
+	printAlgorithmStats(options,urlc.get_stats());
 	std::cout<<"------------------"<<std::endl;
 
 	createOptionalDictionaryFile(options,urlc);

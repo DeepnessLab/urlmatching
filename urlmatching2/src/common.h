@@ -12,6 +12,9 @@
 		{ delete ptr ;\
 		ptr = NULL; } while (0)
 
+inline double Byte2KB(uint32_t bytes) {
+	return (double((double)bytes / 1024));
+}
 
 #ifdef __unix__
 #include <malloc.h>

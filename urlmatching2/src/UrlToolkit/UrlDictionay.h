@@ -44,8 +44,8 @@ typedef struct UrlCompressorStats {
 	uint32_t number_of_urls;
 	uint32_t max_huffman_length;
 	uint32_t total_input_bytes;
-	uint32_t memory_allocated;
-	int ac_memory;
+	uint32_t memory_allocated;	//how much memory the module allocated (except AC module)
+	int 	 ac_memory_allocated;	//On linux only (otherwise 0)
 	HeavyHittersParams_t params;
 	bool params_set;
 
@@ -59,7 +59,7 @@ typedef struct UrlCompressorStats {
 
 	void print(std::ostream& out) const ;
 
-} HeavyHittersStats_t;
+} UrlCompressorStats_t;
 
 extern HeavyHittersParams_t default_hh_params;
 
@@ -99,7 +99,7 @@ public:
 	inline bool isLoaded() const { return _is_loaded; }
 	inline uint32_t SizeOfMemory() const { return _statistics.memory_allocated; }
 	uint32_t getDictionarySize()  const;
-	inline const HeavyHittersStats_t* get_stats() const {return  &_statistics; }
+	inline const UrlCompressorStats_t* get_stats() const {return  &_statistics; }
 	bool sanity() ;
 
 	//Debug API
@@ -154,7 +154,7 @@ private:
 	ACWrapperCompressed algo;
 	bool _is_loaded;
 	symbolT _nextSymbol;
-	HeavyHittersStats_t _statistics;
+	UrlCompressorStats_t _statistics;
 
 };
 
