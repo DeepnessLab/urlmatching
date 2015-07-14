@@ -23,6 +23,7 @@ void UrlCompressorStats::reset() {
 	total_input_bytes = 0;
 	memory_allocated = 0;
 	ac_memory_allocated = 0;
+	ac_statemachine_size = 0;
 }
 
 
@@ -33,12 +34,13 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
 	out<< "Total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
 	out<< "Inner module memory allocated = " <<(memory_allocated)<< "B "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
-	out <<"Aho Corasik mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
-
+	out <<"Aho Corasic mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
+	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< "Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
 		out<< "params: n1 = "<< (params.n1)<< " n2 = " <<(params.n2)<<STDENDL;
 	}
+	out<<"Size of pointer = "<<SIZEOFPOINTER<<" Bytes"<<STDENDL;
 }
 
 
