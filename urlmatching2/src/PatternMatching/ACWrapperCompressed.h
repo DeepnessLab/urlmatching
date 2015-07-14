@@ -32,12 +32,11 @@ public:
 	ACWrapperCompressed() ;
 	virtual ~ACWrapperCompressed();
 
-	//Load Patterns from file
-	virtual bool load_patterns(std::string filepath);
-
-	//map every pattern to symbol in patternList and build the pattern matching machine
+	//Build pattern matching machine out of patterns vector
 	virtual bool load_patterns(Symbol2pPatternVec* patternsList, uint32_t size);
 
+	//Load Patterns from file (not in use)
+	virtual bool load_patterns(std::string filepath);
 
 	/**
 	 * @param input_str - input string to find matches
@@ -56,16 +55,15 @@ public:
 	virtual inline
 	bool isLoaded() const { return is_loaded; }
 
-	void make_pattern_to_symbol_list();
 
 private:
+	void make_pattern_to_symbol_list();
 
 	inline
 	symbolT* create_symb_string (const char* c_string);
 
 	//members
 	bool is_loaded;
-	std::map<std::string,symbolT> patterns;
 
 	//input during load
 	Symbol2pPatternVec* _patternsList;

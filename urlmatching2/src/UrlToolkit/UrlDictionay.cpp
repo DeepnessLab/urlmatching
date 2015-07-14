@@ -393,8 +393,6 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 	//	Load patterns to pattern matching algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 
-	// Build the complimantry table symbol --> pattern
-	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 //	add_memory_counter(algo.size());
@@ -718,8 +716,6 @@ void UrlCompressor::prepare_database() {
 	//	Load patterns to pattern matching algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 
-	// Build the complimantry table symbol --> pattern
-	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 	add_memory_counter(algo.size());
