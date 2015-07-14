@@ -21,6 +21,7 @@ void UrlCompressorStats::reset() {
 	max_huffman_length = 0;
 	total_input_bytes = 0;
 	memory_allocated = 0;
+	ac_memory = 0;
 }
 
 
@@ -31,6 +32,8 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
 	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B"<<STDENDL;
 	out<< "inner module memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
+	out <<"Aho Corasik mem footprint (linux only) ~ "<<ac_memory<< "Bytes = "<< double((double)ac_memory / 1024) <<"KB"<< STDENDL;
+
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
 		out<< "params: n1 = "<< (params.n1)<< " n2 = " <<(params.n2)<<STDENDL;
