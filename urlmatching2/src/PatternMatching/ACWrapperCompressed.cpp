@@ -23,6 +23,8 @@
 
 extern "C" {
 #include "../Common/Types.h"
+#include "../StateMachine/StateMachineDumper.h"
+
 }
 
 
@@ -301,4 +303,12 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 void ACWrapperCompressed::printDB(std::ostream& os) {
 	os<<"ACWrapperCompressed::printDB\n";
 	return;
+}
+
+void ACWrapperCompressed::dump_states(std::string filename) {
+	if (!isLoaded()) {
+		std::cout<< "Error: can't dump state, ACWapperCompressed is not loaded"<<std::endl;
+		return;
+	}
+	dumpStateMachine(this->_machine, filename.c_str());
 }

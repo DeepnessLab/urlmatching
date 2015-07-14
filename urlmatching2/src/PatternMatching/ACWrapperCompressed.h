@@ -50,6 +50,7 @@ public:
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
 	virtual void printDB(std::ostream& os);
+	void dump_states(std::string filename);
 
 	inline uint32_t size() { return _size; }
 

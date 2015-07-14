@@ -103,6 +103,7 @@ public:
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
+	void dump_ac_states(std::string filename);
 	void print_strings_and_codes(std::ostream& out) ;	//todo: can be removed
 
 	//load list of urls and build cached database
