@@ -6,6 +6,7 @@
  * Edited by Michal
  * Added the option of string use.
  */
+#define _GLIBCXX_USE_C99 1
 
 #include <stdlib.h>
 #include <getopt.h>
@@ -27,6 +28,8 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->split_for_LPM			= false;
 	this->print_dicionary		= false;
 	this->print_dicionary_file 	= "";
+	this->dump_ac_statetable	= false;	//todo: return to false
+	this->dump_ac_statetable_filename = "";
 	this->line_del 				= '\n';
 	this->break_time 			= 0;
 	this->logger_config			= "";
@@ -53,7 +56,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:x:"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:x:s"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -100,6 +103,9 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		case 'x':
 			this->factor = atoi(optarg);
 			break;
+		case 's':
+			this->dump_ac_statetable = true;
+			break;
 		case 'h':
 			this->usage();
 			exit(0);
@@ -112,6 +118,13 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 	if (this->factor < 1) {
 		std::cout<<"Error: -x " << this->factor <<" is lower than 1"<<std::endl;
 		exit(0);
+	}
+
+	if (this->dump_ac_statetable) {
+		this->dump_ac_statetable_filename=this->input_urls_file_path;
+		this->dump_ac_statetable_filename+=".n" + std::to_string(this->n2);
+		this->dump_ac_statetable_filename+=".k" + std::to_string(this->kgram_size);
+		this->dump_ac_statetable_filename+=".r" + std::to_string(this->r);
 	}
 	//TODO: verify arguments by cmd
 
@@ -152,22 +165,23 @@ void CmdLineOptions::usage() {
 	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
 			<< " 1. testing CMD: test, build, encode, testhash"<<std::endl
-			<< "    -f String [urls filepath]  - required" << std::endl
-			<< "    -d String <dicionary filepath>	, default: None " << std::endl
-			<< "    -o String <ouput filepath>		, default: output.txt " << std::endl
-			<< "    -a        <add header to output_filepath>	, default: None " << std::endl
-			<< "    -p String <Print dictionary file path>	, default: None" << std::endl
-			<< "    -b Int    <Take break time to measure program memory, Seconds>, default: no" << std::endl
-			<< "    -v        <Verify by Decode - longer>	, default: no" << std::endl
-			<< "    -c String <logger config file>		, default: None " << std::endl
+			<< "    -f [String] urls filepath  - required" << std::endl
+			<< "    -d [String] dicionary filepath	, default: None " << std::endl
+			<< "    -x          dump Aho Corasik state machine	, default: No" << std::endl
+			<< "    -o [String] ouput filepath		, default: output.txt " << std::endl
+			<< "    -a          add header to output_filepath	, default: None " << std::endl
+			<< "    -p [String] Print dictionary file path	, default: None" << std::endl
+			<< "    -b [Int]    Take break time to measure program memory, Seconds>, default: no" << std::endl
+			<< "    -v          Verify by Decode - longer	, default: no" << std::endl
+			<< "    -c [String] logger config file		, default: None " << std::endl
 			<< " 2. compress file CMD: compress, extract -f [input file] -o [output file] <compression params> "<<std::endl
 			<< std::endl
 			<<  "   Compression params: "<<std::endl
-			<< "    -l        <Longest Prefix Match - split dictionary by />, default: false" << std::endl
-			<< "    -k Int    <k-gram size>			, default: 8" << std::endl
-			<< "    -r fload  <consecutive k-gram ratio>	, default: 0.8" << std::endl
-			<< "    -1 Int    <heavy hitters count for HH1>	, default: 1000" << std::endl
-			<< "    -2 Int    <heavy hitters count for HH2>	, default: 1000" << std::endl
+			<< "    -l           Longest Prefix Match - split dictionary by /, default: false" << std::endl
+			<< "    -k [Int]     k-gram size			, default: 8" << std::endl
+			<< "    -r [Fload]   consecutive k-gram ratio	, default: 0.8" << std::endl
+			<< "    -1 [Int]     heavy hitters count for HH1	, default: 1000" << std::endl
+			<< "    -2 [Int]     heavy hitters count for HH2	, default: 1000" << std::endl
 			<< std::endl
 			<< "    -h prints this message" << std::endl;
 }

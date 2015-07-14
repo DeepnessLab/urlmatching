@@ -56,6 +56,8 @@ public:
 	bool		split_for_LPM;	//LPM=Longest Prefix Match
 	bool		print_dicionary;
 	std::string print_dicionary_file;
+	bool		dump_ac_statetable;
+	std::string dump_ac_statetable_filename;
 	int			break_time;
 	int			factor;
 

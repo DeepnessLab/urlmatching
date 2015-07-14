@@ -84,6 +84,8 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) ;
 void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stats );
 void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc);
+void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc);
+
 void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats );
 
 void test_encode(CmdLineOptions& options) {
@@ -227,6 +229,7 @@ void test_encode(CmdLineOptions& options) {
 
 	// create output files
 	createOptionalDictionaryFile(options,urlc);
+	createOptionalDumpACStatesFile(options,urlc);
 	createOutputFile(options,s,urlc_stats);
 
 
@@ -312,6 +315,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 
 	createOptionalDictionaryFile(options,urlc);
+	createOptionalDumpACStatesFile(options,urlc);
 
 	return;
 }
@@ -464,6 +468,7 @@ void test_main(CmdLineOptions& options) {
 
 	// create output files
 	createOptionalDictionaryFile(options,urlc);
+	createOptionalDumpACStatesFile(options,urlc);
 	createOutputFile(options,s,urlc_stats);
 }
 
@@ -891,4 +896,12 @@ void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) 
 		printout_file.close();
 		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 	}
+}
+
+void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc) {
+	using namespace std;
+	if (options.dump_ac_statetable) {
+		urlc.dump_ac_states(options.dump_ac_statetable_filename);
+	}
+	std::cout <<std::endl<< "Aho Corasic states dump: "<<options.dump_ac_statetable_filename<<std::endl;
 }

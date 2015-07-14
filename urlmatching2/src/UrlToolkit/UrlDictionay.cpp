@@ -759,3 +759,8 @@ bool UrlCompressor::sanity() {
 	}
 	return true;
 }
+
+void UrlCompressor::dump_ac_states(std::string filename)
+{
+	algo.dump_states(filename);
+}
