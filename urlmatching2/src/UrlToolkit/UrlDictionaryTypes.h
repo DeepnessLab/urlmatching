@@ -22,7 +22,7 @@
 
 #define STDENDL std::endl
 
-#define SIZEOFPOINTER 8
+#define SIZEOFPOINTER sizeof(void *)
 
 typedef struct {
 	uint32_t* buf;

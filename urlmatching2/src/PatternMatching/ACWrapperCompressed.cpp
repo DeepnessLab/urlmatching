@@ -20,6 +20,7 @@
 #include "MatchingFunctions.h"
 #include "../UrlToolkit/UrlDictionay.h"
 #include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../common.h"
 
 extern "C" {
 #include "../Common/Types.h"
@@ -141,7 +142,9 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 		DBG(DVAL(i)<<": "<<*(db.list[i]));
 	}
 	DBG("--- FINISH printing all patterns: ---");
+	int mem = get_curr_memsize();
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
+	std::cout<<"AC state machine real size if "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl;
 	_machine->handlePatternFunc = handle_pattern;
 
 	delete[] list;
