@@ -30,7 +30,6 @@ public:
 	//methods
 
 	ACWrapperCompressed() ;
-
 	virtual ~ACWrapperCompressed();
 
 	//Load Patterns from file
@@ -56,11 +55,6 @@ public:
 
 	virtual inline
 	bool isLoaded() const { return is_loaded; }
-
-//	virtual std::string* nextPattern();
-//	virtual void resetNextPattern();
-
-	//members:
 
 	void make_pattern_to_symbol_list();
 

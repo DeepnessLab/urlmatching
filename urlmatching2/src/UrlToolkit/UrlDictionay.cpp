@@ -388,7 +388,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 		return false;
 	}
 
-	prepare_huffman();
+//	prepare_huffman();
 
 	//	Load patterns to pattern matching algorithm();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());

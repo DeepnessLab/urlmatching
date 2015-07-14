@@ -46,9 +46,9 @@ INode* Huffman::BuildTree()
 }
 
 void Huffman::free_encoding_memory() {
-//		#ifndef BUILD_DEBUG		//release only reduce memory
 		_symbol2codesMap.clear();
-//		#endif
+//		_codes2symbolsMap.clear();
+//		_is_loaded = false;
 }
 
 HuffCode Huffman::encode(uint32_t symbol) {
@@ -77,10 +77,12 @@ void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeM
 	{
 		HuffCode leftPrefix = prefix;
 		leftPrefix.push_back(false);
+		leftPrefix.shrink_to_fit();
 		GenerateCodes(in->left, leftPrefix, outCodes);
 
 		HuffCode rightPrefix = prefix;
 		rightPrefix.push_back(true);
+		rightPrefix.shrink_to_fit();
 		GenerateCodes(in->right, rightPrefix, outCodes);
 	}
 }
@@ -109,8 +111,9 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
 		_size+= (sizeof(symbolT) + it->second.capacity());
 	}
+	_size+=_codes2symbolsMap.size() * (sizeof(void *));
 
-	FreeTree(root);
+//	FreeTree(root);
 	delete root;
 	_is_loaded=true;
 }
@@ -123,8 +126,6 @@ void Huffman::FreeTree(const INode* node)
 	}
 	else if (const InternalNode* in = dynamic_cast<const InternalNode*>(node))
 	{
-		FreeTree(in->left);
-		FreeTree(in->right);
 		delete in;
 	}
 }
