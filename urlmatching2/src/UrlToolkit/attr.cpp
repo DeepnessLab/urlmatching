@@ -1,5 +1,6 @@
 #include "UrlDictionay.h"
 #include "../logger.h"
+#include "../common.h"
 
 Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
 	_symbol=symbol;
@@ -21,7 +22,7 @@ void UrlCompressorStats::reset() {
 	max_huffman_length = 0;
 	total_input_bytes = 0;
 	memory_allocated = 0;
-	ac_memory = 0;
+	ac_memory_allocated = 0;
 }
 
 
@@ -30,9 +31,9 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "number_of_patterns = " << (number_of_patterns)<<STDENDL;
 	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
-	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B"<<STDENDL;
+	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<STDENDL;
 	out<< "inner module memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
-	out <<"Aho Corasik mem footprint (linux only) ~ "<<ac_memory<< "Bytes = "<< double((double)ac_memory / 1024) <<"KB"<< STDENDL;
+	out <<"Aho Corasik mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
