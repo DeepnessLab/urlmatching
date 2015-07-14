@@ -50,7 +50,8 @@ public:
 	virtual void printDB(std::ostream& os);
 	void dump_states(std::string filename) const;
 
-	inline uint32_t size() { return _size; }
+	inline uint32_t size() const 				{ return _size; }
+	inline uint32_t getStateMachineSize() const { return _statemachine_size; }
 
 	virtual inline
 	bool isLoaded() const { return is_loaded; }
@@ -79,6 +80,7 @@ private:
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
 
+	uint32_t _statemachine_size; //only in linux systems
 	uint32_t _size;
 
 };
