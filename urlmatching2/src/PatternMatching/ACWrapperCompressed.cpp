@@ -146,7 +146,8 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 
 	delete[] list;
 
-//	make_pattern_to_symbol_list();
+	// Build the complimantry table symbol --> pattern
+	make_pattern_to_symbol_list();
 	is_loaded = true;
 	return true;
 }
