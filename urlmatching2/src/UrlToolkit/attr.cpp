@@ -31,8 +31,8 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "number_of_patterns = " << (number_of_patterns)<<STDENDL;
 	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
-	out<< "total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<STDENDL;
-	out<< "inner module memory allocated = " <<(memory_allocated) << "B"<<STDENDL;
+	out<< "Total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
+	out<< "Inner module memory allocated = " <<(memory_allocated)<< "B "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
 	out <<"Aho Corasik mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 
 	if (params_set) {

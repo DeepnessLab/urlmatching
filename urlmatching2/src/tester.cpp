@@ -874,6 +874,8 @@ void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompre
 	outmap.push_back(pair<string,string>("total encoded size B",std::to_string(s.encoded_stream_size)));
 	outmap.push_back(pair<string,string>("encoding time sec",std::to_string(s.time_to_encode)));
 	outmap.push_back(pair<string,string>("mem footprint ~ B",std::to_string(s.mem_footprint_est)));
+	outmap.push_back(pair<string,string>("AC mem footprint ~ B",std::to_string(stats->ac_memory_allocated)));
+	outmap.push_back(pair<string,string>("UrlC mem allocated ~ B",std::to_string(stats->memory_allocated)));
 	outmap.push_back(pair<string,string>("dictionary size B",std::to_string(s.dictionary_size)));
 
 	ofstream out_file;
