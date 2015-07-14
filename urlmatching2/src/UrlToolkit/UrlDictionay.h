@@ -45,6 +45,7 @@ typedef struct UrlCompressorStats {
 	uint32_t max_huffman_length;
 	uint32_t total_input_bytes;
 	uint32_t memory_allocated;
+	int ac_memory;
 	HeavyHittersParams_t params;
 	bool params_set;
 

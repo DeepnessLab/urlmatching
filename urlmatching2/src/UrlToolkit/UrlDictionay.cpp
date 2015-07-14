@@ -391,7 +391,9 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 //	prepare_huffman();
 
 	//	Load patterns to pattern matching algorithm();
+	_statistics.ac_memory = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	_statistics.ac_memory = get_curr_memsize() - _statistics.ac_memory;
 
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
@@ -714,7 +716,9 @@ void UrlCompressor::prepare_database() {
 
 	//Step 2: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
+	_statistics.ac_memory = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	_statistics.ac_memory = get_curr_memsize() - _statistics.ac_memory;
 
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();

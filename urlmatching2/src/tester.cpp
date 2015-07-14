@@ -200,7 +200,7 @@ void test_encode(CmdLineOptions& options) {
 				return;
 			}
 			if (i%status_every == 0)
-				std::cout<<"  passed "<<(100*(i+1))/num_of_urls<<std::endl;
+				std::cout<<"  passed "<<(100*(i+1))/num_of_urls<<"%"<<std::endl;
 		}
 		STOP_TIMING;
 	}
