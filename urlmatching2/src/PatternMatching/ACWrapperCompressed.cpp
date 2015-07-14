@@ -82,9 +82,9 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 		destroyStateMachine(_machine);
 		_machine = NULL;
 	}
-	if (_patternsMap!=NULL) {
+	if (_patternsMap!= 0) {
 		delete _patternsMap;
-		_patternsMap = NULL;
+		_patternsMap = 0;
 	}
 
 	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
@@ -148,6 +148,8 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 
 	// Build the complimantry table symbol --> pattern
 	make_pattern_to_symbol_list();
+	delete _patternsMap;
+	_patternsMap=0;
 	is_loaded = true;
 	return true;
 }
