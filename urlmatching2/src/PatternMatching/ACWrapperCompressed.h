@@ -50,12 +50,12 @@ public:
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
 	virtual void printDB(std::ostream& os);
-	void dump_states(std::string filename);
+	void dump_states(std::string filename) const;
 
 	inline uint32_t size() { return _size; }
 
 	virtual inline
-	bool isLoaded() { return is_loaded; }
+	bool isLoaded() const { return is_loaded; }
 
 //	virtual std::string* nextPattern();
 //	virtual void resetNextPattern();

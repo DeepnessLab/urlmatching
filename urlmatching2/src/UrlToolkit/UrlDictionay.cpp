@@ -595,7 +595,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	return STATUS_OK;
 }
 
-uint32_t UrlCompressor::getDictionarySize() {
+uint32_t UrlCompressor::getDictionarySize()  const{
 	uint32_t size = 0;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 		Pattern* ptrn = _symbol2pattern_db[i];
@@ -725,8 +725,8 @@ void UrlCompressor::prepare_database() {
 
 }
 
-bool UrlCompressor::sanity() {
-
+bool UrlCompressor::sanity()
+{
 	if (!isLoaded()) {
 		return false;
 	}
@@ -749,7 +749,7 @@ bool UrlCompressor::sanity() {
 	return true;
 }
 
-void UrlCompressor::dump_ac_states(std::string filename)
+void UrlCompressor::dump_ac_states(std::string filename) const
 {
 	algo.dump_states(filename);
 }

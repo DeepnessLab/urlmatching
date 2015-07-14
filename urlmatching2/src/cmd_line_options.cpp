@@ -21,7 +21,7 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->dictionary_file		= "";
 	this->add_header_to_output_file	= false;
 	this->kgram_size            = 8;
-	this->n1                    = 1000;
+	this->n1                    = 1500;
 	this->n2                    = 1000;
 	this->r                     = 0.8;
 	this->test_decoding			= false;
@@ -56,7 +56,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:1:2:r:lp:b:vc:x:s"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:lp:b:vc:x:s"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -75,11 +75,9 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		case 'k':
 			this->kgram_size = atoi(optarg);
 			break;
-		case '1':
-			this->n1 = atoi(optarg);
-			break;
-		case '2':
+		case 'n':
 			this->n2 = atoi(optarg);
+			this->n1 = this->n2 + 1000;
 			break;
 		case 'r':
 			this->r = atof(optarg);
@@ -124,7 +122,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		this->dump_ac_statetable_filename=this->input_urls_file_path;
 		this->dump_ac_statetable_filename+=".n" + std::to_string(this->n2);
 		this->dump_ac_statetable_filename+=".k" + std::to_string(this->kgram_size);
-		this->dump_ac_statetable_filename+=".r" + std::to_string(this->r);
+		this->dump_ac_statetable_filename+=".r" + std::to_string(this->r).substr(0,4);
 	}
 	//TODO: verify arguments by cmd
 
@@ -167,7 +165,7 @@ void CmdLineOptions::usage() {
 			<< " 1. testing CMD: test, build, encode, testhash"<<std::endl
 			<< "    -f [String] urls filepath  - required" << std::endl
 			<< "    -d [String] dicionary filepath	, default: None " << std::endl
-			<< "    -x          dump Aho Corasik state machine	, default: No" << std::endl
+			<< "    -s          dump Aho Corasik state machine	, default: No" << std::endl
 			<< "    -o [String] ouput filepath		, default: output.txt " << std::endl
 			<< "    -a          add header to output_filepath	, default: None " << std::endl
 			<< "    -p [String] Print dictionary file path	, default: None" << std::endl
@@ -180,8 +178,7 @@ void CmdLineOptions::usage() {
 			<< "    -l           Longest Prefix Match - split dictionary by /, default: false" << std::endl
 			<< "    -k [Int]     k-gram size			, default: 8" << std::endl
 			<< "    -r [Fload]   consecutive k-gram ratio	, default: 0.8" << std::endl
-			<< "    -1 [Int]     heavy hitters count for HH1	, default: 1000" << std::endl
-			<< "    -2 [Int]     heavy hitters count for HH2	, default: 1000" << std::endl
+			<< "    -n [Int]     number of pattern anchors	, default: 1000" << std::endl
 			<< std::endl
 			<< "    -h prints this message" << std::endl;
 }
