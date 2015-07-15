@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <ctime>
 #include <unordered_map>
+#include <cstdlib>
 
 #include "tester.h"
 #include "UrlToolkit/Huffman.h"
@@ -33,29 +34,19 @@
 
 void run_cmd_main(CmdLineOptions& options) {
 	if (options.cmd == CMD_FULLTEST) {
-
 		test_main(options);
-
 	} else if (options.cmd == CMD_BUILDDIC) {
-
 		test_build_dictionary_to_file(options);
-
 	} else if (options.cmd == CMD_ENCODE) {
-
 		test_encode(options);
-
 	} else if (options.cmd == CMD_HASHTABLE) {
-
 		test_hashtable(options);
-
 	} else if (options.cmd == CMD_COMPRESS) {
-
 		test_compress(options);
-
 	} else if (options.cmd == CMD_EXTRACT) {
-
 		test_extract(options);
-
+	} else if (options.cmd == CMD_ARTICLE) {
+		test_article(options);
 	} else {
 
 		options.usage();
@@ -86,7 +77,195 @@ void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stat
 void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc);
 void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc);
 
-void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats );
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats );
+
+
+void test_article(CmdLineOptions& options)
+{
+	using namespace std;
+	std::cout<<" --- Test for article mode ---"<<std::endl;
+	PREPARE_TIMING;
+
+	RunTimeStats s;
+
+	//step 1: create dicionary file
+	//-------
+	options.PrintParameters(std::cout);
+	//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
+	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	HeavyHittersParams_t& params = customParams; //default_hh_params;
+
+	UrlCompressor* urlc = new UrlCompressor();
+
+	std::deque<std::string> url_deque;
+	if (! urlc->getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
+		std::cout<<"Error with input file"<<STDENDL;
+		exit (1);
+	}
+	if (url_deque.size() == 0) {
+		std::cout<<"ERROR: read 0 urls from file"<<STDENDL;
+		exit (1);
+	}
+	std::deque<std::string>* input_for_urlcompressor = &url_deque;
+
+	if (options.split_for_LPM) {
+		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
+		urlc->SplitUrlsList(url_deque, *splitted_deque);
+		input_for_urlcompressor = splitted_deque;
+	}
+
+	take_a_break(options.break_time," before creating dicionary");
+	START_TIMING;
+	bool ret = urlc->InitFromUrlsList(*input_for_urlcompressor, params, false);
+	STOP_TIMING;
+	take_a_break(options.break_time," after creating dicionary (still in memory)");
+	s.time_to_load = GETTIMING;
+	assert (ret);
+
+	if (options.split_for_LPM) {	//free unecessary memory
+		delete input_for_urlcompressor;
+	}
+
+	if (!options.use_dictionary_file) {
+		options.dictionary_file= options.input_urls_file_path + ".dict";
+	}
+
+	sanityTesting(*urlc);
+
+	std::string dictionary_filename = options.getDictionaryFilename();
+	std::cout<<"Storing to file: "<< dictionary_filename <<std::endl;
+
+	ret = urlc->StoreDictToFile(dictionary_filename );
+	if (!ret) {
+		std::cout<<"Faild to store to " << dictionary_filename <<std::endl;
+		return;
+	}
+	delete urlc;
+
+	//step 2: encode urls
+	//-------
+	urlc = new UrlCompressor();
+
+	take_a_break(options.break_time," before loading");
+	s.mem_footprint_est = get_curr_memsize();
+	START_TIMING;
+	ret = urlc->InitFromDictFile(dictionary_filename);
+	STOP_TIMING;
+	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
+	s.url_compressor_allocated_memory = urlc->SizeOfMemory();
+	take_a_break(options.break_time," after loading");
+	assert (ret);
+
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+	std::cout<<"Preparing buffers for encoding .. "<<std::endl;
+	//count urls and prepare coding buffers
+	std::deque<std::string> urls;
+	std::deque<uint32_t*> codedbuffers;
+	uint32_t total_input_size = 0;
+	for (std::deque<std::string>::iterator it = url_deque.begin(); it != url_deque.end(); ++it) {
+		if ( (it->length() == 0 )||(*it == "") ) {
+			std::cout<<"Skipping empty url in line " << urls.size() +1<<STDENDL;
+		} else{
+			urls.push_back(*it);
+			uint32_t* codedbuff = new uint32_t[it->length()];
+			codedbuffers.push_back(codedbuff);
+			total_input_size += it->length();
+		}
+	}
+	uint32_t urls_size = urls.size();
+
+	std::cout<<"-- Online Testing  -- "<<STDENDL;
+	uint32_t times = 20;
+	uint32_t num_of_sets = 10;
+	uint32_t set_size = 10000;
+	std::cout<<"Encoding: "<<STDENDL;
+	std::cout<<"   Number of sets = "<< num_of_sets<<STDENDL;
+	std::cout<<"    | Number of urls in a set = "<< set_size<<STDENDL;
+	std::cout<<"       | Times = "<< times<<STDENDL;
+
+	uint16_t* set = new uint16_t[set_size];
+	std::srand(std::time(0)); 						// use current time as seed for random generator
+	s.decoded_stream_size = 0;
+	s.time_to_encode = 0;
+	uint32_t encoded_stream_bitsize = 0;
+	for (uint32_t set_num = 1 ; set_num <= num_of_sets; set_num ++)
+	{
+		//create random set
+		for (uint32_t n =0 ; n < set_size ; n++) {
+			uint32_t idx = (uint32_t) std::rand();
+			idx = idx % urls_size;
+			set[n] = idx;
+		}
+		uint32_t buff_size = BUFFSIZE;
+		START_TIMING;
+		for (uint32_t n = 0 ; n < set_size; n++ ) {
+			uint32_t idx = set[n];
+			uint32_t* codedbuff = codedbuffers[idx];
+			for (uint32_t t = 1 ; t <= times ; t ++) {
+				buff_size = BUFFSIZE;
+				urlc->encode_2(urls[idx],codedbuff,buff_size);
+				s.decoded_stream_size+=urls[idx].length();
+				encoded_stream_bitsize += codedbuff[0] ;
+			}
+		}
+		STOP_TIMING;
+		s.time_to_encode += GETTIMING;
+	}
+	std::cout<<"  passed  "<< num_of_sets * set_size *times << " urls"<<STDENDL;
+
+	if (options.test_decoding) {
+		//decode all urls
+		std::cout<<"verify correct coding by decoding last set ... "<<std::endl;
+		START_TIMING;
+		for (uint32_t n = 0; n < set_size; n++ ) {
+			uint32_t idx = set[n];
+			uint32_t buff_size = BUFFSIZE;
+			uint32_t* codedbuff = codedbuffers[idx];
+			std::string decoded_str;
+			urlc->decode(decoded_str,codedbuff,buff_size);
+			if (decoded_str != urls[idx]) {
+				std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
+				std::cout<<"  " << DVAL(idx)<< " "<< DVAL(urls[idx])<<" != "<<DVAL(decoded_str)<<STDENDL;
+				std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
+				return;
+			}
+		}
+		STOP_TIMING;
+		std::cout<<"  passed  "<<STDENDL;
+	}
+	s.time_to_decode = (options.test_decoding) ? GETTIMING: 0l;
+
+
+	//free what was never yours
+	delete[] set;
+	for (uint32_t i = 0 ; i < urls.size(); i++ ) {
+		uint32_t* codedbuff = codedbuffers[i];
+		delete[] codedbuff;
+	}
+
+	//prepare results for print and output
+	s.num_of_urls = num_of_sets * set_size *times;
+	s.encoded_stream_size = encoded_stream_bitsize/ (8);
+	s.encoded_stream_size = (encoded_stream_bitsize % (8) == 0)? s.encoded_stream_size : s.encoded_stream_size + 1;
+	s.encoded_size = s.encoded_stream_size;
+	s.decoded_size = s.decoded_stream_size;
+
+	s.dictionary_size= urlc->getDictionarySize();
+
+	// print results
+	std::cout <<"--------------------"<<std::endl;
+	printRunTimeStats(options,s,false);
+	printCompressionStats(options,s);
+	const UrlCompressorStats* urlc_stats = urlc->get_stats();
+	printAlgorithmStats(options,urlc_stats);
+
+	// create output files
+	createOptionalDictionaryFile(options,*urlc);
+	createOptionalDumpACStatesFile(options,*urlc);
+	createOptionalOutputFile(options,s,urlc_stats);
+
+	delete urlc;
+}
 
 void test_encode(CmdLineOptions& options) {
 	using namespace std;
@@ -229,7 +408,7 @@ void test_encode(CmdLineOptions& options) {
 	// create output files
 	createOptionalDictionaryFile(options,urlc);
 	createOptionalDumpACStatesFile(options,urlc);
-	createOutputFile(options,s,urlc_stats);
+	createOptionalOutputFile(options,s,urlc_stats);
 
 
 }
@@ -470,7 +649,7 @@ void test_main(CmdLineOptions& options) {
 	// create output files
 	createOptionalDictionaryFile(options,urlc);
 	createOptionalDumpACStatesFile(options,urlc);
-	createOutputFile(options,s,urlc_stats);
+	createOptionalOutputFile(options,s,urlc_stats);
 }
 
 
@@ -849,14 +1028,16 @@ void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) {
 
 void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stats ) {
 	std::ostream& ofs=std::cout;
-	ofs <<"Algorithm Statistics:"<<STDENDL;
+	ofs <<"Algorithm's dicionary Statistics:"<<STDENDL;
 	ofs <<"--------------------"<<std::endl;
 	stats->print(ofs);
 	ofs <<"--------------------"<<std::endl;
 }
 
-void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
 	using namespace std;
+	if (!options.custom_output_file)
+		return;
 	std::deque<pair<std::string,std::string>> outmap;
 
 	outmap.push_back(std::pair<std::string,std::string>("filename",(options.input_urls_file_path)));
@@ -896,19 +1077,19 @@ void createOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompre
 
 void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) {
 	using namespace std;
-	if (options.print_dicionary) {
-		ofstream printout_file;
-		printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
-		urlc.print_database(printout_file);
-		printout_file.close();
-		std::cout << "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
-	}
+	if (!options.print_dicionary)
+		return;
+	ofstream printout_file;
+	printout_file.open (options.print_dicionary_file.c_str(),std::ofstream::out );
+	urlc.print_database(printout_file);
+	printout_file.close();
+	std::cout << "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 }
 
 void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc) {
 	using namespace std;
 	if (options.dump_ac_statetable) {
 		urlc.dump_ac_states(options.dump_ac_statetable_filename);
+		std::cout << "Aho Corasic states dump: "<<options.dump_ac_statetable_filename<<std::endl;
 	}
-	std::cout << "Aho Corasic states dump: "<<options.dump_ac_statetable_filename<<std::endl;
 }

@@ -29,14 +29,14 @@ void UrlCompressorStats::reset() {
 
 
 void UrlCompressorStats::print(std::ostream& out) const {
-	out<< "number_of_symbols  = " << (number_of_symbols)<<STDENDL;
-	out<< "number_of_patterns = " << (number_of_patterns)<<STDENDL;
-	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
-	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
-	out<< "Total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
-	out<< "total_patterns_length  = "<<(total_patterns_length)<< "B "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
-	out<< "Inner module memory allocated = " <<(memory_allocated)<< "B "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
-	out <<"Aho Corasic mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
+	out<< "Number of symbols  = " << (number_of_symbols)<<STDENDL;
+	out<< "Number of patterns = " << (number_of_patterns)<<STDENDL;
+	out<< "Number_of urls     = " << (number_of_urls)<<STDENDL;
+	out<< "Max huffman length = " << (max_huffman_length)<< " bits"<<STDENDL;
+	out<< "Total input bytes      = "<<(total_input_bytes)<< "Bytes = " << Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
+	out<< "Total patterns length  = "<<(total_patterns_length)<< "Bytes = "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
+	out<< "Inner module memory allocated = " <<(memory_allocated)<< "Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
+	out <<"Aho Corasic mem footprint (linux only)     ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< "Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;

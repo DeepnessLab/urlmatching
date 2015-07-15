@@ -135,7 +135,9 @@ bool CmdLineOptions::cmd_ok() {
 			(this->cmd == CMD_ENCODE) ||
 			(this->cmd == CMD_HASHTABLE) ||
 			(this->cmd == CMD_COMPRESS) ||
-			(this->cmd == CMD_EXTRACT) )
+			(this->cmd == CMD_EXTRACT) ||
+			(this->cmd == CMD_ARTICLE)
+	)
 	{
 		return true;
 	}
@@ -162,7 +164,7 @@ void CmdLineOptions::usage() {
 
 	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
 			<< std::endl
-			<< " 1. testing CMD: test, build, encode, testhash"<<std::endl
+			<< " 1. testing CMD: test, build, encode, testhash, article"<<std::endl
 			<< "    -f [String] urls filepath  - required" << std::endl
 			<< "    -d [String] dicionary filepath	, default: None " << std::endl
 			<< "    -s          dump Aho Corasik state machine	, default: No" << std::endl

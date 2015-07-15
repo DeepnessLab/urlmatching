@@ -58,6 +58,7 @@ void test_encode					(CmdLineOptions& options);
 void test_compress					(CmdLineOptions& options);
 void test_extract					(CmdLineOptions& options);
 void test_hashtable					(CmdLineOptions& options);
+void test_article					(CmdLineOptions& options);
 
 
 //The cmd tester (Main tester)
