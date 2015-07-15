@@ -39,11 +39,14 @@ typedef struct HeavyHittersParams {
 } HeavyHittersParams_t;
 
 typedef struct UrlCompressorStats {
+	//Importat:
+	//Adding new members ? don't forget to update reset() & print()
 	uint32_t number_of_symbols;
 	uint32_t number_of_patterns;
 	uint32_t number_of_urls;
 	uint32_t max_huffman_length;
 	uint32_t total_input_bytes;
+	uint32_t total_patterns_length;
 	uint32_t memory_allocated;	//how much memory the module allocated (except AC module)
 	int 	 ac_memory_allocated;	//On linux only (otherwise 0)
 	int 	 ac_statemachine_size;

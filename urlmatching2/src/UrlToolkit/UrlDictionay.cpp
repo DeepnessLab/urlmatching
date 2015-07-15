@@ -689,6 +689,7 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 //	_strings_to_symbols[str]=_nextSymbol;
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
+	_statistics.total_patterns_length+= str.length()*sizeof(char);
 	ASSERT (_nextSymbol == _symbol2pattern_db.size());
 	ASSERT ((ret + 1) == _nextSymbol );
 	return ret;
