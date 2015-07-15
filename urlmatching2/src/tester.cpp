@@ -1029,9 +1029,9 @@ void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) {
 void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stats ) {
 	std::ostream& ofs=std::cout;
 	ofs <<"Algorithm's dicionary Statistics:"<<STDENDL;
-	ofs <<"--------------------"<<std::endl;
+	ofs <<"--------------------------------"<<std::endl;
 	stats->print(ofs);
-	ofs <<"--------------------"<<std::endl;
+	ofs <<"--------------------------------"<<std::endl;
 }
 
 void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
