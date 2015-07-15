@@ -1,8 +1,8 @@
 /*
  * FileCompressor.cpp
  *
- *  Created on: 7 αιεμ 2015
- *      Author: Daniel
+ *  Created on: July 7th 2015
+ *      Author: Daniel Krauthamer
  */
 
 #include <fstream>
@@ -196,7 +196,8 @@ bool FileCompressor::compress(std::string& text_filename,
 }
 
 bool FileCompressor::extract(std::string& compressed_filename,
-		std::string& extracted_filename) {
+		std::string& extracted_filename)
+{
 
 	/*Format Dictionary|(uint32_t)Num Of Urls in file|
 	 * |(uint16_t)bits length|(Big endian) encoded buffer in Bytes|
@@ -251,14 +252,9 @@ bool FileCompressor::extract(std::string& compressed_filename,
 		codedbuff[buff_length] = 0xEEEEEEEE;
 		codedbuff[buff_length - 1] = 0;
 		file.read(mem_block, bytes_to_read);
-		std::cout << bytes_to_read << " " << (bytes_to_read + 2) / 4
-				<< std::endl;
-//		print_buf(codedbuff,(bytes_to_read+2)/4 + 1);
 
 		//decode
 		std::string text;
-//		std::cout<<"read "<<bytes_to_read<<" bytes for bit_size="<<bit_size<< " length="<<buff_length<<std::endl;
-//		print_buf(codedbuff,buff_length);
 		//convert little endian to big endian
 		if (!is_big_endian()) {
 			conv_LE_BE(&codedbuff[1], buff_length);

@@ -21,6 +21,7 @@ void UrlCompressorStats::reset() {
 	number_of_urls = 0;
 	max_huffman_length = 0;
 	total_input_bytes = 0;
+	total_patterns_length = 0;
 	memory_allocated = 0;
 	ac_memory_allocated = 0;
 	ac_statemachine_size = 0;
@@ -33,6 +34,7 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "number_of_urls     = " << (number_of_urls)<<STDENDL;
 	out<< "max_huffman_length = " << (max_huffman_length)<< " bits"<<STDENDL;
 	out<< "Total_input_bytes  = "<<(total_input_bytes)<< "B "<< Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
+	out<< "total_patterns_length  = "<<(total_patterns_length)<< "B "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
 	out<< "Inner module memory allocated = " <<(memory_allocated)<< "B "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
 	out <<"Aho Corasic mem footprint (linux only) ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< "Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
