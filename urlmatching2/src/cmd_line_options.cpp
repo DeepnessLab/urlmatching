@@ -161,26 +161,34 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 
 
 void CmdLineOptions::usage() {
-
-	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options>" << std::endl
+	std::cout << std::endl;
+	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options> <compression params>" << std::endl
 			<< std::endl
-			<< " 1. testing CMD: test, build, encode, testhash, article"<<std::endl
+			<< " 1. testing CMD: test, ,testhash, article"<<std::endl
 			<< "    -f [String] urls filepath  - required" << std::endl
-			<< "    -d [String] dicionary filepath	, default: None " << std::endl
-			<< "    -s          dump Aho Corasik state machine	, default: No" << std::endl
-			<< "    -o [String] ouput filepath		, default: output.txt " << std::endl
+			<< "    -o [String] ouput filepath		, default: None " << std::endl
 			<< "    -a          add header to output_filepath	, default: None " << std::endl
 			<< "    -p [String] Print dictionary file path	, default: None" << std::endl
-			<< "    -b [Int]    Take break time to measure program memory, Seconds>, default: no" << std::endl
 			<< "    -v          Verify by Decode - longer	, default: no" << std::endl
-			<< "    -c [String] logger config file		, default: None " << std::endl
-			<< " 2. compress file CMD: compress, extract -f [input file] -o [output file] <compression params> "<<std::endl
+			<< "    -b [Int]    Take break time to measure program memory, Seconds, default: no" << std::endl
 			<< std::endl
-			<<  "   Compression params: "<<std::endl
-			<< "    -l           Longest Prefix Match - split dictionary by /, default: false" << std::endl
+			<< " 2. Building dictionary and encoding input file using existing dictionary "<<std::endl
+			<< "    CMD: build, encode"<<std::endl
+			<< "    All of the above flags and:" << std::endl
+			<< "    -d [String] dicionary filepath	, default: \"[urlsfile].dict\" " << std::endl
+			<< std::endl
+			<< " 3. compress file CMD: compress, extract -f [input file] -o [output file] <compression params> "<<std::endl
+			<< std::endl
+			<< " Compression params: "<<std::endl
+			<< " ------------------ "<<std::endl
+			<< "    -l [char]    Longest Prefix Match - split dictionary by /, default: false" << std::endl
 			<< "    -k [Int]     k-gram size			, default: 8" << std::endl
 			<< "    -r [Fload]   consecutive k-gram ratio	, default: 0.8" << std::endl
 			<< "    -n [Int]     number of pattern anchors	, default: 1000" << std::endl
+			<< " Debugging flags:" << std::endl
+			<< " ---------------  "<<std::endl
+			<< "    -s          dump Aho Corasik state machine	, default: No" << std::endl
+			<< "    -c [String] logger config file		, default: None " << std::endl
 			<< std::endl
 			<< "    -h prints this message" << std::endl;
 }
