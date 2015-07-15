@@ -101,7 +101,10 @@ public:
 
 	//Helpers
 	inline bool isLoaded() const { return _is_loaded; }
-	inline uint32_t SizeOfMemory() const { return _statistics.memory_allocated; }
+	inline uint32_t SizeOfMemory() const {
+		return (_statistics.memory_allocated + 5*_statistics.total_patterns_length);
+	}
+
 	uint32_t getDictionarySize()  const;
 	inline const UrlCompressorStats_t* get_stats() const {return  &_statistics; }
 	bool sanity() ;

@@ -21,6 +21,7 @@
 #define CMD_HASHTABLE 		"testhash"
 #define CMD_COMPRESS        "compress"
 #define CMD_EXTRACT         "extract"
+#define CMD_ARTICLE         "article"
 
 
 
