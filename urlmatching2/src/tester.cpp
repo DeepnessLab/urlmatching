@@ -77,7 +77,7 @@ void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stat
 void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc);
 void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc);
 
-void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats );
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlCompressorStats* stats );
 
 
 void test_article(CmdLineOptions& options)
@@ -995,7 +995,7 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"Loading: " << STDENDL;
 	ofs <<"  Time = " <<stats.time_to_load << "s,  Bandwidth = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	ofs <<"  Memory footprint (linux only) ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
-	ofs <<"  UrlCompressor internal memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
+	ofs <<"  UrlCompressor total allocated memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
 	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Bandwidth= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	if (options.test_decoding) {
@@ -1034,7 +1034,7 @@ void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stat
 	ofs <<"--------------------------------"<<std::endl;
 }
 
-void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const UrlCompressorStats* stats ) {
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlCompressorStats* stats ) {
 	using namespace std;
 	if (!options.custom_output_file)
 		return;
@@ -1048,17 +1048,18 @@ void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& s , const U
 	outmap.push_back(pair<string,string>("kgram",std::to_string(stats->params.kgrams_size)));
 	outmap.push_back(pair<string,string>("#symbols",std::to_string(stats->number_of_symbols)));
 	outmap.push_back(pair<string,string>("#patterns",std::to_string(stats->number_of_patterns)));
-	outmap.push_back(pair<string,string>("loading time sec",std::to_string(s.time_to_load)));
-	outmap.push_back(pair<string,string>("decoded size B",std::to_string(s.decoded_size)));
-	outmap.push_back(pair<string,string>("encoded size B",std::to_string(s.encoded_size)));
-	outmap.push_back(pair<string,string>("total decoded size B",std::to_string(s.decoded_stream_size)));
-	outmap.push_back(pair<string,string>("total encoded size B",std::to_string(s.encoded_stream_size)));
-	outmap.push_back(pair<string,string>("encoding time sec",std::to_string(s.time_to_encode)));
-	outmap.push_back(pair<string,string>("mem footprint ~ B",std::to_string(s.mem_footprint_est)));
-	outmap.push_back(pair<string,string>("AC mem footprint ~ B",std::to_string(stats->ac_memory_allocated)));
-	outmap.push_back(pair<string,string>("AC statemachine mem footprint ~ B",std::to_string(stats->ac_statemachine_size)));
-	outmap.push_back(pair<string,string>("UrlC mem allocated ~ B",std::to_string(stats->memory_allocated)));
-	outmap.push_back(pair<string,string>("dictionary size B",std::to_string(s.dictionary_size)));
+	outmap.push_back(pair<string,string>("loading time sec",std::to_string(rt_stat.time_to_load)));
+	outmap.push_back(pair<string,string>("decoded size Bytes",std::to_string(rt_stat.decoded_size)));
+	outmap.push_back(pair<string,string>("encoded size Bytes",std::to_string(rt_stat.encoded_size)));
+	outmap.push_back(pair<string,string>("total decoded size Bytes",std::to_string(rt_stat.decoded_stream_size)));
+	outmap.push_back(pair<string,string>("total encoded size Bytes",std::to_string(rt_stat.encoded_stream_size)));
+	outmap.push_back(pair<string,string>("encoding time sec",std::to_string(rt_stat.time_to_encode)));
+	outmap.push_back(pair<string,string>("dictionary size Bytes",std::to_string(rt_stat.dictionary_size)));
+	outmap.push_back(pair<string,string>("mem footprint Bytes",std::to_string(rt_stat.mem_footprint_est)));
+	outmap.push_back(pair<string,string>("AC module mem footprint Bytes",std::to_string(stats->ac_memory_allocated)));
+	outmap.push_back(pair<string,string>("AC statemachine mem footprint Bytes",std::to_string(stats->ac_statemachine_size)));
+	outmap.push_back(pair<string,string>("AC statemachine mem allocated Bytes",std::to_string(stats->total_patterns_length*5)));
+	outmap.push_back(pair<string,string>("UrlC mem allocated ~ Bytes",std::to_string(stats->memory_allocated)));
 
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(),ios::app );

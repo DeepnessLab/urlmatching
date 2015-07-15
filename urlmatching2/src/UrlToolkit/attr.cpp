@@ -35,8 +35,9 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "Max huffman length = " << (max_huffman_length)<< " bits"<<STDENDL;
 	out<< "Total input bytes      = "<<(total_input_bytes)<< "Bytes = " << Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
 	out<< "Total patterns length  = "<<(total_patterns_length)<< "Bytes = "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
-	out<< "Inner module memory allocated = " <<(memory_allocated)<< "Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
-	out <<"Aho Corasic mem footprint (linux only)     ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
+	out<< "Module memory allocated (without AC module)= " <<(memory_allocated)<< "Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
+	out<< "AC statemachine mem size estimation ~ "<<(5*total_patterns_length)<< "Bytes = "<< Byte2KB(5*total_patterns_length)<<"KB"<<STDENDL;
+	out <<"AC module mem footprint (linux only)       ~ "<<ac_memory_allocated<< "Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< "Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
