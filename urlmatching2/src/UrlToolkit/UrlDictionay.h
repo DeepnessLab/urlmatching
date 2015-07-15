@@ -53,6 +53,8 @@ typedef struct UrlCompressorStats {
 	HeavyHittersParams_t params;
 	bool params_set;
 
+	uint32_t getACMachineEstSize() const { return (5* total_patterns_length); }
+
 	void reset() ;
 
 	void reset(const HeavyHittersParams_t& params_) {
@@ -102,7 +104,7 @@ public:
 	//Helpers
 	inline bool isLoaded() const { return _is_loaded; }
 	inline uint32_t SizeOfMemory() const {
-		return (_statistics.memory_allocated + 5*_statistics.total_patterns_length);
+		return (_statistics.memory_allocated + _statistics.getACMachineEstSize());
 	}
 
 	uint32_t getDictionarySize()  const;

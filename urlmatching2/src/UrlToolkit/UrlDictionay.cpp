@@ -329,7 +329,6 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 	 */
 
 	reset();
-//	_statistics.reset(params);
 
 	char* mem_block;
 	FileHeader header;
@@ -343,7 +342,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 
 	mem_block = (char *) &_statistics;
 	file.read(mem_block,sizeof(_statistics));
-
+	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
