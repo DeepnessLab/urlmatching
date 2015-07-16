@@ -47,6 +47,9 @@ public:
 	 */
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
+	//Dump the state machine and reload it from dump file since it should take less memory
+	void optimize_statemachine();
+
 	virtual void printDB(std::ostream& os);
 	void dump_states(std::string filename) const;
 
