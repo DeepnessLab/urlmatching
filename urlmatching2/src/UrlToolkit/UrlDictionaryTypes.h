@@ -26,7 +26,7 @@
 #define S_NULL 0
 
 typedef std::string** StringListType;
-typedef uint16_t symbolT;
+typedef uint32_t symbolT;
 
 typedef struct {
 	uint32_t* buf;
@@ -71,10 +71,10 @@ public:
 	}
 
 	//members
-	symbolT _symbol;
-	uint16_t _frequency;
-	std::string _str;
-	CodedHuffman _coded;
+	symbolT _symbol;		//4 bytes
+	uint16_t _frequency; 	//2 bytes
+	std::string _str;		//8 bytes
+	CodedHuffman _coded;	//12bytes
 
 };
 
