@@ -173,20 +173,25 @@ void test_article(CmdLineOptions& options)
 	}
 	uint32_t urls_size = urls.size();
 
-	std::cout<<"-- Offline Testing  -- "<<STDENDL;
 
-	uint64_t encoded_size_bits = 0;
-	s.decoded_size = 0;
-	for (uint32_t i = 0 ; i < urls_size; i++ ) {
-		uint32_t* codedbuff = codedbuffers[i];
-		uint32_t buffsize = (uint32_t) urls[i].length();
-		urlc->encode_2(urls[i], codedbuff, buffsize);
-		s.decoded_size+=urls[i].length();
-		encoded_size_bits += codedbuff[0] ;
+	if (options.factor != 0) {
+		std::cout<<"-- Offline Testing  -- "<<STDENDL;
+		uint64_t encoded_size_bits = 0;
+		s.decoded_size = 0;
+		for (uint32_t i = 0 ; i < urls_size; i++ ) {
+			uint32_t* codedbuff = codedbuffers[i];
+			uint32_t buffsize = (uint32_t) urls[i].length();
+			urlc->encode_2(urls[i], codedbuff, buffsize);
+			s.decoded_size+=urls[i].length();
+			encoded_size_bits += codedbuff[0] ;
+		}
+		s.encoded_size = encoded_size_bits/ (8);
+		s.encoded_size = (encoded_size_bits % (8) == 0)? s.encoded_size : s.encoded_size + 1;
+	} else {
+		std::cout<<"-- NO Offline Testing - ignore ratio -- "<<STDENDL;
+		s.encoded_size = 1;
+		s.decoded_size = 1;
 	}
-	s.encoded_size = encoded_size_bits/ (8);
-	s.encoded_size = (encoded_size_bits % (8) == 0)? s.encoded_size : s.encoded_size + 1;
-
 
 	std::cout<<"-- Online Testing  -- "<<STDENDL;
 	uint32_t times = 20;
