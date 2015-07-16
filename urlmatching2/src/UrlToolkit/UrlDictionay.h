@@ -175,21 +175,27 @@ private:
 
 };
 
+#define UrlBuilder_CHARBUFFSIZE 500
+#define UrlBuilder_SYMBBUFFSIZE 500
 class UrlBuilder {
 public:
 	UrlBuilder(Symbol2pPatternVec symbol2pattern_db);
 	virtual ~UrlBuilder() {}
 
-	virtual void reset() {_url.empty(); }
+	virtual void reset();
 	virtual void append (symbolT symbol);
 	virtual std::string get_url() {return _url; }
 	virtual void debug_print();
 
 private:
+
 	typedef std::deque<symbolT> SymbolDeque ;
 
 	Symbol2pPatternVec _symbol2pattern_db;
-	std::string _url;
+	uint16_t buf_size;
+	char _buf[UrlBuilder_CHARBUFFSIZE];
+	char* _url;
+	bool is_url_dynamic;
 	SymbolDeque _symbol_deque;
 };
 

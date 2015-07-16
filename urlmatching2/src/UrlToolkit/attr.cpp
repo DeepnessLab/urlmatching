@@ -1,6 +1,7 @@
 #include "UrlDictionay.h"
 #include "../logger.h"
 #include "../common.h"
+#include <string.h>
 
 Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
 	_symbol=symbol;
@@ -53,16 +54,39 @@ void UrlCompressorStats::print(std::ostream& out) const {
 
 
 UrlBuilder::UrlBuilder(Symbol2pPatternVec symbol2pattern_db) :
-		_symbol2pattern_db(symbol2pattern_db),
-		_url("")
+		_symbol2pattern_db(symbol2pattern_db) ,
+		buf_size(UrlBuilder_CHARBUFFSIZE) ,
+		_url(_buf) ,
+		is_url_dynamic(false)
 {
-	_symbol_deque.empty();
+	reset();
+	_symbol_deque.clear();
 }
 
+void UrlBuilder::reset() {
+	if (is_url_dynamic)
+		delete[] _url;
+	is_url_dynamic = false;
+	_buf[0]='\0';
+	_url = _buf;
+	buf_size = UrlBuilder_CHARBUFFSIZE;
+}
 
 void UrlBuilder::append (symbolT symbol) {
 	_symbol_deque.push_back(symbol);
-	_url.append(_symbol2pattern_db[symbol]->_str);
+
+	if ( ( strlen(_url) + _symbol2pattern_db[symbol]->_str.length()) > buf_size) {
+		buf_size+=UrlBuilder_CHARBUFFSIZE;
+		char* new_buf = new char[buf_size];
+		std::cout<<"UrlBuilder::append: dynamic allocation"<<STDENDL;
+		strcpy(new_buf,_url);
+		if (is_url_dynamic) {
+			delete[] _url;
+		}
+		is_url_dynamic = true;
+		_url = new_buf;
+	}
+	strcat(_url,_symbol2pattern_db[symbol]->_str.c_str());
 }
 
 void UrlBuilder::debug_print() {
