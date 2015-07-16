@@ -174,7 +174,7 @@ void test_article(CmdLineOptions& options)
 	uint32_t urls_size = urls.size();
 
 
-	if (options.factor != 0) {
+	if (options.factor != 1) {
 		std::cout<<"-- Offline Testing  -- "<<STDENDL;
 		uint64_t encoded_size_bits = 0;
 		s.decoded_size = 0;
