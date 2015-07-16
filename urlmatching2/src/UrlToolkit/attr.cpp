@@ -20,6 +20,7 @@ void UrlCompressorStats::reset() {
 	number_of_symbols = 0;
 	number_of_urls = 0;
 	max_huffman_length = 0;
+	max_pattern_length = 0;
 	total_input_bytes = 0;
 	total_patterns_length = 0;
 	memory_allocated = 0;
@@ -33,6 +34,7 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "Number of patterns = " << (number_of_patterns)<<STDENDL;
 	out<< "Number_of urls     = " << (number_of_urls)<<STDENDL;
 	out<< "Max huffman length = " << (max_huffman_length)<< " bits"<<STDENDL;
+	out<< "Max pattern length = " << (max_pattern_length)<< " chars"<<STDENDL;
 	out<< "Total input bytes      = "<<(total_input_bytes)<< " Bytes = " << Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
 	out<< "Total patterns length  = "<<(total_patterns_length)<< " Bytes = "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
 	out<< "Module memory allocated (without AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
@@ -44,6 +46,9 @@ void UrlCompressorStats::print(std::ostream& out) const {
 		out<< "params: n1 = "<< (params.n1)<< " n2 = " <<(params.n2)<<STDENDL;
 	}
 	out<<"Size of pointer = "<<SIZEOFPOINTER<<" Bytes"<<STDENDL;
+	out<<"Size of Pattern = "<<sizeof(Pattern)<<" Bytes"<<STDENDL;
+	out<<"Size of std::string = "<<sizeof(std::string)<<" Bytes"<<STDENDL;
+	out<<"Size of CodedHuffman = "<<sizeof(CodedHuffman)<<" Bytes"<<STDENDL;
 }
 
 
