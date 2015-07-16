@@ -5,13 +5,13 @@
 Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
 	_symbol=symbol;
 	_frequency=frequency;
-	_coded.buf = NULL;
+	_coded.buf[0] = 0;
 	_coded.length = 0;
 }
 
 Pattern::~Pattern()  {
-	if (_coded.buf != NULL)
-		delete[] _coded.buf;
+//	if (_coded.buf != NULL)
+//		delete[] _coded.buf;
 }
 
 void UrlCompressorStats::reset() {
