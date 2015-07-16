@@ -94,7 +94,8 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 
 bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		const HeavyHittersParams_t params,
-		const  bool contains_basic_symbols)
+		const  bool contains_basic_symbols,
+		bool optimize_ac_size)
 {
 	reset();
 	_statistics.reset(params);
@@ -162,6 +163,10 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	prepare_database();
 
 	_huffman.free_encoding_memory();
+
+	if (optimize_ac_size) {
+		OptimizedACMachineSize();
+	}
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
 
 	return true;
@@ -306,7 +311,7 @@ bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 	return true;
 }
 
-bool UrlCompressor::InitFromDictFile(std::string& file_path)
+bool UrlCompressor::InitFromDictFile(std::string& file_path, bool optimize_ac_size)
 {
 	std::ifstream file (file_path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
@@ -314,13 +319,13 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 	}
 
 	bool ret = false;
-	ret = InitFromDictFileStream(file);
+	ret = InitFromDictFileStream(file,optimize_ac_size);
 	file.close();
 
 	return ret;
 }
 
-bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
+bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac_size)
 {
 	/* File Format:
 	 *	Header|_statistics|
@@ -395,6 +400,9 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 	_statistics.ac_memory_allocated = get_curr_memsize() - _statistics.ac_memory_allocated;
 	_statistics.ac_statemachine_size = algo.getStateMachineSize();
 
+	if (optimize_ac_size) {
+		OptimizedACMachineSize();
+	}
 
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
