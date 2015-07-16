@@ -145,9 +145,13 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	int mem = get_curr_memsize();
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
 	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
-	std::cout<<"AC state machine real size if "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
+	std::cout<<"Orig: AC state machine real size if "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
 	_machine->handlePatternFunc = handle_pattern;
 
+	mem = get_curr_memsize();
+	optimize_statemachine();
+	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
+	std::cout<<"Optimization reduced: "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
 	delete[] list;
 
 	// Build the complimantry table symbol --> pattern
@@ -318,4 +322,23 @@ void ACWrapperCompressed::dump_states(std::string filename) const {
 		return;
 	}
 	dumpStateMachine(this->_machine, filename.c_str());
+}
+
+void ACWrapperCompressed::optimize_statemachine()
+{
+//	if (!isLoaded()) {
+//		std::cout<< "Error: can't dump state, ACWapperCompressed is not loaded"<<std::endl;
+//		return;
+//	}
+	std::string filename = "tmpACDUMPFILE";
+	dumpStateMachine(this->_machine, filename.c_str());
+	if (_machine != NULL) {
+			destroyStateMachine(_machine);
+			_machine = NULL;
+	}
+	int mem = get_curr_memsize();
+	std::cout<<"Read dump.."<<std::endl;
+	this->_machine = createStateMachineFromDump(filename.c_str());
+	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
+	std::cout<<"Optimization reduced: "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
 }
