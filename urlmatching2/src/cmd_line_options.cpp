@@ -176,6 +176,7 @@ void CmdLineOptions::usage() {
 			<< "    CMD: build, encode"<<std::endl
 			<< "    All of the above flags and:" << std::endl
 			<< "    -d [String] dicionary filepath	, default: \"[urlsfile].dict\" " << std::endl
+			<< "    -x 0 To skip Offline stage, this yelp wrong compression ratio, default: 1 " << std::endl
 			<< std::endl
 			<< " 3. compress file CMD: compress, extract -f [input file] -o [output file] <compression params> "<<std::endl
 			<< std::endl
