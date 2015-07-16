@@ -1,7 +1,7 @@
 /*
  * types.h
  *
- *  Created on: 5 áãöî 2014
+ *  Created on: 5 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -71,7 +71,7 @@ public:
 	symbolT _symbol;		//4 bytes
 	std::string _str;		//8 bytes
 	CodedHuffman _coded;	//12bytes
-	uint16_t _frequency; 	//2 bytes
+	uint32_t _frequency; 	//4 bytes
 
 };
 
