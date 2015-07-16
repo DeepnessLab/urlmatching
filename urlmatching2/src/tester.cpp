@@ -142,14 +142,14 @@ void test_article(CmdLineOptions& options)
 	}
 	delete urlc;
 
-	//step 2: encode urls
+	//step 2: tkae offline and online measurements
 	//-------
 	urlc = new UrlCompressor();
 
 	take_a_break(options.break_time," before loading");
 	s.mem_footprint_est = get_curr_memsize();
 	START_TIMING;
-	ret = urlc->InitFromDictFile(dictionary_filename);
+	ret = urlc->InitFromDictFile(dictionary_filename,true);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
 	s.url_compressor_allocated_memory = urlc->SizeOfMemory();
@@ -157,11 +157,11 @@ void test_article(CmdLineOptions& options)
 	assert (ret);
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+
 	std::cout<<"Preparing buffers for encoding .. "<<std::endl;
 	//count urls and prepare coding buffers
 	std::deque<std::string> urls;
 	std::deque<uint32_t*> codedbuffers;
-	uint32_t total_input_size = 0;
 	for (std::deque<std::string>::iterator it = url_deque.begin(); it != url_deque.end(); ++it) {
 		if ( (it->length() == 0 )||(*it == "") ) {
 			std::cout<<"Skipping empty url in line " << urls.size() +1<<STDENDL;
@@ -169,10 +169,24 @@ void test_article(CmdLineOptions& options)
 			urls.push_back(*it);
 			uint32_t* codedbuff = new uint32_t[it->length()];
 			codedbuffers.push_back(codedbuff);
-			total_input_size += it->length();
 		}
 	}
 	uint32_t urls_size = urls.size();
+
+	std::cout<<"-- Offline Testing  -- "<<STDENDL;
+
+	uint64_t encoded_size_bits = 0;
+	s.decoded_size = 0;
+	for (uint32_t i = 0 ; i < urls_size; i++ ) {
+		uint32_t* codedbuff = codedbuffers[i];
+		uint32_t buffsize = (uint32_t) urls[i].length();
+		urlc->encode_2(urls[i], codedbuff, buffsize);
+		s.decoded_size+=urls[i].length();
+		encoded_size_bits += codedbuff[0] ;
+	}
+	s.encoded_size = encoded_size_bits/ (8);
+	s.encoded_size = (encoded_size_bits % (8) == 0)? s.encoded_size : s.encoded_size + 1;
+
 
 	std::cout<<"-- Online Testing  -- "<<STDENDL;
 	uint32_t times = 20;
@@ -247,8 +261,6 @@ void test_article(CmdLineOptions& options)
 	s.num_of_urls = num_of_sets * set_size *times;
 	s.encoded_stream_size = encoded_stream_bitsize/ (8);
 	s.encoded_stream_size = (encoded_stream_bitsize % (8) == 0)? s.encoded_stream_size : s.encoded_stream_size + 1;
-	s.encoded_size = s.encoded_stream_size;
-	s.decoded_size = s.decoded_stream_size;
 
 	s.dictionary_size= urlc->getDictionarySize();
 
@@ -487,7 +499,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"Runtime Statistics: for "<<num_of_urls<<" urls"<<std::endl;
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
-	std::cout<<"  Time = " <<time_to_load << "s,  Bandwidth= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
+	std::cout<<"  Time = " <<time_to_load << "s,  Throughput= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint (linux only) ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
 	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfMemory()<< "Bytes = "<< double((double)urlc.SizeOfMemory()/ 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(dict_size)<< " Bytes = "<< Byte2KB(dict_size)<<"KB"<< STDENDL;
@@ -533,7 +545,7 @@ void test_main(CmdLineOptions& options) {
 	take_a_break(options.break_time," before loading");
 	s.mem_footprint_est = get_curr_memsize();
 	START_TIMING;
-	bool ret = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
+	bool ret = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false, true);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
 	s.url_compressor_allocated_memory = urlc.SizeOfMemory();
@@ -849,13 +861,13 @@ void test_url_dictionary_load_from_url_txt_file() {
 	// remember 1 B/ms == 1KB / sec
 	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
 	std::cout<<"--------------"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "s,  Bandwidth= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
+	std::cout<<DVAL(time_to_load) 	<< "s,  Throughput= "<< double(size/time_to_load)*8/1024/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "s, Bandwidth= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
+	std::cout<<" "<<DVAL(time_to_encode) << "s, Throughput= "<< double(decoded_size/time_to_encode)*8/1024/1024 <<" Mb/s"
 			<< "  average/url="<< double((double) time_to_encode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<" "<<DVAL(time_to_decode )<< "s, Bandwidth= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s"
+	std::cout<<" "<<DVAL(time_to_decode )<< "s, Throughput= "<< double(encoded_size/time_to_decode)*8/1024/1024 <<" Mb/s"
 			<< "  average/url="<< double((double) time_to_decode/howmanytocode) <<"ms"<< STDENDL;
 
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
@@ -875,12 +887,12 @@ void test_url_dictionary_load_from_url_txt_file() {
 	// remember 1 B/ms == 1KB / sec
 	std::cout<<"Printing stats: for "<<size<<" urls"<<std::endl;
 	std::cout<<"--------------"<<std::endl;
-	std::cout<<DVAL(time_to_load) 	<< "ms,  Bandwidth= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
+	std::cout<<DVAL(time_to_load) 	<< "ms,  Throughput= "<< double(size/time_to_load)*8/1024  <<" Mb/s"
 			<< "  average/url="<< double(time_to_load/size) 	<<"ms"<< STDENDL;
 	std::cout<<"Online compression: on "<<howmanytocode << " urls" << STDENDL;
-	std::cout<<" "<<DVAL(time_to_encode) << "ms, Bandwidth= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
+	std::cout<<" "<<DVAL(time_to_encode) << "ms, Throughput= "<< double(size/time_to_encode)*8/1024 <<" Mb/s"
 			<< "  average/url="<< double(time_to_encode/howmanytocode) <<"ms"<< STDENDL;
-	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Bandwidth= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
+	std::cout<<" "<<DVAL(time_to_decode )<< "ms, Throughput= "<< double(size/time_to_decode)*8/1024 <<" Mb/s"
 			<< "  average/url="<< double(time_to_decode/howmanytocode) <<"ms"<< STDENDL;
 	std::cout<<"Offline compression (load & encode all urls)\n  ~ "
 			<< double((double) ( (double) total_input_size / (time_to_load + ( time_to_encode * (double) size / howmanytocode) )))*8/1024
@@ -993,17 +1005,17 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"Runtime Statistics: for "<<stats.num_of_urls<<" urls"<<std::endl;
 	ofs <<"------------------"<<std::endl;
 	ofs <<"Loading: " << STDENDL;
-	ofs <<"  Time = " <<stats.time_to_load << "s,  Bandwidth = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
+	ofs <<"  Time = " <<stats.time_to_load << "s,  Throughput = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	ofs <<"  Memory footprint (linux only) ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
 	ofs <<"  UrlCompressor total allocated memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
-	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Bandwidth= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
+	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Throughput= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	if (options.test_decoding) {
-		ofs <<" time_to_decode ="<<stats.time_to_decode << "s, Bandwidth= "<< double(stats.encoded_stream_size/stats.time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
+		ofs <<" time_to_decode ="<<stats.time_to_decode << "s, Throughput= "<< double(stats.encoded_stream_size/stats.time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	}
 	if (print_offline_compression) {
 		ofs <<"Offline compression (create dictionary & encode all urls):"<<STDENDL
-				<<"  Time = " <<stats.time_to_load + (stats.time_to_encode/options.factor) <<",  Bandwidth ~"
+				<<"  Time = " <<stats.time_to_load + (stats.time_to_encode/options.factor) <<",  Throughput ~"
 				<< double(stats.decoded_size/ (stats.time_to_load + (stats.time_to_encode/options.factor)) )*8/1024/1024 <<" Mb/s"<<STDENDL;
 	}
 	ofs <<"------------------"<<std::endl;

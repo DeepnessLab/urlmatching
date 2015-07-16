@@ -81,10 +81,11 @@ public:
 	//Load urlmatching dictionary from list of strings
 	bool InitFromUrlsList(const std::deque<std::string> url_list,
 			const HeavyHittersParams_t params,
-			const  bool contains_basic_symbols);
+			const bool contains_basic_symbols,
+			bool optimize_size = false);
 
-	bool InitFromDictFile(std::string& file_path);
-	bool InitFromDictFileStream(std::ifstream& file);
+	bool InitFromDictFile(std::string& file_path, bool optimiz_size = false);
+	bool InitFromDictFileStream(std::ifstream& file, bool optimize_size = false);
 	bool StoreDictToFile(std::string& file_path);
 	bool StoreDictToFileStream(std::ofstream& file );
 
@@ -105,6 +106,11 @@ public:
 	inline bool isLoaded() const { return _is_loaded; }
 	inline uint32_t SizeOfMemory() const {
 		return (_statistics.memory_allocated + _statistics.getACMachineEstSize());
+	}
+
+	void OptimizedACMachineSize() {
+		if (isLoaded())
+			algo.optimize_statemachine() ;
 	}
 
 	uint32_t getDictionarySize()  const;
