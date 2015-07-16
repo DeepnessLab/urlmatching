@@ -374,7 +374,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 		CodedHuffman& coded = _symbol2pattern_db[s]->_coded;
 		coded.length = fp.huffman_length ;
 		uint16_t huff_buf_size = conv_bits_to_uin32_size(coded.length );
-		coded.buf = new uint32_t[ huff_buf_size ];
+//		coded.buf = new uint32_t[ huff_buf_size ];
 		mem_block = (char *) coded.buf;
 		huff_buf_size *= sizeof(uint32_t);
 		file.read(mem_block,huff_buf_size );
@@ -655,8 +655,12 @@ void UrlCompressor::calculate_symbols_huffman_score() {
 
 void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 	pat->_coded.length = code.size();
-	uint32_t buf_size = (pat->_coded.length / sizeof(uint32_t)) + 1 ;
-	pat->_coded.buf = new uint32_t[ buf_size ];
+	uint32_t buf_size = conv_bits_to_bytes(pat->_coded.length) ;
+	if (buf_size > MAX_CODED_HUFFMAN_SIZE*sizeof(uint32_t)) {
+		std::cout<<"Critical error: Found huffman to long="<<pat->_coded.length<<"bit or "<<buf_size<<" Bytes, can't continue since max buffer size is "<<sizeof(uint32_t)*MAX_CODED_HUFFMAN_SIZE<<STDENDL;
+		exit(1);
+	}
+//	pat->_coded.buf = new uint32_t[ buf_size ];	//this line is obsolete
 	uint32_t* buf = pat->_coded.buf;
 
 	uint32_t mask_reset = 1 << (BITS_IN_UINT32_T -1 );	//MSb - 1 i.e 100000000..

@@ -28,8 +28,9 @@
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
 
+#define MAX_CODED_HUFFMAN_SIZE 2
 typedef struct {
-	uint32_t* buf;
+	uint32_t buf[2];
 	uint16_t length;	//in bits
 } CodedHuffman;
 
@@ -72,9 +73,9 @@ public:
 
 	//members
 	symbolT _symbol;		//4 bytes
-	uint16_t _frequency; 	//2 bytes
 	std::string _str;		//8 bytes
 	CodedHuffman _coded;	//12bytes
+	uint16_t _frequency; 	//2 bytes
 
 };
 
