@@ -402,6 +402,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 
 	if (optimize_ac_size) {
 		OptimizedACMachineSize();
+		_symbol2pattern_db.shrink_to_fit();
 	}
 
 	// ----------------------------

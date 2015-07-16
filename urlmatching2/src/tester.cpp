@@ -174,7 +174,7 @@ void test_article(CmdLineOptions& options)
 	uint32_t urls_size = urls.size();
 
 
-	if (options.factor != 1) {
+	if (options.factor == 1) {
 		std::cout<<"-- Offline Testing  -- "<<STDENDL;
 		uint64_t encoded_size_bits = 0;
 		s.decoded_size = 0;
@@ -187,6 +187,7 @@ void test_article(CmdLineOptions& options)
 		}
 		s.encoded_size = encoded_size_bits/ (8);
 		s.encoded_size = (encoded_size_bits % (8) == 0)? s.encoded_size : s.encoded_size + 1;
+		std::cout<<"Done. "<<STDENDL;
 	} else {
 		std::cout<<"-- NO Offline Testing - ignore ratio -- "<<STDENDL;
 		s.encoded_size = 1;
