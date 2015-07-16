@@ -30,7 +30,7 @@ typedef uint32_t symbolT;
 
 #define MAX_CODED_HUFFMAN_SIZE 2
 typedef struct {
-	uint32_t buf[2];
+	uint32_t buf[MAX_CODED_HUFFMAN_SIZE];
 	uint16_t length;	//in bits
 } CodedHuffman;
 
@@ -61,17 +61,13 @@ public:
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
 	uint32_t inline getHuffmanLength() { return (_coded.length);	}
 
-	inline 	uint32_t size() {
-		uint32_t size = sizeof(_symbol)
-				+ sizeof(_frequency)
-				+ sizeof(std::string)
-				+ _str.size()
-				+ sizeof(CodedHuffman)
-				+ ( conv_bits_to_uin32_size(getHuffmanLength()) ) ;
+	inline 	size_t size() {
+		size_t size = sizeof(Pattern)
+				+ _str.size();
 		return size;
 	}
 
-	//members
+	//members				(sizes in 64bit OS)
 	symbolT _symbol;		//4 bytes
 	std::string _str;		//8 bytes
 	CodedHuffman _coded;	//12bytes
