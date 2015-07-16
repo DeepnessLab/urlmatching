@@ -23,10 +23,14 @@
 #define STDENDL std::endl
 
 #define SIZEOFPOINTER sizeof(void *)
+#define S_NULL 0
+
+typedef std::string** StringListType;
+typedef uint16_t symbolT;
 
 typedef struct {
 	uint32_t* buf;
-	uint16_t length;
+	uint16_t length;	//in bits
 } CodedHuffman;
 
 // return the min. uint32_t size that contains 'bits' bits
@@ -67,17 +71,15 @@ public:
 	}
 
 	//members
-	uint32_t _symbol;
-	uint32_t _frequency;
+	symbolT _symbol;
+	uint16_t _frequency;
 	std::string _str;
 	CodedHuffman _coded;
 
 };
 
 typedef std::vector<Pattern*> Symbol2pPatternVec;
-typedef std::string** StringListType;
-typedef uint32_t symbolT;
-#define S_NULL 0
+
 
 struct cmp_str
 {

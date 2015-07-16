@@ -111,6 +111,7 @@ public:
 	void OptimizedACMachineSize() {
 		if (isLoaded())
 			algo.optimize_statemachine() ;
+		_statistics.ac_statemachine_size = algo.getStateMachineSize();
 	}
 
 	uint32_t getDictionarySize()  const;
