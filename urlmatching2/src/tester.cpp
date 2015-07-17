@@ -110,7 +110,7 @@ void test_article(CmdLineOptions& options)
 
 	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc->SplitUrlsList(url_deque, *splitted_deque);
+		urlc->SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 
@@ -182,7 +182,7 @@ void test_article(CmdLineOptions& options)
 			uint32_t* codedbuff = codedbuffers[i];
 			uint32_t buffsize = (uint32_t) urls[i].length();
 			urlc->encode_2(urls[i], codedbuff, buffsize);
-			s.decoded_size+=urls[i].length();
+			s.decoded_size+=urls[i].length() + 1 /* for \n at the end of the original line */;
 			encoded_size_bits += codedbuff[0] ;
 		}
 		s.encoded_size = encoded_size_bits/ (8);
@@ -456,7 +456,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 
 	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		urlc.SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 
@@ -544,7 +544,7 @@ void test_main(CmdLineOptions& options) {
 
 	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		urlc.SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 
@@ -741,7 +741,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::deque<std::string> url_deque;
 	urlc.getUrlsListFromFile(urls_file, url_deque);
 	std::deque<std::string> splitted_deque;
-	urlc.SplitUrlsList(url_deque, splitted_deque);
+	urlc.SplitUrlsList(url_deque, splitted_deque, "/");
 	START_TIMING;
 //	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
 	bool retB = urlc.InitFromUrlsList(splitted_deque, params, false);
@@ -1035,6 +1035,8 @@ void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) {
 
 	ofs <<"Compression Statistics:"<<STDENDL;
 	ofs <<"----------------------"<<std::endl;
+	if (options.split_for_LPM)
+		ofs <<"Splitted to components by \""<<options.LPM_delimiter<<"\""<<STDENDL;
 	ofs <<"Decoded size = "<< s.decoded_size<< " Bytes = "<< double((double)s.decoded_size / 1024) <<"KB"<< STDENDL;
 	ofs <<"Encoded size = "<< s.encoded_size<< " Bytes = "<< double((double)s.encoded_size / 1024) <<"KB"<< STDENDL;
 	ofs <<"Dictionary size = "<< s.dictionary_size<< " Bytes = "<< double((double)s.dictionary_size / 1024) <<"KB"<< STDENDL;
@@ -1057,8 +1059,11 @@ void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , c
 	if (!options.custom_output_file)
 		return;
 	std::deque<pair<std::string,std::string>> outmap;
+	std::string filename = options.input_urls_file_path;
+	if (options.split_for_LPM)
+		filename = filename+"<"+options.LPM_delimiter+">";
 
-	outmap.push_back(std::pair<std::string,std::string>("filename",(options.input_urls_file_path)));
+	outmap.push_back(std::pair<std::string,std::string>("filename",(filename)));
 	outmap.push_back(std::pair<std::string,std::string>("urls",std::to_string(stats->number_of_urls)));
 	outmap.push_back(pair<string,string>("n1",std::to_string(stats->params.n1)));
 	outmap.push_back(pair<string,string>("n2",std::to_string(stats->params.n2)));

@@ -70,9 +70,8 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 }
 
 void
-UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output )
+UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output , std::string delimiter)
 {
-	std::string delimiter("/");
 	for (std::deque<std::string>::const_iterator it=input.begin(); it != input.end(); ++it) {
 		size_t start = 0;
 		size_t end = 0;

@@ -77,7 +77,7 @@ public:
 
 	//Cache urls in input file into deque of std::string of urls
 	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
-	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
+	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output, std::string delimiter);
 
 	//Load urlmatching dictionary from list of strings
 	bool InitFromUrlsList(const std::deque<std::string> url_list,
