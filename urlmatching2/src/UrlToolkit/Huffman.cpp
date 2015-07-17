@@ -24,25 +24,25 @@ Huffman::~Huffman() {
 
 INode* Huffman::BuildTree()
 {
-    std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
+	std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
 
-    for (uint32_t i = 0; i < _freq_size; ++i)
-    {
-        if(_frequencies[i] != 0)
-            trees.push(new LeafNode(_frequencies[i], (uint32_t)i));
-    }
-    while (trees.size() > 1)
-    {
-        INode* childR = trees.top();
-        trees.pop();
+	for (uint32_t i = 0; i < _freq_size; ++i)
+	{
+		if(_frequencies[i] != 0)
+			trees.push(new LeafNode(_frequencies[i], (uint32_t)i));
+	}
+	while (trees.size() > 1)
+	{
+		INode* childR = trees.top();
+		trees.pop();
 
-        INode* childL = trees.top();
-        trees.pop();
+		INode* childL = trees.top();
+		trees.pop();
 
-        INode* parent = new InternalNode(childR, childL);
-        trees.push(parent);
-    }
-    return trees.top();
+		INode* parent = new InternalNode(childR, childL);
+		trees.push(parent);
+	}
+	return trees.top();
 }
 
 void Huffman::free_encoding_memory() {
@@ -109,9 +109,7 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
 		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
-		_size+= (sizeof(symbolT) + it->second.capacity());
 	}
-	_size+=_codes2symbolsMap.size() * (sizeof(void *));
 
 //	FreeTree(root);
 	delete root;
@@ -139,5 +137,18 @@ void Huffman::print() {
 				std::ostream_iterator<bool>(std::cout));
 		std::cout << std::endl;
 	}
+}
 
+//This is lazy size (go over module and counts memory
+uint32_t Huffman::size() const
+{
+	uint32_t size=0;
+	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
+		size+= (sizeof(symbolT) + it->second.capacity());
+	size+=_codes2symbolsMap.size() * (sizeof(void *));
+
+	for (HuffSymbMap::const_iterator it = _codes2symbolsMap.begin(); it != _codes2symbolsMap.end(); ++it)
+		size+= (sizeof(symbolT) + it->first.capacity());
+	std::cout<<"Huffman size = "<<Byte2KB(size)<<"KB"<<STDENDL;
+	return size;
 }
