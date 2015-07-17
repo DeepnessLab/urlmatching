@@ -106,7 +106,9 @@ public:
 	//Helpers
 	inline bool isLoaded() const { return _is_loaded; }
 	inline uint32_t SizeOfMemory() const {
-		return (_statistics.memory_allocated + _statistics.getACMachineEstSize());
+		return (_statistics.memory_allocated
+				+ _statistics.getACMachineEstSize()
+				+ _huffman.size());
 	}
 
 	void OptimizedACMachineSize() {
@@ -161,8 +163,7 @@ private:
 	 */
 	symbolT addPattern(const std::string& str, const uint32_t& frequency);
 
-	inline
-	void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated+= bytes;}
+	inline void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated += bytes;}
 
 
 	//Members:

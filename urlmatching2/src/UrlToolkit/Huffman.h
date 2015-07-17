@@ -103,7 +103,7 @@ public:
 		return stream.str();
 	}
 
-	inline uint32_t	size() { return _size; }
+	uint32_t	size() const;
 
 
 private:

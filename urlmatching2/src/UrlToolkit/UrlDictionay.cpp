@@ -145,6 +145,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	size_t                  urls_count     = ldhh.get_pckt_count();
 	DBG("** scanned " << urls_count << " urls " << std::endl );
 
+	_symbol2pattern_db.reserve(common_strings.size());
 	int patterns_counter = 0;
 	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
 		signature_t& sig = *it;
@@ -155,6 +156,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
+	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	_statistics.number_of_patterns = patterns_counter;
 	_statistics.number_of_urls = urls_count;
 	DBG("total of "<< patterns_counter <<" patterns were found");
@@ -379,7 +381,6 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 		huff_buf_size *= sizeof(uint32_t);
 		file.read(mem_block,huff_buf_size );
 
-		add_memory_counter(_symbol2pattern_db[s]->size());
 		patterns_counter++;
 	}
 
@@ -404,7 +405,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 		OptimizedACMachineSize();
 		_symbol2pattern_db.shrink_to_fit();
 	}
-
+	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 //	add_memory_counter(algo.size());
@@ -425,11 +426,9 @@ void UrlCompressor::prepare_huffman() {
 			Pattern* pat =_symbol2pattern_db[i];
 			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
-			add_memory_counter(pat->size());
 	}
 
 	_huffman.load(freqArr,_nextSymbol);
-	add_memory_counter(_huffman.size());
 	delete[] freqArr;
 }
 
@@ -706,6 +705,7 @@ symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& freque
 	_statistics.max_pattern_length = (_statistics.max_pattern_length < len ) ? len : _statistics.max_pattern_length;
 	ASSERT (_nextSymbol == _symbol2pattern_db.size());
 	ASSERT ((ret + 1) == _nextSymbol );
+	add_memory_counter(pat->size());
 	return ret;
 }
 
@@ -726,8 +726,6 @@ void UrlCompressor::prepare_database() {
 	//Step 1: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
 	prepare_huffman();
-
-	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 
 	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 
