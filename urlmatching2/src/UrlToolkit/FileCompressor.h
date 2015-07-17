@@ -19,7 +19,7 @@ public:
 	static bool compress(std::string& text_filename, std::string& compressed_filename);
 
 	static bool compress(std::string& text_filename, std::string& compressed_filename
-			, HeavyHittersParams_t& params, bool split_for_LPM);
+			, HeavyHittersParams_t& params, bool split_for_LPM, std::string delimiter="/");
 	static bool extract(std::string& compressed_filename, std::string& extracted_filename);
 private:
 	static void resetbuff(uint32_t* buf, uint32_t size ) {

@@ -77,12 +77,12 @@ FileCompressor::FileCompressor() {
 bool FileCompressor::compress(std::string& text_filename,
 		std::string& compressed_filename) {
 	return compress(text_filename, compressed_filename, default_hh_params,
-			false);
+			false /*, don't care about delimiter*/);
 }
 
 bool FileCompressor::compress(std::string& text_filename,
 		std::string& compressed_filename, HeavyHittersParams_t& params,
-		bool split_for_LPM) {
+		bool split_for_LPM, std::string delimiter) {
 
 	/*Format Dictionary|(uint32_t)Num Of Urls in file|
 	 * |(uint16_t)bits length|(Big endian) encoded buffer in Bytes|
@@ -105,7 +105,7 @@ bool FileCompressor::compress(std::string& text_filename,
 
 	if (split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		urlc.SplitUrlsList(url_deque, *splitted_deque,delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 

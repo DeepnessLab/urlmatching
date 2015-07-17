@@ -26,6 +26,7 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->r                     = 0.8;
 	this->test_decoding			= false;
 	this->split_for_LPM			= false;
+	this->LPM_delimiter			= "/";
 	this->print_dicionary		= false;
 	this->print_dicionary_file 	= "";
 	this->dump_ac_statetable	= false;
@@ -56,7 +57,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:lp:b:vc:x:s"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:l:p:b:vc:x:s"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -84,6 +85,9 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			break;
 		case 'l':
 			this->split_for_LPM = true;
+//			char deli[2];
+//			deli = optarg[0];
+			this->LPM_delimiter = optarg[0];
 			break;
 		case 'p':
 			this->print_dicionary = true;
@@ -147,6 +151,7 @@ bool CmdLineOptions::cmd_ok() {
 void CmdLineOptions::PrintParameters(std::ostream& log){
 	std::string break_time_string = (this->break_time > 0)? (", \"break_time\": " + this->break_time ): "";
 	std::string test_decoding = (this->test_decoding)?", \"Verify by Decode\"" : "";
+	std::string delimiter = (this->split_for_LPM)? ", \"Component by "+this->LPM_delimiter+"\"" : "";
 	log<< "parameters={"
 			<< "input file: \"" <<this->input_urls_file_path
 			<< "\", kgram_size: " << this->kgram_size
@@ -155,6 +160,7 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 			<< ", r: " << this->r
 			<< break_time_string
 			<< test_decoding
+			<< delimiter
 			<< "}"
 			<< std::endl;
 }

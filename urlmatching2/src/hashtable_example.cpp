@@ -109,7 +109,7 @@ void test_hashtable(CmdLineOptions& options) {
 
 	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		urlc.SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 
