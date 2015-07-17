@@ -91,7 +91,8 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 }
 
 
-bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
+bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_list,
+		const std::deque<std::string>& list_for_patterns,
 		const HeavyHittersParams_t params,
 		const  bool contains_basic_symbols,
 		bool optimize_ac_size)
@@ -109,12 +110,12 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	 * ...
 	 */
 	{	//in separate block so 'lit' will close the file
-		uint32_t frequencies[CHAR_MAX+1];
+		freqT frequencies[CHAR_MAX+1];
 		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
 			frequencies[i]=1;
 
 //		for (std::deque<std::string>::iterator itr = list.begin())
-		LineIteratorDeque lit(&url_list);
+		LineIteratorDeque lit(&orig_url_list);
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			uchar* p = pckt.ptr;
@@ -122,6 +123,8 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 				uchar c = *p;
 				p++;
 				frequencies[c] += 1;
+				if (frequencies[c] == UINT32_MAX)
+					std::cout<<"Error: char "<<c<< " reached UINT32_MAX"<<STDENDL;
 			}
 			_statistics.total_input_bytes+=pckt.size;
 		}
@@ -135,7 +138,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		}
 	}
 
-	LineIteratorDeque line_itr(&url_list);
+	LineIteratorDeque line_itr(&list_for_patterns);
 	LDHH ldhh(line_itr, params.n1, params.n2, params.r, params.kgrams_size);
 	if (ldhh.run() != true)
 		return unload_and_return_false();
@@ -151,7 +154,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		std::string patStr;
 		const char* str =(const char *) &sig.data[0];
 		patStr.assign(str,  sig.data.size());
-		uint32_t frequency = sig.calcHitsInSource();
+		freqT frequency = sig.calcHitsInSource();
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
@@ -420,8 +423,8 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
  * Or when loading from a stored Dict file to enable decoding
  */
 void UrlCompressor::prepare_huffman() {
-	uint32_t* freqArr = new uint32_t[_nextSymbol];
-	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
+	freqT* freqArr = new freqT[_nextSymbol];
+	for (symbolT i=0; i<_nextSymbol;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
 			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
@@ -692,7 +695,7 @@ void UrlCompressor::reset(uint32_t reserved_size) {
 	setLoaded();
 }
 
-symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& frequency) {
+symbolT UrlCompressor::addPattern(const std::string& str, const freqT& frequency) {
 	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
 //	_symbol2pattern_db[_nextSymbol]=pat;
 	_symbol2pattern_db.push_back( pat );

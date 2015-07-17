@@ -109,7 +109,7 @@ bool FileCompressor::compress(std::string& text_filename,
 		input_for_urlcompressor = splitted_deque;
 	}
 
-	bool ret = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
+	bool ret = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
 	if (!ret)
 		return false;
 

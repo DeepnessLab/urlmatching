@@ -116,7 +116,7 @@ void test_article(CmdLineOptions& options)
 
 	take_a_break(options.break_time," before creating dicionary");
 	START_TIMING;
-	bool ret = urlc->InitFromUrlsList(*input_for_urlcompressor, params, false);
+	bool ret = urlc->InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	take_a_break(options.break_time," after creating dicionary (still in memory)");
 	s.time_to_load = GETTIMING;
@@ -470,7 +470,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	take_a_break(options.break_time," before loading");
 	uint32_t mem_footprint = get_curr_memsize();
 	START_TIMING;
-	bool retB = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
+	bool retB = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	mem_footprint = get_curr_memsize() - mem_footprint;
 	take_a_break(options.break_time," after loading");
@@ -551,7 +551,7 @@ void test_main(CmdLineOptions& options) {
 	take_a_break(options.break_time," before loading");
 	s.mem_footprint_est = get_curr_memsize();
 	START_TIMING;
-	bool ret = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false, true);
+	bool ret = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false, true);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
 	s.url_compressor_allocated_memory = urlc.SizeOfMemory();
@@ -744,7 +744,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	urlc.SplitUrlsList(url_deque, splitted_deque, "/");
 	START_TIMING;
 //	bool retB = urlc.LoadUrlsFromFile(urls_file, params, false);
-	bool retB = urlc.InitFromUrlsList(splitted_deque, params, false);
+	bool retB = urlc.InitFromUrlsList(url_deque, splitted_deque, params, false);
 	STOP_TIMING;
 	take_a_break(break_time," after loading");
 	double time_to_load = GETTIMING;

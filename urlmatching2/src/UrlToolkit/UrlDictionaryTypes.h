@@ -27,6 +27,7 @@
 
 typedef std::string** StringListType;
 typedef uint32_t symbolT;
+typedef uint32_t freqT;
 
 #define MAX_CODED_HUFFMAN_SIZE 2
 typedef struct {
@@ -55,7 +56,7 @@ uint16_t conv_bits_to_bytes(uint32_t bits) {
  */
 class Pattern {
 public:
-	Pattern(uint32_t symbol, uint32_t frequency, std::string str);
+	Pattern(uint32_t symbol, freqT frequency, std::string str);
 	virtual ~Pattern() ;
 
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
@@ -71,7 +72,7 @@ public:
 	symbolT _symbol;		//4 bytes
 	std::string _str;		//8 bytes
 	CodedHuffman _coded;	//12bytes
-	uint32_t _frequency; 	//4 bytes
+	freqT _frequency; 	//4 bytes
 
 };
 
@@ -100,7 +101,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t symbol;
-	uint32_t frequency;
+	freqT	 frequency;
 	uint16_t str_length;
 	uint16_t huffman_length; 	//in bits !
 } FlatPattern;
