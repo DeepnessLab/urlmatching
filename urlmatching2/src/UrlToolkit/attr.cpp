@@ -3,7 +3,7 @@
 #include "../common.h"
 #include <string.h>
 
-Pattern::Pattern(uint32_t symbol, uint32_t frequency, std::string str) : _str(str) {
+Pattern::Pattern(uint32_t symbol, freqT frequency, std::string str) : _str(str) {
 	_symbol=symbol;
 	_frequency=frequency;
 	_coded.buf[0] = 0;

@@ -80,7 +80,8 @@ public:
 	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output, std::string delimiter);
 
 	//Load urlmatching dictionary from list of strings
-	bool InitFromUrlsList(const std::deque<std::string> url_list,
+	bool InitFromUrlsList(const std::deque<std::string>& orig_url_list,
+			const std::deque<std::string>& list_for_patterns,
 			const HeavyHittersParams_t params,
 			const bool contains_basic_symbols,
 			bool optimize_size = false);
@@ -161,7 +162,7 @@ private:
 	 * @param frequency - expected frequency
 	 * @return the generated symbol of this pattern
 	 */
-	symbolT addPattern(const std::string& str, const uint32_t& frequency);
+	symbolT addPattern(const std::string& str, const freqT& frequency);
 
 	inline void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated += bytes;}
 
