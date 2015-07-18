@@ -1,7 +1,7 @@
 /*
  * types.h
  *
- *  Created on: 5 áãöî 2014
+ *  Created on: 5 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -22,15 +22,17 @@
 
 #define STDENDL std::endl
 
-#define SIZEOFPOINTER 8
+#define SIZEOFPOINTER sizeof(void *)
+#define S_NULL 0
 
-typedef std::map<std::string,int> Strings2FreqMap;
-typedef std::map<std::string,uint32_t> Strings2SymbolsMap;
+typedef std::string** StringListType;
+typedef uint32_t symbolT;
+typedef uint32_t freqT;
 
-
+#define MAX_CODED_HUFFMAN_SIZE 2
 typedef struct {
-	uint32_t* buf;
-	uint16_t length;
+	uint32_t buf[MAX_CODED_HUFFMAN_SIZE];
+	uint16_t length;	//in bits
 } CodedHuffman;
 
 // return the min. uint32_t size that contains 'bits' bits
@@ -54,34 +56,28 @@ uint16_t conv_bits_to_bytes(uint32_t bits) {
  */
 class Pattern {
 public:
-	Pattern(uint32_t symbol, uint32_t frequency, std::string str);
+	Pattern(uint32_t symbol, freqT frequency, std::string str);
 	virtual ~Pattern() ;
 
 	uint32_t inline getStringLength() { return (_str.length()*sizeof(char)); }
 	uint32_t inline getHuffmanLength() { return (_coded.length);	}
 
-	inline 	uint32_t size() {
-		uint32_t size = sizeof(_symbol)
-				+ sizeof(_frequency)
-				+ sizeof(std::string)
-				+ _str.size()
-				+ sizeof(CodedHuffman)
-				+ ( conv_bits_to_uin32_size(getHuffmanLength()) ) ;
+	inline 	size_t size() {
+		size_t size = sizeof(Pattern)
+				+ _str.size();
 		return size;
 	}
 
-	//members
-	uint32_t _symbol;
-	uint32_t _frequency;
-	std::string _str;
-	CodedHuffman _coded;
+	//members				(sizes in 64bit OS)
+	symbolT _symbol;		//4 bytes
+	std::string _str;		//8 bytes
+	CodedHuffman _coded;	//12bytes
+	freqT _frequency; 	//4 bytes
 
 };
 
 typedef std::vector<Pattern*> Symbol2pPatternVec;
-typedef std::string** StringListType;
-typedef uint32_t symbolT;
-#define S_NULL 0
+
 
 struct cmp_str
 {
@@ -105,7 +101,7 @@ typedef struct {
 
 typedef struct {
 	uint32_t symbol;
-	uint32_t frequency;
+	freqT	 frequency;
 	uint16_t str_length;
 	uint16_t huffman_length; 	//in bits !
 } FlatPattern;

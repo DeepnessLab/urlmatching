@@ -30,15 +30,13 @@ public:
 	//methods
 
 	ACWrapperCompressed() ;
-
 	virtual ~ACWrapperCompressed();
 
-	//Load Patterns from file
-	virtual bool load_patterns(std::string filepath);
-
-	//map every pattern to symbol in patternList and build the pattern matching machine
+	//Build pattern matching machine out of patterns vector
 	virtual bool load_patterns(Symbol2pPatternVec* patternsList, uint32_t size);
 
+	//Load Patterns from file (not in use)
+	virtual bool load_patterns(std::string filepath);
 
 	/**
 	 * @param input_str - input string to find matches
@@ -49,28 +47,27 @@ public:
 	 */
 	virtual bool find_patterns(std::string input_str, symbolT* result);
 
-	virtual void printDB(std::ostream& os);
+	//Dump the state machine and reload it from dump file since it should take less memory
+	void optimize_statemachine();
 
-	inline uint32_t size() { return _size; }
+	virtual void printDB(std::ostream& os);
+	void dump_states(std::string filename) const;
+
+	inline uint32_t size() const 				{ return _size; }
+	inline uint32_t getStateMachineSize() const { return _statemachine_size; }
 
 	virtual inline
-	bool isLoaded() { return is_loaded; }
+	bool isLoaded() const { return is_loaded; }
 
-//	virtual std::string* nextPattern();
-//	virtual void resetNextPattern();
-
-	//members:
-
-	void make_pattern_to_symbol_list();
 
 private:
+	void make_pattern_to_symbol_list();
 
 	inline
 	symbolT* create_symb_string (const char* c_string);
 
 	//members
 	bool is_loaded;
-	std::map<std::string,symbolT> patterns;
 
 	//input during load
 	Symbol2pPatternVec* _patternsList;
@@ -86,6 +83,7 @@ private:
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
 
+	uint32_t _statemachine_size; //only in linux systems
 	uint32_t _size;
 
 };

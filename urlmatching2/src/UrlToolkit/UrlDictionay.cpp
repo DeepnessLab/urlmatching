@@ -70,9 +70,8 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 }
 
 void
-UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output )
+UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output , std::string delimiter)
 {
-	std::string delimiter("/");
 	for (std::deque<std::string>::const_iterator it=input.begin(); it != input.end(); ++it) {
 		size_t start = 0;
 		size_t end = 0;
@@ -92,9 +91,11 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 }
 
 
-bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
+bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_list,
+		const std::deque<std::string>& list_for_patterns,
 		const HeavyHittersParams_t params,
-		const  bool contains_basic_symbols)
+		const  bool contains_basic_symbols,
+		bool optimize_ac_size)
 {
 	reset();
 	_statistics.reset(params);
@@ -109,12 +110,12 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	 * ...
 	 */
 	{	//in separate block so 'lit' will close the file
-		uint32_t frequencies[CHAR_MAX+1];
+		freqT frequencies[CHAR_MAX+1];
 		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
 			frequencies[i]=1;
 
 //		for (std::deque<std::string>::iterator itr = list.begin())
-		LineIteratorDeque lit(&url_list);
+		LineIteratorDeque lit(&orig_url_list);
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
 			uchar* p = pckt.ptr;
@@ -122,6 +123,8 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 				uchar c = *p;
 				p++;
 				frequencies[c] += 1;
+				if (frequencies[c] == UINT32_MAX)
+					std::cout<<"Error: char "<<c<< " reached UINT32_MAX"<<STDENDL;
 			}
 			_statistics.total_input_bytes+=pckt.size;
 		}
@@ -135,7 +138,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 		}
 	}
 
-	LineIteratorDeque line_itr(&url_list);
+	LineIteratorDeque line_itr(&list_for_patterns);
 	LDHH ldhh(line_itr, params.n1, params.n2, params.r, params.kgrams_size);
 	if (ldhh.run() != true)
 		return unload_and_return_false();
@@ -144,16 +147,18 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	size_t                  urls_count     = ldhh.get_pckt_count();
 	DBG("** scanned " << urls_count << " urls " << std::endl );
 
+	_symbol2pattern_db.reserve(common_strings.size());
 	int patterns_counter = 0;
 	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
 		signature_t& sig = *it;
 		std::string patStr;
 		const char* str =(const char *) &sig.data[0];
 		patStr.assign(str,  sig.data.size());
-		uint32_t frequency = sig.calcHitsInSource();
+		freqT frequency = sig.calcHitsInSource();
 		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
+	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	_statistics.number_of_patterns = patterns_counter;
 	_statistics.number_of_urls = urls_count;
 	DBG("total of "<< patterns_counter <<" patterns were found");
@@ -162,6 +167,10 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string> url_list,
 	prepare_database();
 
 	_huffman.free_encoding_memory();
+
+	if (optimize_ac_size) {
+		OptimizedACMachineSize();
+	}
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
 
 	return true;
@@ -306,7 +315,7 @@ bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 	return true;
 }
 
-bool UrlCompressor::InitFromDictFile(std::string& file_path)
+bool UrlCompressor::InitFromDictFile(std::string& file_path, bool optimize_ac_size)
 {
 	std::ifstream file (file_path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
@@ -314,13 +323,13 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path)
 	}
 
 	bool ret = false;
-	ret = InitFromDictFileStream(file);
+	ret = InitFromDictFileStream(file,optimize_ac_size);
 	file.close();
 
 	return ret;
 }
 
-bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
+bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac_size)
 {
 	/* File Format:
 	 *	Header|_statistics|
@@ -329,7 +338,6 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 	 */
 
 	reset();
-//	_statistics.reset(params);
 
 	char* mem_block;
 	FileHeader header;
@@ -343,7 +351,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 
 	mem_block = (char *) &_statistics;
 	file.read(mem_block,sizeof(_statistics));
-
+	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
@@ -370,12 +378,11 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 		CodedHuffman& coded = _symbol2pattern_db[s]->_coded;
 		coded.length = fp.huffman_length ;
 		uint16_t huff_buf_size = conv_bits_to_uin32_size(coded.length );
-		coded.buf = new uint32_t[ huff_buf_size ];
+//		coded.buf = new uint32_t[ huff_buf_size ];
 		mem_block = (char *) coded.buf;
 		huff_buf_size *= sizeof(uint32_t);
 		file.read(mem_block,huff_buf_size );
 
-		add_memory_counter(_symbol2pattern_db[s]->size());
 		patterns_counter++;
 	}
 
@@ -388,16 +395,22 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
 		return false;
 	}
 
-	prepare_huffman();
+//	prepare_huffman();
 
 	//	Load patterns to pattern matching algorithm();
+	_statistics.ac_memory_allocated = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	_statistics.ac_memory_allocated = get_curr_memsize() - _statistics.ac_memory_allocated;
+	_statistics.ac_statemachine_size = algo.getStateMachineSize();
 
-	// Build the complimantry table symbol --> pattern
-	algo.make_pattern_to_symbol_list();
+	if (optimize_ac_size) {
+		OptimizedACMachineSize();
+		_symbol2pattern_db.shrink_to_fit();
+	}
+	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
-	add_memory_counter(algo.size());
+//	add_memory_counter(algo.size());
 
 	_is_loaded = true;
 	return true;
@@ -410,16 +423,14 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file)
  * Or when loading from a stored Dict file to enable decoding
  */
 void UrlCompressor::prepare_huffman() {
-	uint32_t* freqArr = new uint32_t[_nextSymbol];
-	for (uint32_t i=0; i<_nextSymbol;i++)  {  //skip symbol 0
+	freqT* freqArr = new freqT[_nextSymbol];
+	for (symbolT i=0; i<_nextSymbol;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
 			ASSERT(pat->_symbol == i);
 			freqArr[i]=pat->_frequency;
-			add_memory_counter(pat->size());
 	}
 
 	_huffman.load(freqArr,_nextSymbol);
-	add_memory_counter(_huffman.size());
 	delete[] freqArr;
 }
 
@@ -595,7 +606,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	return STATUS_OK;
 }
 
-uint32_t UrlCompressor::getDictionarySize() {
+uint32_t UrlCompressor::getDictionarySize()  const{
 	uint32_t size = 0;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 		Pattern* ptrn = _symbol2pattern_db[i];
@@ -632,17 +643,6 @@ void UrlCompressor::print_database(std::ostream& ofs) const
 	}
 }
 
-void UrlCompressor::print_strings_and_codes(std::ostream& out)
-{
-	out<<"print_strings_and_codes: Print strings and their huffman codes:"<<std::endl;
-	for (std::map<std::string,uint32_t>::const_iterator it=_strings_to_symbols.begin(); it!=_strings_to_symbols.end(); ++it) {
-		out << it->first << " => symbol:" << it->second << "\tcode: ";
-		HuffCode code = _huffman.encode(it->second);
-		std::copy(code.begin(), code.end(), std::ostream_iterator<bool>(out));
-		out << std::endl;
-	}
-
-}
 
 void UrlCompressor::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
@@ -657,8 +657,12 @@ void UrlCompressor::calculate_symbols_huffman_score() {
 
 void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 	pat->_coded.length = code.size();
-	uint32_t buf_size = (pat->_coded.length / sizeof(uint32_t)) + 1 ;
-	pat->_coded.buf = new uint32_t[ buf_size ];
+	uint32_t buf_size = conv_bits_to_bytes(pat->_coded.length) ;
+	if (buf_size > MAX_CODED_HUFFMAN_SIZE*sizeof(uint32_t)) {
+		std::cout<<"Critical error: Found huffman to long="<<pat->_coded.length<<"bit or "<<buf_size<<" Bytes, can't continue since max buffer size is "<<sizeof(uint32_t)*MAX_CODED_HUFFMAN_SIZE<<STDENDL;
+		exit(1);
+	}
+//	pat->_coded.buf = new uint32_t[ buf_size ];	//this line is obsolete
 	uint32_t* buf = pat->_coded.buf;
 
 	uint32_t mask_reset = 1 << (BITS_IN_UINT32_T -1 );	//MSb - 1 i.e 100000000..
@@ -691,15 +695,19 @@ void UrlCompressor::reset(uint32_t reserved_size) {
 	setLoaded();
 }
 
-symbolT UrlCompressor::addPattern(const std::string& str, const uint32_t& frequency) {
+symbolT UrlCompressor::addPattern(const std::string& str, const freqT& frequency) {
 	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
 //	_symbol2pattern_db[_nextSymbol]=pat;
 	_symbol2pattern_db.push_back( pat );
-	_strings_to_symbols[str]=_nextSymbol;
+//	_strings_to_symbols[str]=_nextSymbol;
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
+	uint16_t len = str.length();
+	_statistics.total_patterns_length+= len*sizeof(char);
+	_statistics.max_pattern_length = (_statistics.max_pattern_length < len ) ? len : _statistics.max_pattern_length;
 	ASSERT (_nextSymbol == _symbol2pattern_db.size());
 	ASSERT ((ret + 1) == _nextSymbol );
+	add_memory_counter(pat->size());
 	return ret;
 }
 
@@ -716,28 +724,28 @@ void UrlCompressor::prepare_database() {
 
 	DBG("prepare_database:" << DVAL(_nextSymbol));
 
+	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
 	prepare_huffman();
-
-	add_memory_counter(_symbol2pattern_db.size() * SIZEOFPOINTER);
 
 	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
 
 	//Step 2: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
+	_statistics.ac_memory_allocated = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	_statistics.ac_statemachine_size = algo.getStateMachineSize();
+	_statistics.ac_memory_allocated = get_curr_memsize() - _statistics.ac_memory_allocated;
 
-	// Build the complimantry table symbol --> pattern
-	algo.make_pattern_to_symbol_list();
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
-	add_memory_counter(algo.size());
+//	add_memory_counter(algo.size());
 
 }
 
-bool UrlCompressor::sanity() {
-
+bool UrlCompressor::sanity()
+{
 	if (!isLoaded()) {
 		return false;
 	}
@@ -758,4 +766,9 @@ bool UrlCompressor::sanity() {
 		return false;
 	}
 	return true;
+}
+
+void UrlCompressor::dump_ac_states(std::string filename) const
+{
+	algo.dump_states(filename);
 }

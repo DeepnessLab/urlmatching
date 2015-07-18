@@ -52,7 +52,7 @@ public:
 	InternalNode(INode* c0, INode* c1) :
 			INode(c0->f + c1->f), left(c0), right(c1) {
 	}
-	~InternalNode() {
+	virtual ~InternalNode() {
 		delete left;
 		delete right;
 	}
@@ -60,9 +60,9 @@ public:
 
 class LeafNode: public INode {
 public:
-	const uint32_t c;
+	const symbolT c;
 
-	LeafNode(uint32_t f, uint32_t c) :
+	LeafNode(freqT f, uint32_t c) :
 			INode(f), c(c) {
 	}
 };
@@ -78,13 +78,13 @@ public:
 	Huffman();
 	virtual ~Huffman();
 
-	void load(uint32_t* frequencies, uint32_t size);
+	void load(freqT* frequencies, uint32_t size);
 	void free_encoding_memory();
 	void print();
 
 	inline bool isLoaded() {return _is_loaded;}
 
-	HuffCode encode(uint32_t symbol) ;
+	HuffCode encode(symbolT symbol) ;
 	bool decode(HuffCode code, symbolT& out_decoded_symbol);
 
 	inline
@@ -103,7 +103,7 @@ public:
 		return stream.str();
 	}
 
-	inline uint32_t	size() { return _size; }
+	uint32_t	size() const;
 
 
 private:
@@ -114,10 +114,9 @@ private:
 
 	HuffCodeMap _symbol2codesMap;
 	HuffSymbMap _codes2symbolsMap;
-	bool _is_loaded ;
-	uint32_t* _frequencies = NULL;
-	uint32_t _freq_size ;
-	uint32_t _size;
+	bool 		_is_loaded ;
+	freqT* 		_frequencies = NULL;
+	uint32_t 	_freq_size ;
 
 };
 

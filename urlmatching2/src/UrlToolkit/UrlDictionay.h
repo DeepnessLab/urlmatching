@@ -39,14 +39,22 @@ typedef struct HeavyHittersParams {
 } HeavyHittersParams_t;
 
 typedef struct UrlCompressorStats {
+	//Importat:
+	//Adding new members ? don't forget to update reset() & print()
 	uint32_t number_of_symbols;
 	uint32_t number_of_patterns;
 	uint32_t number_of_urls;
 	uint32_t max_huffman_length;
+	uint32_t max_pattern_length;
 	uint32_t total_input_bytes;
-	uint32_t memory_allocated;
+	uint32_t total_patterns_length;
+	uint32_t memory_allocated;	//how much memory the module allocated (except AC module)
+	int 	 ac_memory_allocated;	//On linux only (otherwise 0)
+	int 	 ac_statemachine_size;
 	HeavyHittersParams_t params;
 	bool params_set;
+
+	uint32_t getACMachineEstSize() const { return (5* total_patterns_length); }
 
 	void reset() ;
 
@@ -58,7 +66,7 @@ typedef struct UrlCompressorStats {
 
 	void print(std::ostream& out) const ;
 
-} HeavyHittersStats_t;
+} UrlCompressorStats_t;
 
 extern HeavyHittersParams_t default_hh_params;
 
@@ -69,15 +77,17 @@ public:
 
 	//Cache urls in input file into deque of std::string of urls
 	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
-	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output);
+	static void SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output, std::string delimiter);
 
 	//Load urlmatching dictionary from list of strings
-	bool InitFromUrlsList(const std::deque<std::string> url_list,
+	bool InitFromUrlsList(const std::deque<std::string>& orig_url_list,
+			const std::deque<std::string>& list_for_patterns,
 			const HeavyHittersParams_t params,
-			const  bool contains_basic_symbols);
+			const bool contains_basic_symbols,
+			bool optimize_size = false);
 
-	bool InitFromDictFile(std::string& file_path);
-	bool InitFromDictFileStream(std::ifstream& file);
+	bool InitFromDictFile(std::string& file_path, bool optimiz_size = false);
+	bool InitFromDictFileStream(std::ifstream& file, bool optimize_size = false);
 	bool StoreDictToFile(std::string& file_path);
 	bool StoreDictToFileStream(std::ofstream& file );
 
@@ -95,15 +105,26 @@ public:
 
 
 	//Helpers
-	inline bool isLoaded() { return _is_loaded; }
-	inline uint32_t SizeOfMemory() { return _statistics.memory_allocated; }
-	uint32_t getDictionarySize();
-	inline const HeavyHittersStats_t* 	get_stats() {return  &_statistics; }
-	bool sanity();
+	inline bool isLoaded() const { return _is_loaded; }
+	inline uint32_t SizeOfMemory() const {
+		return (_statistics.memory_allocated
+				+ _statistics.getACMachineEstSize()
+				+ _huffman.size());
+	}
+
+	void OptimizedACMachineSize() {
+		if (isLoaded())
+			algo.optimize_statemachine() ;
+		_statistics.ac_statemachine_size = algo.getStateMachineSize();
+	}
+
+	uint32_t getDictionarySize()  const;
+	inline const UrlCompressorStats_t* get_stats() const {return  &_statistics; }
+	bool sanity() ;
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
-	void print_strings_and_codes(std::ostream& out) ;	//todo: can be removed
+	void dump_ac_states(std::string filename) const;
 
 	//load list of urls and build cached database
 	//Deprecated!
@@ -111,16 +132,7 @@ public:
 			const HeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
-
-//todo: remove
-//	struct patternsIterator {
-//		Symbol2pPatternVec arr;
-//		symbolT index;
-//	};
-
 	Huffman _huffman;
-	//todo: remove _strings_to_symbols
-	Strings2SymbolsMap _strings_to_symbols;	//maps std::strings to symbols
 
 private:
 	void reset(uint32_t reserved_size = RESERVED_NUM_OF_PATTERNS);
@@ -150,37 +162,42 @@ private:
 	 * @param frequency - expected frequency
 	 * @return the generated symbol of this pattern
 	 */
-	symbolT addPattern(const std::string& str, const uint32_t& frequency);
+	symbolT addPattern(const std::string& str, const freqT& frequency);
 
-	inline
-	void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated+= bytes;}
+	inline void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated += bytes;}
 
-	//TODO: get this into a struct
+
+	//Members:
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
-//	uint32_t _symbol2pattern_db_size;	//length of this array
 
 	ACWrapperCompressed algo;
 	bool _is_loaded;
 	symbolT _nextSymbol;
-	HeavyHittersStats_t _statistics;
+	UrlCompressorStats_t _statistics;
 
 };
 
+#define UrlBuilder_CHARBUFFSIZE 500
+#define UrlBuilder_SYMBBUFFSIZE 500
 class UrlBuilder {
 public:
 	UrlBuilder(Symbol2pPatternVec symbol2pattern_db);
 	virtual ~UrlBuilder() {}
 
-	virtual void reset() {_url.empty(); }
+	virtual void reset();
 	virtual void append (symbolT symbol);
 	virtual std::string get_url() {return _url; }
 	virtual void debug_print();
 
 private:
+
 	typedef std::deque<symbolT> SymbolDeque ;
 
 	Symbol2pPatternVec _symbol2pattern_db;
-	std::string _url;
+	uint16_t buf_size;
+	char _buf[UrlBuilder_CHARBUFFSIZE];
+	char* _url;
+	bool is_url_dynamic;
 	SymbolDeque _symbol_deque;
 };
 

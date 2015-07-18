@@ -21,6 +21,7 @@
 #define CMD_HASHTABLE 		"testhash"
 #define CMD_COMPRESS        "compress"
 #define CMD_EXTRACT         "extract"
+#define CMD_ARTICLE         "article"
 
 
 
@@ -52,10 +53,13 @@ public:
 	int         n1;
 	int         n2;
 	float       r;
-	bool		test_decoding;	//LPM=Longest Prefix Match
+	bool		test_decoding;
 	bool		split_for_LPM;	//LPM=Longest Prefix Match
+	std::string	LPM_delimiter;	//LPM=Longest Prefix Match delimiter
 	bool		print_dicionary;
 	std::string print_dicionary_file;
+	bool		dump_ac_statetable;
+	std::string dump_ac_statetable_filename;
 	int			break_time;
 	int			factor;
 

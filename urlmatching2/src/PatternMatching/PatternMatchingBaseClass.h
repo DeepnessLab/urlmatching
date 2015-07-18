@@ -27,7 +27,7 @@ public:
 	PatternMatchingBaseClass();
 	virtual ~PatternMatchingBaseClass();
 
-	virtual bool isLoaded()=0;
+	virtual bool isLoaded() const =0  ;
 	virtual bool load_patterns(std::string filepath)=0;
 	virtual bool find_patterns(std::string input_str, symbolT* result)=0;
 

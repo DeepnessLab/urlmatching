@@ -4,3 +4,7 @@
 /output/
 /test_files/bigfile_syn.txt
 /test_files/*.dict
+tmpAC*
+*.extract
+*.compress
+*.dict

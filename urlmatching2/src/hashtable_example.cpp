@@ -109,12 +109,12 @@ void test_hashtable(CmdLineOptions& options) {
 
 	if (options.split_for_LPM) {
 		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
-		urlc.SplitUrlsList(url_deque, *splitted_deque);
+		urlc.SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
 		input_for_urlcompressor = splitted_deque;
 	}
 
 	START_TIMING;
-	bool retB = urlc.InitFromUrlsList(*input_for_urlcompressor, params, false);
+	bool retB = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
 	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();

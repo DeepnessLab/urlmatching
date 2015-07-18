@@ -13,7 +13,7 @@
 #include "../logger.h"
 
 Huffman::Huffman() :
-_is_loaded(false),_freq_size(0), _size(0){
+_is_loaded(false),_freq_size(0){
 	// TODO Auto-generated constructor stub
 
 }
@@ -24,34 +24,34 @@ Huffman::~Huffman() {
 
 INode* Huffman::BuildTree()
 {
-    std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
+	std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
 
-    for (uint32_t i = 0; i < _freq_size; ++i)
-    {
-        if(_frequencies[i] != 0)
-            trees.push(new LeafNode(_frequencies[i], (uint32_t)i));
-    }
-    while (trees.size() > 1)
-    {
-        INode* childR = trees.top();
-        trees.pop();
+	for (symbolT i = 0; i < _freq_size; ++i)
+	{
+		if(_frequencies[i] != 0)
+			trees.push(new LeafNode(_frequencies[i], (symbolT)i));
+	}
+	while (trees.size() > 1)
+	{
+		INode* childR = trees.top();
+		trees.pop();
 
-        INode* childL = trees.top();
-        trees.pop();
+		INode* childL = trees.top();
+		trees.pop();
 
-        INode* parent = new InternalNode(childR, childL);
-        trees.push(parent);
-    }
-    return trees.top();
+		INode* parent = new InternalNode(childR, childL);
+		trees.push(parent);
+	}
+	return trees.top();
 }
 
 void Huffman::free_encoding_memory() {
-//		#ifndef BUILD_DEBUG		//release only reduce memory
 		_symbol2codesMap.clear();
-//		#endif
+//		_codes2symbolsMap.clear();
+//		_is_loaded = false;
 }
 
-HuffCode Huffman::encode(uint32_t symbol) {
+HuffCode Huffman::encode(symbolT symbol) {
 	assert(_is_loaded);
 	return _symbol2codesMap[symbol];
 }
@@ -77,15 +77,17 @@ void Huffman::GenerateCodes(const INode* node, const HuffCode& prefix, HuffCodeM
 	{
 		HuffCode leftPrefix = prefix;
 		leftPrefix.push_back(false);
+		leftPrefix.shrink_to_fit();
 		GenerateCodes(in->left, leftPrefix, outCodes);
 
 		HuffCode rightPrefix = prefix;
 		rightPrefix.push_back(true);
+		rightPrefix.shrink_to_fit();
 		GenerateCodes(in->right, rightPrefix, outCodes);
 	}
 }
 
-void Huffman::load(uint32_t* frequencies, uint32_t size) {
+void Huffman::load(freqT* frequencies, uint32_t size) {
 	DBG("Entered Huffman::load size="<<size);
 	_freq_size = size;
 
@@ -106,8 +108,7 @@ void Huffman::load(uint32_t* frequencies, uint32_t size) {
 
 	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
-		_codes2symbolsMap.insert( std::pair<HuffCode,uint32_t>(it->second,it->first) );
-		_size+= (sizeof(symbolT) + it->second.size());
+		_codes2symbolsMap.insert( std::pair<HuffCode,symbolT>(it->second,it->first) );
 	}
 
 //	FreeTree(root);
@@ -123,8 +124,6 @@ void Huffman::FreeTree(const INode* node)
 	}
 	else if (const InternalNode* in = dynamic_cast<const InternalNode*>(node))
 	{
-		FreeTree(in->left);
-		FreeTree(in->right);
 		delete in;
 	}
 }
@@ -133,10 +132,23 @@ void Huffman::print() {
 	std::cout<<"Huffman codes:"<<std::endl;
 	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
-		std::cout << (uint32_t) it->first << " ";
+		std::cout << (symbolT) it->first << " ";
 		std::copy(it->second.begin(), it->second.end(),
 				std::ostream_iterator<bool>(std::cout));
 		std::cout << std::endl;
 	}
+}
 
+//This is lazy size (go over module and counts memory
+uint32_t Huffman::size() const
+{
+	uint32_t size=0;
+	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
+		size+= (sizeof(symbolT) + it->second.capacity());
+	size+=_codes2symbolsMap.size() * (sizeof(void *));
+
+	for (HuffSymbMap::const_iterator it = _codes2symbolsMap.begin(); it != _codes2symbolsMap.end(); ++it)
+		size+= (sizeof(symbolT) + it->first.capacity());
+	std::cout<<"Huffman size = "<<Byte2KB(size)<<"KB"<<STDENDL;
+	return size;
 }

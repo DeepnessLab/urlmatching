@@ -20,9 +20,12 @@
 #include "MatchingFunctions.h"
 #include "../UrlToolkit/UrlDictionay.h"
 #include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../common.h"
 
 extern "C" {
 #include "../Common/Types.h"
+#include "../StateMachine/StateMachineDumper.h"
+
 }
 
 
@@ -80,9 +83,9 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 		destroyStateMachine(_machine);
 		_machine = NULL;
 	}
-	if (_patternsMap!=NULL) {
+	if (_patternsMap!= 0) {
 		delete _patternsMap;
-		_patternsMap = NULL;
+		_patternsMap = 0;
 	}
 
 	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
@@ -139,12 +142,18 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 		DBG(DVAL(i)<<": "<<*(db.list[i]));
 	}
 	DBG("--- FINISH printing all patterns: ---");
+	int mem = get_curr_memsize();
 	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
+	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
+	std::cout<<"AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
 	_machine->handlePatternFunc = handle_pattern;
 
 	delete[] list;
 
-//	make_pattern_to_symbol_list();
+	// Build the complimantry table symbol --> pattern
+	make_pattern_to_symbol_list();
+	delete _patternsMap;
+	_patternsMap=0;
 	is_loaded = true;
 	return true;
 }
@@ -219,7 +228,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	}
 	_size += size * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 
-	std::cout<<"Print cached patterns table of size "<< size<<std::endl;
+	ON_DEBUG_ONLY(std::cout<<"Print cached patterns table of size "<< size<<std::endl);
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
 			symbolsTable[i]=NULL;
@@ -301,4 +310,31 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 void ACWrapperCompressed::printDB(std::ostream& os) {
 	os<<"ACWrapperCompressed::printDB\n";
 	return;
+}
+
+void ACWrapperCompressed::dump_states(std::string filename) const {
+	if (!isLoaded()) {
+		std::cout<< "Error: can't dump state, ACWapperCompressed is not loaded"<<std::endl;
+		return;
+	}
+	dumpStateMachine(this->_machine, filename.c_str());
+}
+
+void ACWrapperCompressed::optimize_statemachine()
+{
+	std::string filename = "tmpACDUMPFILE";
+	int mem_1 = get_curr_memsize();
+	dumpStateMachine(this->_machine, filename.c_str());
+	if (_machine != NULL) {
+			destroyStateMachine(_machine);
+			_machine = NULL;
+	}
+	std::cout<<"Read dump.."<<std::endl;	//todo: remove this prints
+	int mem_before = get_curr_memsize();
+	this->_machine = createStateMachineFromDump(filename.c_str());
+	int mem_after = get_curr_memsize();
+	_statemachine_size = (uint32_t) mem_after - (uint32_t) mem_before;
+	//todo: remove this prints
+	std::cout<<"AC state machine Optimization reduced: "<< Byte2KB(mem_1 - mem_after)<<"KB"<<std::endl; //todo: remove this line
+	std::cout<<"AC state machine NEW real size = "<< Byte2KB(_statemachine_size)<<"KB"<<std::endl; //todo: remove this line
 }
