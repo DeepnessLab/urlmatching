@@ -376,7 +376,7 @@ void test_encode(CmdLineOptions& options) {
 	//calculate decoded and encoded size
 	for (uint32_t i = 0 ; i < num_of_urls; i++ ) {
 		uint32_t* codedbuff = codedbuffers[i];
-		s.decoded_size += urls[i].length();
+		s.decoded_size += urls[i].length()+1;
 		encoded_size_bits += codedbuff[0] ;
 	}
 
@@ -617,7 +617,7 @@ void test_main(CmdLineOptions& options) {
 	//calculate decoded and encoded size
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		uint32_t* codedbuff = codedbuffers[i];
-		s.decoded_size += urls[i].length();
+		s.decoded_size += urls[i].length()+1;
 		encoded_size_bits += codedbuff[0] ;
 	}
 
