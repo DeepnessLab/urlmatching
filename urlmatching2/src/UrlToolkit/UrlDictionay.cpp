@@ -398,10 +398,11 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 //	prepare_huffman();
 
 	//	Load patterns to pattern matching algorithm();
-	_statistics.ac_memory_allocated = get_curr_memsize();
+	_statistics.ac_memory_footprint = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
-	_statistics.ac_memory_allocated = get_curr_memsize() - _statistics.ac_memory_allocated;
+	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint;
 	_statistics.ac_statemachine_size = algo.getStateMachineSize();
+	_statistics.ac_memory_allocated = algo.size();
 
 	if (optimize_ac_size) {
 		OptimizedACMachineSize();
@@ -733,10 +734,11 @@ void UrlCompressor::prepare_database() {
 
 	//Step 2: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
-	_statistics.ac_memory_allocated = get_curr_memsize();
+	_statistics.ac_memory_footprint = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_statemachine_size = algo.getStateMachineSize();
-	_statistics.ac_memory_allocated = get_curr_memsize() - _statistics.ac_memory_allocated;
+	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint;
+	_statistics.ac_memory_allocated = algo.size();
 
 	// ----------------------------
 	_statistics.number_of_symbols = _symbol2pattern_db.size();

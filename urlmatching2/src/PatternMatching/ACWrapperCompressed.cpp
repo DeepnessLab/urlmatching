@@ -76,8 +76,7 @@ ACWrapperCompressed::ACWrapperCompressed() :
 	for (int i=0; i < MAX_CHAR; i++) {
 		_char_to_symbol[i]=S_NULL;
 	}
-	_size+=MAX_CHAR;
-	_size+= sizeof(_machine);
+
 }
 
 ACWrapperCompressed::~ACWrapperCompressed() {
@@ -162,6 +161,15 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	delete _patternsMap;
 	_patternsMap=0;
 	is_loaded = true;
+
+	//Use it for debug size
+	std::cout<< "AC module sizes allocated size: "<<STDENDL;
+	std::cout<< DVAL(MAX_CHAR)<<STDENDL;
+	std::cout<< DVAL(sizeof(_machine))<<STDENDL;
+	std::cout<< DVAL(_symbolsTable.size * sizeof(symbolT*))<<STDENDL;
+	std::cout<< DVAL(_symbolsTableLevel1->capacity())<<STDENDL;
+	std::cout<< DVAL(_symbolsTableLevel2->capacity())<<STDENDL;
+
 	return true;
 }
 
@@ -238,7 +246,6 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	for (uint32_t i = 0; i < size; i++ ) {
 		symbolsTable[i]=NULL;
 	}
-	_size += size * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 
 	uint32_t level1_size=0;	//for <sybmolT*> allocator
 	uint32_t level2_size=0;	//for <sybmolT> allocator
@@ -295,7 +302,6 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 //		symbolsTable[i] = new symbolT*[num_of_j+1];
 		symbolsTable[i] = _symbolsTableLevel1->alloc(num_of_j+1);
 
-		_size += (num_of_j+1) * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 		symbolsTable[i][num_of_j] = NULL;
 
 		if (num_of_j == 0) {
@@ -332,7 +338,6 @@ bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) 
 	//prepare metadata
 	urlMatchingType module;
 	initModule(module);
-	module.patternDB = _patternsMap;
 	module.symbolsTable = &_symbolsTable;
 
 	module.char_to_symbol = _char_to_symbol;

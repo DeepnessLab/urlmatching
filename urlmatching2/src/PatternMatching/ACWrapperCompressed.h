@@ -54,7 +54,18 @@ public:
 	virtual void printDB(std::ostream& os);
 	void dump_states(std::string filename) const;
 
-	inline uint32_t size() const 				{ return _size; }
+	inline uint32_t size() const {
+		uint32_t size = 0;
+		size+=MAX_CHAR;
+		size+= sizeof(_machine);
+		size+=_symbolsTable.size * sizeof(symbolT*);
+		size+=_symbolsTableLevel1->capacity();
+		size+=_symbolsTableLevel2->capacity();
+		size+=sizeof(_statemachine_size);
+		size+=sizeof(_size);
+		size+=sizeof(_delimiter) + 2;
+		return size;
+	}
 	inline uint32_t getStateMachineSize() const { return _statemachine_size; }
 
 	virtual inline
@@ -70,9 +81,7 @@ private:
 	//members
 	bool is_loaded;
 
-	//input during load
-	Symbol2pPatternVec* _patternsList;
-
+	Symbol2pPatternVec* _patternsList; //input during load
 	patternsMapType* _patternsMap;
 
 	//patterns_as_symbols is an array of array of "symbolT string" i.e S_NULL terminated
@@ -90,7 +99,6 @@ private:
 	uint32_t _size;
 
 	const char* _delimiter = "`";
-
 
 };
 
