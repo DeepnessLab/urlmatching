@@ -40,8 +40,8 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "Max pattern length = " << (max_pattern_length)<< " chars"<<STDENDL;
 	out<< "Total input bytes      = "<<(total_input_bytes)<< " Bytes = " << Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
 	out<< "Total patterns length  = "<<(total_patterns_length)<< " Bytes = "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
-	out<< "URL module memory footprint w/ AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
-	out<< "URL module memory allocated (without AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
+	out<< "URL module memory footprint w/ AC module)            = " <<(memory_footprint)<< " Bytes = "<< Byte2KB(memory_footprint)<<"KB"<<STDENDL;
+	out<< "URL module memory allocated (without AC module)      = " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
 	out <<"AC module mem footprint w/ statemachine (linux only) = "<<ac_memory_footprint<< " Bytes = "<< Byte2KB(ac_memory_footprint) <<"KB"<< STDENDL;
 	out <<"AC module mem allocated                    = "<<ac_memory_allocated<< " Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< " Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
