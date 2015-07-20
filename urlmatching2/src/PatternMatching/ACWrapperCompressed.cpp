@@ -164,12 +164,12 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	is_loaded = true;
 
 	//Use it for debug size
-	std::cout<< "AC module sizes allocated size: "<<STDENDL;
-	std::cout<< DVAL(MAX_CHAR)<<STDENDL;
-	std::cout<< DVAL(sizeof(_machine))<<STDENDL;
-	std::cout<< DVAL(_symbolsTable.size * sizeof(symbolT*))<<STDENDL;
-	std::cout<< DVAL(_symbolsTableLevel1->capacity())<<STDENDL;
-	std::cout<< DVAL(_symbolsTableLevel2->capacity())<<STDENDL;
+//	std::cout<< "AC module sizes allocated size: "<<STDENDL;
+//	std::cout<< DVAL(MAX_CHAR)<<STDENDL;
+//	std::cout<< DVAL(sizeof(_machine))<<STDENDL;
+//	std::cout<< DVAL(_symbolsTable.size * sizeof(symbolT*))<<STDENDL;
+//	std::cout<< DVAL(_symbolsTableLevel1->capacity())<<STDENDL;
+//	std::cout<< DVAL(_symbolsTableLevel2->capacity())<<STDENDL;
 
 	return true;
 }
