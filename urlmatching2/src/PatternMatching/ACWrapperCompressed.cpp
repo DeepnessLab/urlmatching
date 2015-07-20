@@ -67,7 +67,8 @@ ACWrapperCompressed::ACWrapperCompressed() :
 		_patternsList(NULL),
 		_patternsMap(NULL),
 		_machine(NULL),
-		_size(0)
+		_size(0),
+		_statemachine_size(0)
 {
 	_symbolsTable.table=NULL;
 	_symbolsTable.size=0;
