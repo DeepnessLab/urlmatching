@@ -323,7 +323,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 		}
 		result->fail = TRUE;
 		result->match = matched;
-		result->pattern = pattern;
+//		result->pattern = pattern;
 		return FALSE;
 	}
 
@@ -331,7 +331,7 @@ int getNextState_PC(State *pathCompressedState, char *str, int slen, int *idx, N
 	result->next = GET_STATE_POINTER_FROM_ID(machine, next);
 	result->match = matched;
 	result->fail = FALSE;
-	result->pattern = pattern;
+//	result->pattern = pattern;
 	return TRUE;
 }
 

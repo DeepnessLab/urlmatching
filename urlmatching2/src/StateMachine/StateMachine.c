@@ -200,7 +200,7 @@ int matchIterative(StateMachine *machine, const char *input, int length, int *id
 							if (i * 8 + 8 >= (int)c)
 								break;
 						}
-						(&next)->pattern = (machine->patternTable)->patterns[((s)[2] << 8) | (s)[3]][count];
+//						(&next)->pattern = (machine->patternTable)->patterns[((s)[2] << 8) | (s)[3]][count];
 					}
 					(&next)->fail = 0;
 					(*idx)++;

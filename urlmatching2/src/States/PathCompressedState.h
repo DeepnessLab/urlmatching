@@ -73,8 +73,8 @@ void printCounter_PC();
 						id = ((pathCompressedState)[2] << 8) | (pathCompressedState)[3];													\
 					/*	pattern = simple_concat_strings_nofree(pattern, patternTable->patterns[id][count]);*/	\
 					/*	printf("  patternFunc with patternTable->patterns[id=%d][count=%d]=%s\n",id,count, patternTable->patterns[id][count]);	*/	\
-						machine->handlePatternFunc( patternTable->patterns[id][count] ,*idx, id, count, machine->handlePatternData );						\
-						pattern = simple_concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);								\
+						machine->handlePatternFunc( NULL /*patternTable->patterns[id][count]*/ ,*idx, id, count, machine->handlePatternData );						\
+					/*	pattern = simple_concat_strings_nofree(pattern, (patternTable)->patterns[id][count]);*/								\
 					}																														\
 				}																															\
 				(*(idx)) = (*(idx)) + 1;																									\

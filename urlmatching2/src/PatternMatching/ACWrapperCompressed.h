@@ -95,8 +95,8 @@ private:
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
 
-	uint32_t _statemachine_size; //only in linux systems
 	uint32_t _size;
+	uint32_t _statemachine_size; //only in linux systems
 
 	const char* _delimiter = "`";
 
