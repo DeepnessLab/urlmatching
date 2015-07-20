@@ -99,6 +99,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 {
 	reset();
 	_statistics.reset(params);
+	_statistics.memory_footprint = get_curr_memsize();
 
 	/*
 	 * - create all 'single char' patterns in db
@@ -173,6 +174,7 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 	}
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
 
+	_statistics.memory_footprint = get_curr_memsize() - _statistics.memory_footprint;
 	return true;
 }
 
@@ -352,6 +354,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 	mem_block = (char *) &_statistics;
 	file.read(mem_block,sizeof(_statistics));
 	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
+	_statistics.memory_footprint = get_curr_memsize();
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
@@ -413,6 +416,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 	_statistics.number_of_symbols = _symbol2pattern_db.size();
 //	add_memory_counter(algo.size());
 
+	_statistics.memory_footprint = get_curr_memsize() - _statistics.memory_footprint;
 	_is_loaded = true;
 	return true;
 }

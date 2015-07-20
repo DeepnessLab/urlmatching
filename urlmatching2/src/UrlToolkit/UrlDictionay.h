@@ -48,9 +48,10 @@ typedef struct UrlCompressorStats {
 	uint32_t max_pattern_length;
 	uint32_t total_input_bytes;
 	uint32_t total_patterns_length;
+	int 	 memory_footprint;
 	uint32_t memory_allocated;	//how much memory the module allocated (except AC module)
 	int 	 ac_memory_footprint;	//On linux only (otherwise 0)
-	int 	 ac_memory_allocated;	//On linux only (otherwise 0)
+	uint32_t ac_memory_allocated;
 	int 	 ac_statemachine_size;
 	HeavyHittersParams_t params;
 	bool params_set;
