@@ -23,7 +23,8 @@ public:
 	}
 
 	virtual ~SerialAllocator() {
-		delete[] _allocator;
+		if (_allocator != 0)
+			delete[] _allocator;
 	}
 
 	T* alloc(uint64_t size) {

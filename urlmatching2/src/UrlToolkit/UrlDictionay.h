@@ -108,9 +108,10 @@ public:
 
 	//Helpers
 	inline bool isLoaded() const { return _is_loaded; }
-	inline uint32_t SizeOfMemory() const {
+	inline uint32_t SizeOfTotalAllocatedMemory() const {
 		return (_statistics.memory_allocated
 				+ _statistics.getACMachineEstSize()
+				+ algo.size()
 				+ _huffman.size());
 	}
 
