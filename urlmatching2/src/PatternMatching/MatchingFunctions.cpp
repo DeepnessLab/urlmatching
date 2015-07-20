@@ -13,10 +13,10 @@
 
 int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 {
-	if (str == NULL) {
-		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
-		return 0;
-	}
+//	if (str == NULL) {
+//		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
+//		return 0;
+//	}
 	urlMatchingType* url_module = (urlMatchingType*) data;
 	ASSERT(url_module!=NULL);
 	DBG("handle_pattern: \""<<str<< "\" at "<<idx);

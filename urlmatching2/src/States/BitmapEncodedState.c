@@ -297,7 +297,7 @@ int getNextState_BM(State *bitmapEncodedState, const char *str, int length, int 
 					count++;
 			}
 			id = (bitmapEncodedState[1] << 8) | bitmapEncodedState[2];
-			result->pattern = patternTable->patterns[id][count];
+//			result->pattern = patternTable->patterns[id][count];
 			machine->handlePatternFunc( patternTable->patterns[id][count] ,*idx, id, count, machine->handlePatternData );
 		}
 

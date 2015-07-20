@@ -390,6 +390,8 @@ void ACWrapperCompressed::optimize_statemachine()
 	std::cout<<"Read dump.."<<std::endl;	//todo: remove this prints
 	int mem_before = get_curr_memsize();
 	this->_machine = createStateMachineFromDump(filename.c_str());
+	patterntable_destroy(_machine->patternTable);
+	_machine->patternTable = 0 ;
 	int mem_after = get_curr_memsize();
 	_statemachine_size = (uint32_t) mem_after - (uint32_t) mem_before;
 	//todo: remove this prints

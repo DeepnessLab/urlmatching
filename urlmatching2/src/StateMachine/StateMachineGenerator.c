@@ -750,7 +750,8 @@ void destroyStateMachine(StateMachine *machine) {
 	STATE_PTR_TYPE *ptr;
 	int i;
 
-	patterntable_destroy(machine->patternTable);
+	if (machine->patternTable != 0)
+		patterntable_destroy(machine->patternTable);
 
 	if (!(machine->isSimple)) {
 		hashmap_iterator_reset(machine->secondLevelLookupHash);

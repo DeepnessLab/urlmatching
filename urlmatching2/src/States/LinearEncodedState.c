@@ -207,7 +207,7 @@ inline int getNextState_LE(State *linearEncodedState, const char *str, int lengt
 					count++;
 			}
 			id = (linearEncodedState[1] << 8) | linearEncodedState[2];
-			result->pattern = patternTable->patterns[id][count];
+//			result->pattern = patternTable->patterns[id][count];
 			machine->handlePatternFunc (result->pattern, *idx , id, count, machine->handlePatternData);
 		}
 

@@ -158,7 +158,7 @@ int getNextState_LT(State *lookupTableState, char *str, int length, int *idx, Ne
 					break;
 			}
 			id = (lookupTableState[2] << 8) | lookupTableState[3];
-			result->pattern = patternTable->patterns[id][count];
+//			result->pattern = patternTable->patterns[id][count];
 		}
 		result->fail = FALSE;
 		(*idx)++;
