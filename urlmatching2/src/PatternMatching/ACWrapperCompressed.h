@@ -12,6 +12,7 @@
 #include <string>
 #include <cstring>
 #include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../UrlToolkit/SerialAllocator.h"
 #include "PatternMatchingBaseClass.h"
 
 extern "C"
@@ -79,12 +80,17 @@ private:
 	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
 	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
 	symbolTableType _symbolsTable;
+	SerialAllocator<symbolT*>* 	_symbolsTableLevel1;
+	SerialAllocator<symbolT>* 	_symbolsTableLevel2;
 
 	StateMachine* _machine;
 	symbolT _char_to_symbol[MAX_CHAR]; //TODO: replace this static define, with a dynamic allocated
 
 	uint32_t _statemachine_size; //only in linux systems
 	uint32_t _size;
+
+	const char* _delimiter = "`";
+
 
 };
 
