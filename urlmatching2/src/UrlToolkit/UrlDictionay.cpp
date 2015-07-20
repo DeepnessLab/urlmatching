@@ -615,12 +615,12 @@ uint32_t UrlCompressor::getDictionarySize()  const{
 	uint32_t size = 0;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 		Pattern* ptrn = _symbol2pattern_db[i];
-		size += sizeof(uint32_t) ; //ptrn->_symbol
-		size += sizeof(uint32_t) ; //ptrn->_frequency
+		size += sizeof(symbolT) ; //ptrn->_symbol
+		size += sizeof(freqT) ; //ptrn->_frequency
 		size += conv_bits_to_uin32_size(ptrn->getHuffmanLength()) ;
-		size += sizeof(uint32_t) ;// to store huffmanLength
+		size += sizeof(uint16_t) ;// to store huffmanLength
 		size += ptrn->getStringLength();
-		size += sizeof(uint32_t) ; // to store stringLength
+		size += sizeof(uint16_t) ; // to store stringLength
 	}
 	return size;
 }

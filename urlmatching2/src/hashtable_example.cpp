@@ -117,7 +117,7 @@ void test_hashtable(CmdLineOptions& options) {
 	bool retB = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
 	STOP_TIMING;
 	double time_to_load = GETTIMING;
-	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
+	uint32_t memory_footprint_estimation = urlc.SizeOfTotalAllocatedMemory();
 	assert (retB);
 
 	if (options.split_for_LPM) {	//free unecessary memory

@@ -152,7 +152,7 @@ void test_article(CmdLineOptions& options)
 	ret = urlc->InitFromDictFile(dictionary_filename,true);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
-	s.url_compressor_allocated_memory = urlc->SizeOfMemory();
+	s.url_compressor_allocated_memory = urlc->SizeOfTotalAllocatedMemory();
 	take_a_break(options.break_time," after loading");
 	assert (ret);
 
@@ -303,7 +303,7 @@ void test_encode(CmdLineOptions& options) {
 	bool ret = urlc.InitFromDictFile(dictionary_filename);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
-	s.url_compressor_allocated_memory = urlc.SizeOfMemory();
+	s.url_compressor_allocated_memory = urlc.SizeOfTotalAllocatedMemory();
 	take_a_break(options.break_time," after loading");
 	assert (ret);
 
@@ -507,7 +507,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	std::cout<<"Loading: for "<<num_of_urls << " urls" << STDENDL;
 	std::cout<<"  Time = " <<time_to_load << "s,  Throughput= "<< double(decoded_size/time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
 	std::cout<<"  Memory footprint (linux only) ~ "<<mem_footprint<< "Bytes = "<< double((double)mem_footprint / 1024) <<"KB"<< STDENDL;
-	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfMemory()<< "Bytes = "<< double((double)urlc.SizeOfMemory()/ 1024) <<"KB"<< STDENDL;
+	std::cout<<"  UrlCompressor internal memory ~ "<<urlc.SizeOfTotalAllocatedMemory()<< "Bytes = "<< double((double)urlc.SizeOfTotalAllocatedMemory()/ 1024) <<"KB"<< STDENDL;
 	std::cout<<DVAL(dict_size)<< " Bytes = "<< Byte2KB(dict_size)<<"KB"<< STDENDL;
 	printAlgorithmStats(options,urlc.get_stats());
 	std::cout<<"------------------"<<std::endl;
@@ -554,7 +554,7 @@ void test_main(CmdLineOptions& options) {
 	bool ret = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false, true);
 	STOP_TIMING;
 	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
-	s.url_compressor_allocated_memory = urlc.SizeOfMemory();
+	s.url_compressor_allocated_memory = urlc.SizeOfTotalAllocatedMemory();
 	take_a_break(options.break_time," after loading");
 	s.time_to_load = GETTIMING;
 	assert (ret);
@@ -748,7 +748,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	STOP_TIMING;
 	take_a_break(break_time," after loading");
 	double time_to_load = GETTIMING;
-	uint32_t memory_footprint_estimation = urlc.SizeOfMemory();
+	uint32_t memory_footprint_estimation = urlc.SizeOfTotalAllocatedMemory();
 	assert (retB);
 
 //	urlc.print_database(true /*print codes*/);
