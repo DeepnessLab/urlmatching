@@ -24,6 +24,7 @@ void UrlCompressorStats::reset() {
 	max_pattern_length = 0;
 	total_input_bytes = 0;
 	total_patterns_length = 0;
+	memory_footprint = 0;
 	memory_allocated = 0;
 	ac_memory_footprint = 0;
 	ac_memory_allocated = 0;
@@ -39,7 +40,8 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "Max pattern length = " << (max_pattern_length)<< " chars"<<STDENDL;
 	out<< "Total input bytes      = "<<(total_input_bytes)<< " Bytes = " << Byte2KB(total_input_bytes)<<"KB"<<STDENDL;
 	out<< "Total patterns length  = "<<(total_patterns_length)<< " Bytes = "<< Byte2KB(total_patterns_length)<<"KB"<<STDENDL;
-	out<< "Module memory allocated (without AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
+	out<< "URL module memory footprint w/ AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
+	out<< "URL module memory allocated (without AC module)= " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
 	out <<"AC module mem footprint w/ statemachine (linux only) = "<<ac_memory_footprint<< " Bytes = "<< Byte2KB(ac_memory_footprint) <<"KB"<< STDENDL;
 	out <<"AC module mem allocated                    = "<<ac_memory_allocated<< " Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
 	out <<"AC statemachine mem footprint (linux only) ~ "<<ac_statemachine_size<< " Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
@@ -50,7 +52,6 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	}
 	out<<"Size of pointer = "<<SIZEOFPOINTER<<" Bytes"<<STDENDL;
 	out<<"Size of Pattern = "<<sizeof(Pattern)<<" Bytes"<<STDENDL;
-	out<<"Size of std::string = "<<sizeof(std::string)<<" Bytes"<<STDENDL;
 	out<<"Size of CodedHuffman = "<<sizeof(CodedHuffman)<<" Bytes"<<STDENDL;
 }
 
