@@ -71,6 +71,8 @@ ACWrapperCompressed::ACWrapperCompressed() :
 {
 	_symbolsTable.table=NULL;
 	_symbolsTable.size=0;
+	_symbolsTableLevel1=0;
+	_symbolsTableLevel2=0;
 	for (int i=0; i < MAX_CHAR; i++) {
 		_char_to_symbol[i]=S_NULL;
 	}
@@ -88,17 +90,22 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 		_patternsMap = 0;
 	}
 
-	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
-		if (_symbolsTable.table[i] == NULL)
-			continue;
-		uint32_t counter = 0;
-		for (counter = 0; _symbolsTable.table[i][counter] != NULL; counter++) {
-			delete[] _symbolsTable.table[i][counter];
-		}
-		delete[] _symbolsTable.table[i];
-	}
+//	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
+//		if (_symbolsTable.table[i] == NULL)
+//			continue;
+//		uint32_t counter = 0;
+//		for (counter = 0; _symbolsTable.table[i][counter] != NULL; counter++) {
+//			delete[] _symbolsTable.table[i][counter];
+//		}
+//		delete[] _symbolsTable.table[i];
+//	}
 	if (_symbolsTable.table != NULL )
 		delete[] _symbolsTable.table;
+
+	if (_symbolsTableLevel1 != 0)
+		delete _symbolsTableLevel1;
+	if (_symbolsTableLevel2 != 0)
+		delete _symbolsTableLevel2;
 
 }
 
@@ -160,22 +167,20 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 
 inline
 symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
-	const char* delimiter = "`";
 
 	const char* c = c_string;
 	uint32_t length = 2;	//symb_string = { symb, S_NULL } i.e length of 2
 	while (*c != '\0') {
-		if (*c == *delimiter) {
+		if (*c == *_delimiter) {
 			length++;
 		}
 		c++;
 	}
-	symbolT* symb_string = new symbolT[length];
+//	symbolT* symb_string = new symbolT[length];
+	symbolT* symb_string = _symbolsTableLevel2->alloc(length);
 	assert(symb_string != NULL) ;
 	symb_string[length-1] = S_NULL;
 
-	_size+= strlen(c_string);
-	_size+= length * sizeof(symbolT);
 
 	char buffer[300];
 	char* cpy =buffer;
@@ -185,7 +190,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		to_delete = true;
 	}
 	strcpy(cpy,c_string);
-	char* tk = strtok(cpy, delimiter);
+	char* tk = strtok(cpy, _delimiter);
 	uint32_t counter = 0;
 	while (tk != NULL) {
 		patternsMapType::iterator itr = _patternsMap->find(tk);
@@ -198,7 +203,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		ASSERT(strcmp ( (*_patternsList)[itr->second]->_str.c_str(), tk) == 0 );
 
 		counter++;
-		tk = strtok(NULL, delimiter);
+		tk = strtok(NULL, _delimiter);
 	}
 	if ((length-1) != counter) {	//lenght includes the S_NULL
 		ON_DEBUG_ONLY(std::cout<<"error lenght "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL);
@@ -222,11 +227,56 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
 	// 	i.e patterns_as_symbols[i] 		= {symbolT*,symbolT*,..,NULL}
 	//		patterns_as_symbols [i][j] 	= {symbol1,symbol2,..,S_NULL}
+
+	//since these allocations have poor memory alignment we will use SerialAllocator
+	//which first allocates a big chunk and then we can get chunks from it
+	//We need to go with two runs:
+	// 1. to count allocations
+	// 2. to actual allocated
+
 	symbolT*** symbolsTable = new symbolT**[size];
 	for (uint32_t i = 0; i < size; i++ ) {
 		symbolsTable[i]=NULL;
 	}
 	_size += size * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
+
+	uint32_t level1_size=0;	//for <sybmolT*> allocator
+	uint32_t level2_size=0;	//for <sybmolT> allocator
+
+	// count allocator sizes
+	for (uint32_t i = 0; i < size; i++) {
+		if (patterns[i] == NULL) {
+			continue;
+		}
+		uint32_t num_of_j = 0;	//location of the terminating NULL
+		//count patterns
+		char* pp =patterns[i][num_of_j];
+		while ( pp != NULL) {		// [0,1,2,3,NULL] j=4 is null, j returns with 5
+			num_of_j++; //[11]
+			pp= patterns[i][num_of_j];
+		}
+		level1_size+=num_of_j+1;
+		if (num_of_j == 0) {
+			continue;
+		}
+
+		//count symbols
+		for (uint32_t j=0;j<num_of_j;j++) {
+			const char* c = patterns[i][j];
+			uint32_t length = 2;	//symb_string = { symb, S_NULL } i.e length of 2
+			while (*c != '\0') {
+				if (*c == *_delimiter) {
+					length++;
+				}
+				c++;
+			}
+			level2_size+=length;
+		}
+	}
+
+	_symbolsTableLevel1 = new SerialAllocator<symbolT*>(level1_size);
+	_symbolsTableLevel2 = new SerialAllocator<symbolT >(level2_size);
+
 
 	ON_DEBUG_ONLY(std::cout<<"Print cached patterns table of size "<< size<<std::endl);
 	for (uint32_t i = 0; i < size; i++) {
@@ -242,7 +292,9 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 			num_of_j++; //[11]
 			pp= patterns[i][num_of_j];
 		}
-		symbolsTable[i] = new symbolT*[num_of_j+1];
+//		symbolsTable[i] = new symbolT*[num_of_j+1];
+		symbolsTable[i] = _symbolsTableLevel1->alloc(num_of_j+1);
+
 		_size += (num_of_j+1) * SIZEOFPOINTER * 2; //for each patternTable and symbolsTable
 		symbolsTable[i][num_of_j] = NULL;
 
