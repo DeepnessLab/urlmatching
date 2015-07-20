@@ -10,40 +10,6 @@
 #include <stdio.h>
 #include <iostream>
 
-inline
-void update_for_all_patterns(const char* delimiter, char* string_with_patterns,
-		uint32_t idx_of_last_char, urlMatchingType& url_module) {
-
-	//assuming here the patterns are in decreasing length order (the longest is the first)
-	DBG("go_over_all_patterns for \"" << string_with_patterns <<"\"");
-	char buffer[1000];
-	char* s =buffer;
-	bool to_delete = false;
-	if (strlen(string_with_patterns) >= 1000) {
-		s = new char[strlen(string_with_patterns)];
-		to_delete = true;
-	}
-
-	strcpy(s, string_with_patterns);
-	char* tk = strtok(s, delimiter);
-	int counter = 0;
-	while (tk != NULL) {
-		patternsMapType::iterator ret = url_module.patternDB->find(tk);
-		if (ret == url_module.patternDB->end()) {
-			DBG("daniel " << DVAL(tk) << " " << DVAL (string_with_patterns)<< " " << DVAL (counter));
-			ASSERT(ret == url_module.patternDB->end());
-		}
-		symbolT symb = ret->second;
-		updateModule(url_module,symb,idx_of_last_char);
-		DBG(" > Added \"" << tk <<"\" at "<< idx_of_last_char);
-		tk = strtok(NULL, delimiter);
-		counter++;
-	}
-//	if (counter > 1 ) {
-//		std::cout<<"DANIEL found pattern with ; " <<DVAL(counter) <<" " << DVAL (string_with_patterns) <<STDENDL;
-//	}
-	if (to_delete) { delete s ;}
-}
 
 int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 {
