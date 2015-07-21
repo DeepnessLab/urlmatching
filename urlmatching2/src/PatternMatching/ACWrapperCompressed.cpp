@@ -125,19 +125,19 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
-	StringListType list = new std::string*[patternsList_size];
+	StringListType list = new std::string[patternsList_size];
 	uint32_t idx=0;				//store how many string we entered the list
 	_patternsMap = new patternsMapType();
 
 	for (symbolT i=1; i< patternsList_size; i++) {	// 0 is reserved pattern as NULL
 		//go over all patterns, if pattern is single char - set it into _char_to_symbol array
 		// if pattern is longer than 1 char - add it to patterns list so AC will load them
-		if (strlen ( (*patternsList)[i]->_str.c_str() ) == 1) {
-			const uint32_t c = (uint32_t) (*patternsList)[i]->_str.at(0);
+		if (strlen ( (*patternsList)[i]->_str ) == 1) {
+			const uint32_t c = (uint32_t) ((*patternsList)[i]->_str)[0];
 			_char_to_symbol[c] = i;
 		} else {
-			list[idx]=&((*patternsList)[i]->_str);
-			const char* s = (*patternsList)[i]->_str.c_str();
+			list[idx]=(*patternsList)[i]->_str;
+			const char* s = (*patternsList)[i]->_str;
 			_patternsMap->insert(std::make_pair(s,i));
 			idx++;
 		}
@@ -209,7 +209,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		}
 		symb_string[counter] = itr->second;
 
-		ASSERT(strcmp ( (*_patternsList)[itr->second]->_str.c_str(), tk) == 0 );
+		ASSERT(strcmp ( (*_patternsList)[itr->second]->_str, tk) == 0 );
 
 		counter++;
 		tk = strtok(NULL, _delimiter);
