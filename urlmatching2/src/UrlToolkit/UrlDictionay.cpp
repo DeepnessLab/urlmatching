@@ -377,6 +377,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 	file.read(mem_block,sizeof(_statistics));
 	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
 	_statistics.memory_footprint = get_curr_memsize();
+	_statistics.memory_allocated = 0;
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
