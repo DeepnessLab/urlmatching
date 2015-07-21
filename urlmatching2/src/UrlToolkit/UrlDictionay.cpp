@@ -298,6 +298,7 @@ bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 	header.num_of_patterns = getDBsize();
 	header.version = URLC_STORED_DICT_VERSION;
 	header.chars_allocator_size = 0;
+	header.chars_allocator_size = _symbol2pattern_db[0]->getStringLength();	//in case it was not allocated by an allocator
 	header.chars_allocator_size += (_charsAllocator != 0) 	? _charsAllocator->size() : 0;
 	header.chars_allocator_size += (_strAllocator != 0) 	? _strAllocator->size() : 0;
 	mem_block = (char *) &header;
@@ -370,7 +371,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 		return false;
 	}
 
-	_charsAllocator = new SerialAllocator<char>(header.chars_allocator_size+1);
+	_charsAllocator = new SerialAllocator<char>(header.chars_allocator_size+10); //spare for Pattern 0
 
 	mem_block = (char *) &_statistics;
 	file.read(mem_block,sizeof(_statistics));
