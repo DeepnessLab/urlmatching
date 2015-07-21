@@ -16,6 +16,7 @@
 //#include "PatternMatching/ACWrapperClassic.h"
 #include "../PatternMatching/ACWrapperCompressed.h"
 #include "UrlDictionaryTypes.h"
+#include "SerialAllocator.h"
 
 
 #define MAX_URL_LENGTH 1000
@@ -165,13 +166,15 @@ private:
 	 * @param frequency - expected frequency
 	 * @return the generated symbol of this pattern
 	 */
-	symbolT addPattern(const std::string& str, const freqT& frequency);
+	symbolT addPattern(const char* str, const freqT& frequency);
 
 	inline void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated += bytes;}
 
 
 	//Members:
 	Symbol2pPatternVec _symbol2pattern_db;	//array of patterns, where symbol is the index
+	SerialAllocator<char>* _charsAllocator;
+	SerialAllocator<char>* _strAllocator;
 
 	ACWrapperCompressed algo;
 	bool _is_loaded;

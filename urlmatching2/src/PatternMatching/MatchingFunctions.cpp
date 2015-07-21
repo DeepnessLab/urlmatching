@@ -58,7 +58,7 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 				<< " patterns loaded");
 		return 0;
 	}
-	const char* chars = list_describtor->list[list_describtor->index]->c_str();
+	const char* chars = list_describtor->list[list_describtor->index].c_str();
 	list_describtor->index = list_describtor->index + 1;
 	strncpy(out_buff, chars, max_size);
 	DBG("adding \"" << chars << "\"; ");

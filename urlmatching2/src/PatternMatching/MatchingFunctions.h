@@ -21,7 +21,7 @@
  * Data structure to hold an array of strings and an index
  */
 typedef struct StringListDBWithIdxType {
-	std::string** list;
+	std::string* list;
 	uint32_t index;
 	uint32_t size;
 } stringlistType;

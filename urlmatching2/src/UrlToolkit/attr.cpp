@@ -3,11 +3,12 @@
 #include "../common.h"
 #include <string.h>
 
-Pattern::Pattern(uint32_t symbol, freqT frequency, std::string str) : _str(str) {
+Pattern::Pattern(uint32_t symbol, freqT frequency, const char* str) : _str(str) {
 	_symbol=symbol;
 	_frequency=frequency;
 	_coded.buf[0] = 0;
 	_coded.length = 0;
+	_str_len = strlen(_str);
 }
 
 Pattern::~Pattern()  {
@@ -78,7 +79,7 @@ void UrlBuilder::reset() {
 void UrlBuilder::append (symbolT symbol) {
 	_symbol_deque.push_back(symbol);
 
-	if ( ( strlen(_url) + _symbol2pattern_db[symbol]->_str.length()) > buf_size) {
+	if ( ( strlen(_url) + _symbol2pattern_db[symbol]->getStringLength()) > buf_size) {
 		buf_size+=UrlBuilder_CHARBUFFSIZE;
 		char* new_buf = new char[buf_size];
 		std::cout<<"UrlBuilder::append: dynamic allocation"<<STDENDL;
@@ -89,7 +90,7 @@ void UrlBuilder::append (symbolT symbol) {
 		is_url_dynamic = true;
 		_url = new_buf;
 	}
-	strcat(_url,_symbol2pattern_db[symbol]->_str.c_str());
+	strcat(_url,_symbol2pattern_db[symbol]->_str);
 }
 
 void UrlBuilder::debug_print() {
