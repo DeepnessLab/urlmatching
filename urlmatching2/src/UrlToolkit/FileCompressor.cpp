@@ -11,6 +11,7 @@
 
 #include "FileCompressor.h"
 #include "UrlDictionay.h"
+#include "PackedCode.h"
 
 //todo: clean comments and old code
 
@@ -23,29 +24,7 @@
 static uint32_t hex_verify = 0xAAAAFFFF;
 #endif
 
-//Convert uint32_t buff from LittleEndian to BigEndian and vice versa
-inline
-void conv_LE_BE(uint32_t* buff, uint32_t len) {
-//	return;
-	for (uint32_t i = 0; i < len; i++) {
-		uint32_t num = buff[i];
-		uint32_t swapped = ((num >> 24) & 0xff) | // move byte 3 to byte 0
-				((num << 8) & 0xff0000) | // move byte 1 to byte 2
-				((num >> 8) & 0xff00) | // move byte 2 to byte 1
-				((num << 24) & 0xff000000); // byte 0 to byte 3
-		buff[i] = swapped;
-	}
-}
 
-inline
-int is_big_endian(void) {
-	union {
-		uint32_t i;
-		char c[4];
-	} bint = { 0x01020304 };
-
-	return bint.c[0] == 1;
-}
 
 inline uint16_t conv_char_size_to_uint32_size(uint32_t char_size) {
 	uint16_t uint32_size = char_size / (sizeof(uint32_t));

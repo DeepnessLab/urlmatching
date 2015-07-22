@@ -20,58 +20,49 @@
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlToolkit/UrlDictionay.h"
 #include "HeavyHitters/dhh_lines.h"
+#include "UrlToolkit/PackedCode.h"
 #include "logger.h"
 #include "common.h"
 
 
 #define BUFFSIZE 500
 
-struct Opaque {
-	uint32_t len;
-	uint32_t* buf;
-
-	bool operator==(const Opaque &other) const 	{
-		if (this->len != other.len)
-			return false;
-		uint32_t* left = buf;
-		uint32_t* right = other.buf;
-		for (uint32_t i = 0; i <= len ; i=i+(8*sizeof(uint32_t))) {
-			if (*left != *right)
-				return false;
-			left++;
-			right++;
-		}
-		return true;
-	}
-};
 
 
-typedef Opaque Encoded ;
+typedef CodePack::CodePackT Encoded ;
 
 namespace std {
 
 template <>
 struct hash<Encoded>
 {
-	size_t operator()(const Opaque& t) const {
+	size_t operator()(const Encoded& t) const {
 		size_t ret = 0;
-		uint32_t* curr = t.buf;
-		for (uint32_t i = 0; i < t.len ; i=i+(8*sizeof(uint32_t))) {
-			ret = ret + *curr ; // overloading
+		CodePack::lenT len = t.getByteSize();
+		char* curr = t.getBuff();
+		for (uint32_t i = 0; i < len ; i++) {
+			uint32_t shift = i % sizeof(size_t);
+			size_t tmp = *curr;
+			tmp <<= shift;
+			ret = ret + tmp ; // overloading
 			curr++;
 		}
 		return ret;
 	}
 };
 
-}
+}	//namespace std
 
-struct OpaqueHasher {
-	size_t operator()(const Opaque& t) const {
+struct EncodedHasher {
+	size_t operator()(const Encoded& t) const {
 		size_t ret = 0;
-		uint32_t* curr = t.buf;
-		for (uint32_t i = 0; i < t.len ; i=i+(8*sizeof(uint32_t))) {
-			ret = ret + *curr ; // overloading
+		CodePack::lenT len = t.getByteSize();
+		char* curr = t.getBuff();
+		for (uint32_t i = 0; i < len ; i++) {
+			uint32_t shift = i % sizeof(size_t);
+			size_t tmp = *curr;
+			tmp <<= shift;
+			ret = ret + tmp ; // overloading
 			curr++;
 		}
 		return ret;
@@ -194,12 +185,17 @@ void test_hashtable(CmdLineOptions& options) {
 	uint32_t decoded_size = 0;
 	uint32_t encoded_size = 0;
 
+	uint32_t allocator_size = 0;
+
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode_2(urls[i],codedbuff,buff_size);
+		allocator_size += conv_bits_to_bytes(codedbuff[0]);
+		allocator_size += sizeof(CodePack::lenT);
+
 		decoded_size+=urls[i].length();
-		encoded_size+=buff_size * sizeof(uint32_t);
+		encoded_size+=conv_bits_to_bytes(codedbuff[0]);
 	}
 
 
@@ -224,24 +220,22 @@ void test_hashtable(CmdLineOptions& options) {
 
 	// Test hashtable using encoded buffer enclosed by Opaque
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize();
-	std::unordered_map<Encoded,uint32_t,OpaqueHasher> hashtable_encoded;
+	std::unordered_map<Encoded,uint32_t,EncodedHasher> hashtable_encoded;
 	hashtable_encoded.reserve( howmanytocode);
+
+	SerialAllocator<char>* _charsAllocator = new SerialAllocator<char>(allocator_size + 10 );
 
 	std::cout<<"inserting all urls to a hashtable_encoded (std::unordered_map) .. "<<std::endl;
 	for (uint32_t i = 0 ; i <  howmanytocode; i++ ) {
 		myIPv4=i;
 		uint32_t* codedbuff = codedbuffers[i];
-		Encoded my_opaque;
-		my_opaque.len = codedbuff[0];
-		uint32_t u32_len = conv_bits_to_uin32_size(my_opaque.len);
-		my_opaque.buf = new uint32_t[u32_len]; 	//new allocation
-		memcpy(my_opaque.buf, &(codedbuff[1]), u32_len * sizeof(uint32_t) );
-//		rt_stats.hashtable_encoded_key_size += sizeof(Encoded)+u32_len;
-		rt_stats.hashtable_encoded_key_size += sizeof(Encoded)+conv_bits_to_bytes(my_opaque.len);
-		hashtable_encoded[my_opaque] = myIPv4;
+		Encoded packed;
+		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator);
+		rt_stats.mem_allocated_hashtable_encoded+=sizeof(Encoded) + sizeof(myIPv4); //we add the allocator at the end
+		hashtable_encoded[packed] = myIPv4;
 	}
+	rt_stats.hashtable_encoded_key_size = _charsAllocator->capacity();
 	rt_stats.mem_allocated_hashtable_encoded+= rt_stats.hashtable_encoded_key_size;
-	rt_stats.mem_allocated_hashtable_encoded+=hashtable_encoded.size() * sizeof(myIPv4);
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize() - rt_stats.mem_footprint_hashtable_encoded;
 	std::cout<<"hashtable_encoded.size() = " << hashtable_encoded.size() <<std::endl;
 
@@ -250,11 +244,11 @@ void test_hashtable(CmdLineOptions& options) {
 		for (auto it = hashtable_encoded.begin(); it != hashtable_encoded.end(); ++it) {
 			myIPv4 = it->second;
 			uint32_t idx = myIPv4;
-			Encoded opaque = it->first;
+			Encoded packed = it->first;
 
 			uint32_t* codedbuff = codedbuffers[idx];
-			codedbuff[0] = opaque.len;
-			memcpy(&(codedbuff[1]), opaque.buf, conv_bits_to_bytes(opaque.len) * sizeof(uint32_t));
+			codedbuff[0] = packed.getBitLen();
+			packed.UnPack(&(codedbuff[1]));
 
 			std::string decoded_str;
 			urlc.decode(decoded_str,codedbuff,urls[idx].length());
@@ -263,7 +257,7 @@ void test_hashtable(CmdLineOptions& options) {
 				std::cout<<"ERROR: Retrieved wrong string from hashtable"<<STDENDL;
 				std::cout<<"  found(i="<<idx<<"): " << decoded_str     <<STDENDL;
 				std::cout<<"  expected: " << urls[idx] <<STDENDL;
-				std::cout<<"  had bit length "<<DVAL(opaque.len)<<STDENDL;
+				std::cout<<"  had bit length "<<DVAL(packed.getBitLen())<<STDENDL;
 				return;
 			}
 		}
