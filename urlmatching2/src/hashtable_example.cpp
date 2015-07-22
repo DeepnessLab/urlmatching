@@ -178,7 +178,7 @@ void test_hashtable(CmdLineOptions& options) {
 	rt_stats.num_of_urls = urls.size() ;
 
 	std::cout<<std::endl;
-	std::cout<<"-- Online Testing on " << howmanytocode << " urls --" <<STDENDL;
+	std::cout<<"-- Hashtable Testing on " << howmanytocode << " urls --" <<STDENDL;
 
 	//encode all urls
 	std::cout<<"encoding ... "<<std::endl;
@@ -299,6 +299,8 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
 	const UrlCompressorStats* stats = urlc.get_stats();
+	std::cout<<DVAL(sizeof(Encoded))<<std::endl;
+	std::cout<<DVAL(sizeof(std::string))<<std::endl;
 	stats->print(std::cout);
 
 	if (options.print_dicionary) {

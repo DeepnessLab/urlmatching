@@ -29,7 +29,7 @@ void UrlCompressorStats::reset() {
 	memory_allocated = 0;
 	ac_memory_footprint = 0;
 	ac_memory_allocated = 0;
-	ac_statemachine_size = 0;
+	ac_statemachine_footprint = 0;
 }
 
 
@@ -45,7 +45,7 @@ void UrlCompressorStats::print(std::ostream& out) const {
 	out<< "URL module memory allocated (without AC module)       = " <<(memory_allocated)<< " Bytes = "<< Byte2KB(memory_allocated)<<"KB"<<STDENDL;
 	out <<"AC module mem footprint w/o statemachine (linux only) = "<<ac_memory_footprint<< " Bytes = "<< Byte2KB(ac_memory_footprint) <<"KB"<< STDENDL;
 	out <<"AC module mem allocated w/o statemachine              = "<<ac_memory_allocated<< " Bytes = "<< Byte2KB(ac_memory_allocated) <<"KB"<< STDENDL;
-	out <<"AC statemachine mem footprint (linux only) = "<<ac_statemachine_size<< " Bytes = "<< Byte2KB(ac_statemachine_size) <<"KB"<< STDENDL;
+	out <<"AC statemachine mem footprint (linux only) = "<<ac_statemachine_footprint<< " Bytes = "<< Byte2KB(ac_statemachine_footprint) <<"KB"<< STDENDL;
 	out<< "AC statemachine mem dump estimation        ~ "<<getACMachineEstSize()<< " Bytes = "<< Byte2KB(getACMachineEstSize())<<"KB"<<STDENDL;
 	if (params_set) {
 		out<< "params: kgram size = "<< (params.kgrams_size)<< " r = " <<DVAL(params.r)<<STDENDL;
