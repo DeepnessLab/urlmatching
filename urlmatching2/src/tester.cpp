@@ -1078,12 +1078,12 @@ void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , c
 	outmap.push_back(pair<string,string>("total encoded size Bytes",std::to_string(rt_stat.encoded_stream_size)));
 	outmap.push_back(pair<string,string>("encoding time sec",std::to_string(rt_stat.time_to_encode)));
 	outmap.push_back(pair<string,string>("dictionary size Bytes",std::to_string(rt_stat.dictionary_size)));
-	outmap.push_back(pair<string,string>("mem footprint Bytes",std::to_string(stats->memory_footprint)));
+	outmap.push_back(pair<string,string>("Total mem footprint Bytes",std::to_string(stats->memory_footprint)));
 	outmap.push_back(pair<string,string>("AC module mem footprint Bytes",std::to_string(stats->ac_memory_footprint)));
 	outmap.push_back(pair<string,string>("AC module mem allocated Bytes",std::to_string(stats->ac_memory_allocated)));
-	outmap.push_back(pair<string,string>("AC statemachine mem footprint Bytes",std::to_string(stats->ac_statemachine_size)));
+	outmap.push_back(pair<string,string>("AC statemachine mem footprint Bytes",std::to_string(stats->ac_statemachine_footprint)));
 	outmap.push_back(pair<string,string>("AC statemachine mem allocated Bytes",std::to_string(stats->getACMachineEstSize())));
-	outmap.push_back(pair<string,string>("UrlC mem allocated ~ Bytes",std::to_string(stats->memory_allocated)));
+	outmap.push_back(pair<string,string>("UrlC mem allocated Bytes",std::to_string(stats->memory_allocated)));
 
 	ofstream out_file;
 	out_file.open (options.output_file_path.c_str(),ios::app );

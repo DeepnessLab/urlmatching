@@ -89,9 +89,9 @@ struct CodePackT {
 
 		uint32_t bytesize = conv_bits_to_bytes(bit_len);
 		buf = allocator->alloc(sizeof(lenT) + bytesize);
+		setBitLen(bit_len);
 		uint32_t u32size = getU32Size();
 
-		setBitLen(bit_len);
 		//flip the last u32 (because only that might be truncated)
 		uint32_t* t = &(in_u32buf[u32size-1]);
 		conv_to_big_endian(*t);

@@ -53,7 +53,7 @@ typedef struct UrlCompressorStats {
 	uint32_t memory_allocated;	//how much memory the module allocated (except AC module)
 	int 	 ac_memory_footprint;	//On linux only (otherwise 0)
 	uint32_t ac_memory_allocated;
-	int 	 ac_statemachine_size;
+	int 	 ac_statemachine_footprint;
 	HeavyHittersParams_t params;
 	bool params_set;
 
@@ -119,7 +119,7 @@ public:
 	void OptimizedACMachineSize() {
 		if (isLoaded())
 			algo.optimize_statemachine() ;
-		_statistics.ac_statemachine_size = algo.getStateMachineSize();
+		_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	}
 
 	uint32_t getDictionarySize()  const;

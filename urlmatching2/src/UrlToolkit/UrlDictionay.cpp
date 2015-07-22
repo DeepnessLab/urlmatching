@@ -428,7 +428,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint -  algo.getStateMachineSize();
-	_statistics.ac_statemachine_size = algo.getStateMachineSize();
+	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
 
 	if (optimize_ac_size) {
@@ -764,7 +764,7 @@ void UrlCompressor::prepare_database() {
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	algo.load_patterns(&_symbol2pattern_db, getDBsize());
-	_statistics.ac_statemachine_size = algo.getStateMachineSize();
+	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
 
