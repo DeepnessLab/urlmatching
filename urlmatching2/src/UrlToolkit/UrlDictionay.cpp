@@ -252,7 +252,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 		std::string patStr;
 		const char* str =(const char *) &sig.data[0];
 		patStr.assign(str,  sig.data.size());
-		uint32_t frequency = sig.calcHitsInSource();
+//		uint32_t frequency = sig.calcHitsInSource();
 //		addPattern(patStr,frequency);
 		patterns_counter++;
 	}
@@ -426,7 +426,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
-	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint -  algo.getStateMachineSize();
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
@@ -471,7 +471,7 @@ UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded
 	}
 	//find patterns cover over url
 	symbolT result[MAX_URL_LENGTH];
-	algo.find_patterns(url,result);
+	algo.MatchPatterns(url,result);
 
 	uint32_t reset_mask = 1 << (BITS_IN_UINT32_T -1 );
 	uint32_t mask = reset_mask;
@@ -518,7 +518,7 @@ UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encod
 	}
 	//find patterns cover over url
 	symbolT result[MAX_URL_LENGTH];
-	algo.find_patterns(url,result);
+	algo.MatchPatterns(url,result);
 
 
 	//Huffman encode the symbols
@@ -711,11 +711,12 @@ void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 		}
 	}
 }
-
+extern uint32_t Pattern::total_frequency;
 void UrlCompressor::reset(uint32_t reserved_size) {
 	if (isLoaded()) {
 		unload_and_return_false();
 	}
+	Pattern::total_frequency = 0;
 	_symbol2pattern_db.reserve(reserved_size);
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
 	_nextSymbol = 1;
@@ -763,7 +764,7 @@ void UrlCompressor::prepare_database() {
 	//Step 2: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
-	algo.load_patterns(&_symbol2pattern_db, getDBsize());
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();

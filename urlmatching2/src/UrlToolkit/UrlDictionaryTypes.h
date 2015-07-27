@@ -75,6 +75,10 @@ public:
 	CodedHuffman _coded;	//12bytes
 	freqT _frequency; 	//4 bytes
 
+//Evaluate anchors methods and members
+	static uint32_t total_frequency;
+	long double get_h();
+
 };
 
 typedef std::vector<Pattern*> Symbol2pPatternVec;
@@ -108,6 +112,50 @@ typedef struct {
 	uint16_t huffman_length; 	//in bits !
 } FlatPattern;
 
+
+class PatternsIterator {
+public:
+	PatternsIterator(uint32_t size) : _pattern_vec() , _it(_pattern_vec.begin()), _set(false) {
+		_pattern_vec.clear();
+		_pattern_vec.reserve(size);
+	}
+
+	PatternsIterator(Symbol2pPatternVec& vec) : _pattern_vec(vec.size()+1), _it(_pattern_vec.begin()), _set(false) {
+		for (Symbol2pPatternVec::iterator it=vec.begin(); it != vec.end(); ++it) {
+			Pattern* p = *it;
+			if (strlen(p->_str) <= 1)
+				continue;
+			_pattern_vec.push_back(p);
+		}
+	}
+
+	virtual ~PatternsIterator() {
+	}
+
+	void insert(Pattern* p) {
+		_pattern_vec.push_back(p);
+	}
+
+	void resetIterator() { _set = false; }
+
+	Pattern* getNext() {
+		if (!_set ) {
+			_it = _pattern_vec.begin();
+			_set=true;
+		}
+		if (_it == _pattern_vec.end())
+			return 0;
+		Pattern* p = *_it;
+		++(_it);
+		return p;
+	}
+
+private:
+	Symbol2pPatternVec _pattern_vec;
+	Symbol2pPatternVec::iterator _it;
+	bool _set;
+
+};
 
 
 #endif /* URLDICTIONARYTYPES_H_ */

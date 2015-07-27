@@ -120,12 +120,12 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 
 }
 
-bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size) {
+bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size) {
 	assert(!isLoaded());
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
-	StringListType list = new std::string[patternsList_size];
+	PatternsIterator list (patternsList->size());
 	uint32_t idx=0;				//store how many string we entered the list
 	_patternsMap = new patternsMapType();
 
@@ -136,26 +136,19 @@ bool ACWrapperCompressed::load_patterns(Symbol2pPatternVec* patternsList, uint32
 			const uint32_t c = (uint32_t) ((*patternsList)[i]->_str)[0];
 			_char_to_symbol[c] = i;
 		} else {
-			list[idx]=(*patternsList)[i]->_str;
+			list.insert((*patternsList)[i]);
 			const char* s = (*patternsList)[i]->_str;
 			_patternsMap->insert(std::make_pair(s,i));
 			idx++;
 		}
 	}
 
-	DBG("--- START printing all patterns: ---");
-	StringListDBWithIdxType db={list,0,idx};
-	for (uint32_t i=0; i < db.size; i++ ){
-		DBG(DVAL(i)<<": "<<*(db.list[i]));
-	}
-	DBG("--- FINISH printing all patterns: ---");
 	int mem = get_curr_memsize();
-	_machine = createStateMachineFunc(getStringFromList,&db,1000,1000,0);
+	_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
 	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
 	std::cout<<"AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
 	_machine->handlePatternFunc = handle_pattern;
 
-	delete[] list;
 
 	// Build the complimantry table symbol --> pattern
 	make_pattern_to_symbol_list();
@@ -328,7 +321,7 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	ON_DEBUG_ONLY(std::cout<<"FINISHED Print cached patterns table"<<std::endl);
 }
 
-bool ACWrapperCompressed::find_patterns(std::string input_str, symbolT* result) {
+bool ACWrapperCompressed::MatchPatterns(std::string input_str, symbolT* result) {
 	assert(isLoaded());
 
 	if ( (input_str.length() == 0 )||
