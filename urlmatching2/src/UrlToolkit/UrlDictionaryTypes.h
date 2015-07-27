@@ -15,6 +15,7 @@
 #include <map>
 #include <cstring>
 #include <vector>
+#include <algorithm>    // std::sort
 
 #ifndef UINT32_MAX
 #define UINT32_MAX  (0xffffffff)	//this is redefined
@@ -77,7 +78,10 @@ public:
 
 //Evaluate anchors methods and members
 	static uint32_t total_frequency;
-	long double get_h();
+	static char C_state;	//C stat constant (how many bytes per state)
+	long double get_h() const ;
+	long double get_gain() const;
+
 
 };
 
@@ -112,15 +116,37 @@ typedef struct {
 	uint16_t huffman_length; 	//in bits !
 } FlatPattern;
 
+struct greater_than_gain
+{
+	typedef Pattern* pPattern;
+	inline bool operator() (const pPattern& p1, const pPattern& p2)
+	{
+		long double g1 = p1->get_gain();
+		long double g2 = p2->get_gain();
+		return (g1 > g2);
+	}
+};
+
+
 
 class PatternsIterator {
 public:
-	PatternsIterator(uint32_t size) : _pattern_vec() , _it(_pattern_vec.begin()), _set(false) {
+	PatternsIterator(uint32_t size, bool optimize) : _pattern_vec()
+		, _it(_pattern_vec.begin())
+		, _set(false)
+		, _optimize(optimize)
+	{
 		_pattern_vec.clear();
 		_pattern_vec.reserve(size);
 	}
 
-	PatternsIterator(Symbol2pPatternVec& vec) : _pattern_vec(vec.size()+1), _it(_pattern_vec.begin()), _set(false) {
+	PatternsIterator(Symbol2pPatternVec& vec, bool optimize) : _pattern_vec()
+		, _it(_pattern_vec.begin())
+		, _set(false)
+		, _optimize(optimize)
+	{
+		_pattern_vec.clear();
+		_pattern_vec.reserve(vec.size()+1);
 		for (Symbol2pPatternVec::iterator it=vec.begin(); it != vec.end(); ++it) {
 			Pattern* p = *it;
 			if (strlen(p->_str) <= 1)
@@ -140,6 +166,9 @@ public:
 
 	Pattern* getNext() {
 		if (!_set ) {
+			if (_optimize) {
+				std::sort(_pattern_vec.begin(), _pattern_vec.end(), greater_than_gain());
+			}
 			_it = _pattern_vec.begin();
 			_set=true;
 		}
@@ -150,10 +179,13 @@ public:
 		return p;
 	}
 
+	bool shouldOptimize() {return _optimize;}
+
 private:
 	Symbol2pPatternVec _pattern_vec;
 	Symbol2pPatternVec::iterator _it;
 	bool _set;
+	bool _optimize;	//optimize patterns according to anchor selection
 
 };
 

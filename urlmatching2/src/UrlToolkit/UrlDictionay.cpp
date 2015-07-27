@@ -711,12 +711,15 @@ void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 		}
 	}
 }
+
 extern uint32_t Pattern::total_frequency;
+extern char 	Pattern::C_state;
 void UrlCompressor::reset(uint32_t reserved_size) {
 	if (isLoaded()) {
 		unload_and_return_false();
 	}
 	Pattern::total_frequency = 0;
+	Pattern::C_state = 4;
 	_symbol2pattern_db.reserve(reserved_size);
 	_symbol2pattern_db.push_back( new Pattern(0,NULL_DEFAULT_FREQ,"NULL") );
 	_nextSymbol = 1;

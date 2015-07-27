@@ -11,6 +11,7 @@
 #include <iostream>
 
 
+
 int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 {
 //	if (str == NULL) {
@@ -50,10 +51,25 @@ int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
  * @return
  */
 uint32_t getStringFromList(char* out_buff, uint32_t max_size,
-		void* list_struct) {
+		void* list_struct, ACTree* actree) {
 
 	PatternsIterator* list = (PatternsIterator*) list_struct;
-	Pattern* p = list->getNext();
+	//when optimized - getNext will be sorted by Gain
+	Pattern* p = list->getNext() ;
+	while (p != 0) {
+		typedef long double ld ;
+		ld gain = p->get_gain();
+		ld h = p->get_h();
+		int num_states = enter_simulate_addional_states(actree, (char*) p->_str, p->_str_len);
+		ld cost =  (ld) (Pattern::C_state * num_states) + h;
+		if (gain >= cost)
+			break;
+		std::cout<<"Skipping anchor: "<<p->_str<<STDENDL;
+//		p->_frequency=1;
+//		break;
+		p = list->getNext();
+	}
+
 	if (p == 0) {
 		DBG(std::endl << "Total of " << list->size
 						<< " patterns loaded");
