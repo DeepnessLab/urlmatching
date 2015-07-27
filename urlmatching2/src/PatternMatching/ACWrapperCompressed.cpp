@@ -125,7 +125,6 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
-	optimizeAnchors = true;	//todo: remove me !!!!
 	PatternsIterator list (patternsList->size(), optimizeAnchors);
 	uint32_t idx=0;				//store how many string we entered the list
 	_patternsMap = new patternsMapType();

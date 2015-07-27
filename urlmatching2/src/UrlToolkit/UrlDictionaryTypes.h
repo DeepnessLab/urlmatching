@@ -166,9 +166,7 @@ public:
 
 	Pattern* getNext() {
 		if (!_set ) {
-			if (_optimize) {
-				std::sort(_pattern_vec.begin(), _pattern_vec.end(), greater_than_gain());
-			}
+			std::sort(_pattern_vec.begin(), _pattern_vec.end(), greater_than_gain());
 			_it = _pattern_vec.begin();
 			_set=true;
 		}

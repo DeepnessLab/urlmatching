@@ -65,7 +65,7 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 		if (gain >= cost)
 			break;
 		std::cout<<"Skipping anchor: "<<p->_str<<STDENDL;
-//		p->_frequency=1;
+		p->_frequency=0;
 //		break;
 		p = list->getNext();
 	}

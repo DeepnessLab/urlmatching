@@ -147,7 +147,7 @@ private:
 	  1. create huffman code
 	  2. create pattern matching algorithm
 	 */
-	void prepare_database();
+	void prepare_modules();
 	void prepare_huffman_code(Pattern* pat, HuffCode& code);
 
 	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)

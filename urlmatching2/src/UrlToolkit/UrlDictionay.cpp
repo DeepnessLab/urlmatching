@@ -181,7 +181,39 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
-	prepare_database();
+//	prepare_modules();
+
+
+	_symbol2pattern_db.shrink_to_fit();
+	//Step 1: build AC patterns matching algorithm
+	//	Load patterns to pattern matching algorithm();
+	_statistics.ac_memory_footprint = get_curr_memsize();
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(),true /*optimize anchors*/);
+	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
+	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
+	_statistics.ac_memory_allocated = algo.size();
+
+	//Step 2: build huffman dictionary and update all patterns
+	//prepare array to load huffman dictionary
+	prepare_huffman();
+
+	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
+
+	// ----------------------------
+//	_statistics.number_of_symbols = _symbol2pattern_db.size();
+
+	uint32_t i=0;
+	for (Symbol2pPatternVec::iterator it = _symbol2pattern_db.begin(); it != _symbol2pattern_db.end();++it)
+		if ((*it)->_frequency > 0)
+			i++;
+	_statistics.number_of_symbols = i;
+	_statistics.number_of_patterns = _statistics.number_of_symbols - 128;
+	std::cout <<"Anchors = " << i<<STDENDL;
+//	add_memory_counter(algo.size());
+
+
+
+
 
 	_huffman.free_encoding_memory();
 
@@ -261,7 +293,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
-	prepare_database();
+	prepare_modules();
 
 	_huffman.free_encoding_memory();
 	DBG( "load_dict_from_file: loaded "<<_nextSymbol<<" patterns");
@@ -426,7 +458,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
-	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(), false /*no anchor optimizing */);
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint -  algo.getStateMachineSize();
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
@@ -437,7 +469,8 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
 	}
 	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	// ----------------------------
-	_statistics.number_of_symbols = _symbol2pattern_db.size();
+//	_statistics.number_of_symbols = _symbol2pattern_db.size();
+
 //	add_memory_counter(algo.size());
 
 	_statistics.memory_footprint = get_curr_memsize() - _statistics.memory_footprint;
@@ -736,8 +769,10 @@ symbolT UrlCompressor::addPattern(const char* str, const freqT& frequency) {
 	symbolT ret = _nextSymbol;
 	_nextSymbol++;
 	uint16_t len = pat->getStringLength();
-	_statistics.total_patterns_length+= len*sizeof(char);
-	_statistics.max_pattern_length = (_statistics.max_pattern_length < len ) ? len : _statistics.max_pattern_length;
+	if (frequency > 0 ) {
+		_statistics.total_patterns_length+= len*sizeof(char);
+		_statistics.max_pattern_length = (_statistics.max_pattern_length < len ) ? len : _statistics.max_pattern_length;
+	}
 	ASSERT (_nextSymbol == _symbol2pattern_db.size());
 	ASSERT ((ret + 1) == _nextSymbol );
 	add_memory_counter(pat->size());
@@ -753,28 +788,10 @@ bool UrlCompressor::unload_and_return_false() {
 	return false;
 }
 
-void UrlCompressor::prepare_database() {
+void UrlCompressor::prepare_modules() {
 
 	DBG("prepare_database:" << DVAL(_nextSymbol));
 
-	_symbol2pattern_db.shrink_to_fit();
-	//Step 1: build huffman dictionary and update all patterns
-	//prepare array to load huffman dictionary
-	prepare_huffman();
-
-	calculate_symbols_huffman_score();	//evaluate each symbol encoded length
-
-	//Step 2: build AC patterns matching algorithm
-	//	Load patterns to pattern matching algorithm();
-	_statistics.ac_memory_footprint = get_curr_memsize();
-	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
-	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
-	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
-	_statistics.ac_memory_allocated = algo.size();
-
-	// ----------------------------
-	_statistics.number_of_symbols = _symbol2pattern_db.size();
-//	add_memory_counter(algo.size());
 
 }
 
