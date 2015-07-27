@@ -57,7 +57,7 @@ typedef struct UrlCompressorStats {
 	HeavyHittersParams_t params;
 	bool params_set;
 
-	uint32_t getACMachineEstSize() const { return (5* total_patterns_length); }
+	uint32_t getACMachineEstSize() const { return (double (4.5) * double(total_patterns_length)); }
 
 	void reset() ;
 
