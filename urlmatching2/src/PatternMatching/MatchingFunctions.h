@@ -15,6 +15,10 @@
 #include <iostream>
 #include "../logger.h"
 
+extern "C" {
+#include "../AhoCorasick/ACBuilder.h"
+}
+
 #define MAX_URL_LENGTH 1000
 
 /**
@@ -49,7 +53,7 @@ void debugPrintModule (urlMatchingType& urlmatching);
 
 int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 
-uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct);
+uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct, ACTree* actree);
 
 inline
 void calcViPi(urlMatchingType& module) {

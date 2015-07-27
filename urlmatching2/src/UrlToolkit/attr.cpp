@@ -18,11 +18,18 @@ Pattern::~Pattern()  {
 //		delete[] _coded.buf;
 }
 
-long double Pattern::get_h() {
+long double Pattern::get_h() const {
 	typedef long double ld;
 	ld ret = (ld )_frequency / (ld) Pattern::total_frequency;
 	ret = log2(ret);
 	ret = ret / 8;
+	return ret;
+}
+
+long double Pattern::get_gain() const {
+	typedef long double ld;
+	ld h = get_h();
+	ld ret = _frequency * (_str_len - h);
 	return ret;
 }
 

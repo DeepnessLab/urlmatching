@@ -120,12 +120,13 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 
 }
 
-bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size) {
+bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size, bool optimizeAnchors) {
 	assert(!isLoaded());
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
 	//convert Symbol2PatternType to StringListType
-	PatternsIterator list (patternsList->size());
+	optimizeAnchors = true;	//todo: remove me !!!!
+	PatternsIterator list (patternsList->size(), optimizeAnchors);
 	uint32_t idx=0;				//store how many string we entered the list
 	_patternsMap = new patternsMapType();
 

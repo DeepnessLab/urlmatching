@@ -87,6 +87,19 @@ Node *acGetNextNode(Node *node, char c) {
 	return pair->ptr;
 }
 
+int enter_simulate_addional_states(ACTree *tree, char *pattern, int len) {
+	Node *state = tree->root;
+	int j = 0;
+	Node *next;
+
+	while ((next = acGetNextNode(state, pattern[j])) != NULL && j < len) {
+		state = next;
+		j++;
+	}
+	return (len - j);
+}
+
+
 void enter(ACTree *tree, char *pattern, int len) {
 	Node *state = tree->root;
 	int j = 0, p;
@@ -736,7 +749,7 @@ void acBuildTreeFunc(ACTree *tree,  getStringFuncType func , void* func_struct, 
 #endif
 	tree->root = createNewNode(tree, NULL);
 
-	while ( func(buff,READ_BUFFER_SIZE,func_struct)!=0 && (MAX_PATTERNS <= 0 || count < MAX_PATTERNS)) {
+	while ( func(buff,READ_BUFFER_SIZE,func_struct,tree)!=0 && (MAX_PATTERNS <= 0 || count < MAX_PATTERNS)) {
 //		printf("Loaded %s\n",buff);
 		length = strlen(buff)/* - 1*/;
 		if (length == 0) {
