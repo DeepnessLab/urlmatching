@@ -2,6 +2,7 @@
 #include "../logger.h"
 #include "../common.h"
 #include <string.h>
+#include <math.h>
 
 Pattern::Pattern(uint32_t symbol, freqT frequency, const char* str) : _str(str) {
 	_symbol=symbol;
@@ -9,11 +10,20 @@ Pattern::Pattern(uint32_t symbol, freqT frequency, const char* str) : _str(str) 
 	_coded.buf[0] = 0;
 	_coded.length = 0;
 	_str_len = strlen(_str);
+	total_frequency+=frequency;
 }
 
 Pattern::~Pattern()  {
 //	if (_coded.buf != NULL)
 //		delete[] _coded.buf;
+}
+
+long double Pattern::get_h() {
+	typedef long double ld;
+	ld ret = (ld )_frequency / (ld) Pattern::total_frequency;
+	ret = log2(ret);
+	ret = ret / 8;
+	return ret;
 }
 
 void UrlCompressorStats::reset() {

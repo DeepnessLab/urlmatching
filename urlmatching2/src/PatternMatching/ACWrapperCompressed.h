@@ -19,6 +19,7 @@ extern "C"
 {
 #include "../StateMachine/StateMachine.h"
 #include "../StateMachine/StateMachineGenerator.h"
+#include "../AhoCorasick/ACBuilder.h"
 }
 
 #define MAX_CHAR 1000
@@ -34,7 +35,7 @@ public:
 	virtual ~ACWrapperCompressed();
 
 	//Build pattern matching machine out of patterns vector
-	virtual bool load_patterns(Symbol2pPatternVec* patternsList, uint32_t size);
+	virtual bool LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t size);
 
 	//Load Patterns from file (not in use)
 	virtual bool load_patterns(std::string filepath);
@@ -46,7 +47,7 @@ public:
 	 *  i.e. 1-AB, 2-C, 3-DE, and input_str ABCDE then result = {1,2,3,0}
 	 * @return true is succeed, false for fail
 	 */
-	virtual bool find_patterns(std::string input_str, symbolT* result);
+	virtual bool MatchPatterns(std::string input_str, symbolT* result);
 
 	//Dump the state machine and reload it from dump file since it should take less memory
 	void optimize_statemachine();
@@ -82,7 +83,7 @@ private:
 	bool is_loaded;
 
 	Symbol2pPatternVec* _patternsList; //input during load
-	patternsMapType* _patternsMap;
+	patternsMapType* _patternsMap;	//temporary map used during LoadPatterns
 
 	//patterns_as_symbols is an array of array of "symbolT string" i.e S_NULL terminated
 	// patterns_as_symbols[i] is an array of dynamic size where the last pointer is NULL
@@ -101,7 +102,6 @@ private:
 	const char* _delimiter = "`";
 
 };
-
 
 
 

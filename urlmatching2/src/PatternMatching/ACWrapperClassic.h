@@ -34,7 +34,7 @@ public:
 	virtual bool load_patterns(std::string filepath);
 	virtual bool load_patterns(Symbol2pPatternVec patternsList, uint32_t size);
 
-	virtual bool find_patterns(std::string input_str, symbolT* result);
+	virtual bool MatchPatterns(std::string input_str, symbolT* result);
 
 //	virtual std::string* nextPattern();
 //	virtual void resetNextPattern();

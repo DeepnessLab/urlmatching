@@ -29,7 +29,7 @@ public:
 
 	virtual bool isLoaded() const =0  ;
 	virtual bool load_patterns(std::string filepath)=0;
-	virtual bool find_patterns(std::string input_str, symbolT* result)=0;
+	virtual bool MatchPatterns(std::string input_str, symbolT* result)=0;
 
 private:
 

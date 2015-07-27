@@ -51,15 +51,15 @@ int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
  */
 uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 		void* list_struct) {
-	StringListDBWithIdxType* list_describtor =
-			(StringListDBWithIdxType*) list_struct;
-	if (list_describtor->index == list_describtor->size) {
-		DBG(std::endl << "Total of " << list_describtor->size
-				<< " patterns loaded");
+
+	PatternsIterator* list = (PatternsIterator*) list_struct;
+	Pattern* p = list->getNext();
+	if (p == 0) {
+		DBG(std::endl << "Total of " << list->size
+						<< " patterns loaded");
 		return 0;
 	}
-	const char* chars = list_describtor->list[list_describtor->index].c_str();
-	list_describtor->index = list_describtor->index + 1;
+	const char* chars = p->_str;
 	strncpy(out_buff, chars, max_size);
 	DBG("adding \"" << chars << "\"; ");
 	return strlen(chars);

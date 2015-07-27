@@ -102,53 +102,6 @@ void calcViPi(urlMatchingType& module) {
 	return;
 }
 
-//inline
-//void calcViPi(urlMatchingType& module) {
-//	//V[i] = argmin of P[i-l(a)] + p(a) for all matching a's - module.symbols
-//	uint32_t index4PV = module.index + 1 ;
-//	std::cout << "calcViPi:" << DVAL (index4PV);
-//	assert(module.matching_symbols_idx > 0);
-//
-//	//calc V[index4PV] according to module.matching_symbols_arr[0]
-//	Pattern* p = module.list[module.matching_symbols_arr[0]];
-//	uint32_t best_Vi = module.P[index4PV-p->getStringLength()] /*P[i-l(a)]*/ + p->getHuffmanLength()/*p(a)*/;
-//	module.V[index4PV] = module.matching_symbols_arr[0];
-//
-//	//look for a better matching symbol
-//	for (uint32_t i = 1; i < module.matching_symbols_idx ; i++ ) {
-//		symbolT symbol = module.matching_symbols_arr[i];
-//		assert(symbol!=0);
-//		p= module.list[symbol];
-//		//P[i-l(a)] + p(a) where l(a) - string length of symbol a, p(a) huffman code length of a
-//		uint32_t stringlength = p->getStringLength();
-//		uint32_t huffmanLength = p->getHuffmanLength();
-//
-//		symbolT tmpVi = module.P[index4PV-stringlength] /*P[i-l(a)]*/ + huffmanLength/*p(a)*/;
-//		if (tmpVi < best_Vi) {
-//			best_Vi =  tmpVi;
-//			module.V[index4PV] = module.matching_symbols_arr[i];
-//		}
-//	}
-//	p= module.list[module.V[index4PV]];
-//
-//
-//	//P[i] = P[i-l(ai)] + p(V[i])
-//	uint32_t P1 = module.P[index4PV - p->getStringLength()];
-//	uint32_t P2 = p->getHuffmanLength();
-//	assert( P2 == module.list[module.V[index4PV]]->getHuffmanLength() );
-////	uint32_t P2 = module.list[module.matching_symbols_arr[module.V[index4PV]]]->getHuffmanLength();
-//	std::cout<<" "<<DVAL(P1)<<"+"<<DVAL(P2);
-//
-//	uint32_t& Pi = module.P[index4PV];
-//	Pi = P1 /*P[i] = P[i-l(ai)]*/  + P2 /*p(V[i])*/;
-//	std::cout<<"="<<DVAL(Pi)<<STDENDL;
-//	DBG0(DVAL(module.P[index4PV]));
-////	module.P[index4PV] = module.P[index4PV - p->getStringLength()] /*P[i] = P[i-l(ai)]*/
-////											  + module.list[module.matching_symbols_arr[module.V[index4PV]]]->getHuffmanLength() /*p(V[i])*/;
-//
-//}
-
-
 inline
 void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	//collect new pattens until idx is advanced - then evaluate the vi pi module
