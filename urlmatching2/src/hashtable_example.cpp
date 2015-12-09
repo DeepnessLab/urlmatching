@@ -33,39 +33,33 @@ typedef CodePack::CodePackT Encoded ;
 
 namespace std {
 
+size_t myhash(const Encoded& t) {
+	size_t ret = 0;
+	std::hash<size_t> h1;
+	CodePack::lenT len = t.getByteSize();
+	char* curr = t.getBuff();
+	for (uint32_t i = 0; i < len ; i++) {
+		ret <<=8;
+		ret += (*curr) ; // overloading
+		curr++;
+	}
+	return h1(ret);
+}
+
 template <>
 struct hash<Encoded>
 {
 	size_t operator()(const Encoded& t) const {
-		size_t ret = 0;
-		CodePack::lenT len = t.getByteSize();
-		char* curr = t.getBuff();
-		for (uint32_t i = 0; i < len ; i++) {
-			uint32_t shift = i % sizeof(size_t);
-			size_t tmp = *curr;
-			tmp <<= shift;
-			ret = ret + tmp ; // overloading
-			curr++;
-		}
-		return ret;
+		return std::myhash(t);
 	}
 };
 
 }	//namespace std
 
-struct EncodedHasher {
+struct EncodedHasher
+{
 	size_t operator()(const Encoded& t) const {
-		size_t ret = 0;
-		CodePack::lenT len = t.getByteSize();
-		char* curr = t.getBuff();
-		for (uint32_t i = 0; i < len ; i++) {
-			uint32_t shift = i % sizeof(size_t);
-			size_t tmp = *curr;
-			tmp <<= shift;
-			ret = ret + tmp ; // overloading
-			curr++;
-		}
-		return ret;
+		return std::myhash(t);
 	}
 };
 
@@ -243,7 +237,7 @@ void test_hashtable(CmdLineOptions& options) {
 
 	std::cout<<"inserting all urls to a hashtable_encoded (std::unordered_map) .. "<<std::endl;
 	START_TIMING;
-	for (uint32_t i = 0 ; i <  howmanytocode; i++ ) {
+	for (uint32_t i = 0 ; i <  howmanytocode /*howmanytocode*/; i++ ) {
 		myIPv4=i;
 		uint32_t* codedbuff = codedbuffers[i];
 		Encoded packed;
@@ -251,6 +245,8 @@ void test_hashtable(CmdLineOptions& options) {
 		rt_stats.hashtable_encoded_key_size += sizeof(Encoded) ;
 		rt_stats.mem_allocated_hashtable_encoded+= sizeof(myIPv4); //we add the allocator at the end
 		hashtable_encoded[packed] = myIPv4;
+		if (i%100 == 0 )
+			std::cout<<"  .. at " << i <<"\r";
 	}
 	STOP_TIMING;
 	rt_stats.insert_time_for_encoded = GETTIMING;
