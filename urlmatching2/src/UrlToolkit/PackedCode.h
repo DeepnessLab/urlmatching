@@ -1,7 +1,7 @@
 /*
  * PackedCode.h
  *
- *  Created on: 22 αιεμ 2015
+ *  Created on: 22 οΏ½οΏ½οΏ½οΏ½ 2015
  *      Author: Daniel
  */
 
@@ -129,6 +129,19 @@ struct CodePackT {
 			right++;
 		}
 		return true;
+	}
+
+	std::size_t hash() const {
+		std::size_t ret = 0;
+		std::hash<size_t> hasher;
+		CodePack::lenT len = getByteSize();
+		char* curr = getBuff();
+		for (uint32_t i = 0; i < len ; i++) {
+			ret <<=8;
+			ret += (*curr) ; // overloading
+			curr++;
+		}
+		return hasher(ret);
 	}
 
 };
