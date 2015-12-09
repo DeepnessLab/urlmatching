@@ -33,24 +33,13 @@ typedef CodePack::CodePackT Encoded ;
 
 namespace std {
 
-size_t myhash(const Encoded& t) {
-	size_t ret = 0;
-	std::hash<size_t> h1;
-	CodePack::lenT len = t.getByteSize();
-	char* curr = t.getBuff();
-	for (uint32_t i = 0; i < len ; i++) {
-		ret <<=8;
-		ret += (*curr) ; // overloading
-		curr++;
-	}
-	return h1(ret);
-}
+
 
 template <>
 struct hash<Encoded>
 {
 	size_t operator()(const Encoded& t) const {
-		return std::myhash(t);
+		return t.hash();
 	}
 };
 
@@ -59,7 +48,7 @@ struct hash<Encoded>
 struct EncodedHasher
 {
 	size_t operator()(const Encoded& t) const {
-		return std::myhash(t);
+		return t.hash();
 	}
 };
 
@@ -94,15 +83,6 @@ struct RunTimeStatsHashtable {
 
 	double insert_time_for_strings;
 	double insert_time_for_encoded;
-
-//	double time_to_load;
-//	double time_to_encode;
-//	double time_to_decode;
-//
-//	uint32_t dictionary_size;
-//	uint32_t encoded_size;
-//	uint32_t decoded_stream_size;
-//	uint32_t encoded_stream_size;
 
 };
 
@@ -240,13 +220,13 @@ void test_hashtable(CmdLineOptions& options) {
 	for (uint32_t i = 0 ; i <  howmanytocode /*howmanytocode*/; i++ ) {
 		myIPv4=i;
 		uint32_t* codedbuff = codedbuffers[i];
+
+		urlc.encode_2(urls[i],codedbuff,buff_size);	//redo the encoding process
 		Encoded packed;
 		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator);
 		rt_stats.hashtable_encoded_key_size += sizeof(Encoded) ;
 		rt_stats.mem_allocated_hashtable_encoded+= sizeof(myIPv4); //we add the allocator at the end
 		hashtable_encoded[packed] = myIPv4;
-		if (i%100 == 0 )
-			std::cout<<"  .. at " << i <<"\r";
 	}
 	STOP_TIMING;
 	rt_stats.insert_time_for_encoded = GETTIMING;
@@ -307,30 +287,36 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<"Hashtable Memory Allocated:"<<std::endl;
 	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_allocated_hashtable_strings)<<"KB"<<"\t";
 	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_allocated_hashtable_encoded)<<"KB"<<"\t";
-	std::cout<<" Ratio = "<<double ( (double) rt_stats.mem_allocated_hashtable_encoded / (double)rt_stats.mem_allocated_hashtable_strings)<<std::endl;
+	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( (double) rt_stats.mem_allocated_hashtable_encoded / (double)rt_stats.mem_allocated_hashtable_strings)<<std::endl;
+	std::cout<<std::setprecision(6);
 
-	std::cout<<"Hashtable Memory footprint:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_footprint_hashtable_strings)<<"KB"<<"\t";
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_footprint_hashtable_encoded)<<"KB"<<"\t";
-	std::cout<<" Ratio = "<<double ( (double) rt_stats.mem_footprint_hashtable_encoded / (double) rt_stats.mem_footprint_hashtable_strings)<<std::endl;
+	//The linux memory footprint is not accurate, some buffers are allocated before the begining of measure
+//	std::cout<<"Hashtable Memory footprint (linux only):"<<std::endl;
+//	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_footprint_hashtable_strings)<<"KB"<<"\t";
+//	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_footprint_hashtable_encoded)<<"KB"<<"\t";
+//	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( (double) rt_stats.mem_footprint_hashtable_encoded / (double) rt_stats.mem_footprint_hashtable_strings)<<std::endl;
+//	std::cout<<std::setprecision(6);
 
 	std::cout<<"Keysize Memory allocated:"<<std::endl;
 	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.hashtable_strings_key_size)<<"KB"<<"\t";
 	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.hashtable_encoded_key_size)<<"KB"<<"\t";
-	std::cout<<" Ratio = "<<double ( (double) rt_stats.hashtable_encoded_key_size / (double) rt_stats.hashtable_strings_key_size)<<std::endl;
+	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( (double) rt_stats.hashtable_encoded_key_size / (double) rt_stats.hashtable_strings_key_size)<<std::endl;
+	std::cout<<std::setprecision(6);
 
 	std::cout<<"Insertion timing:"<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(2)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(2)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
-	std::cout<<" Ratio = "<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
+	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
+	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
+	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
+	std::cout<<std::setprecision(6);
 
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
 	const UrlCompressorStats* stats = urlc.get_stats();
-	std::cout<<DVAL(sizeof(myIPv4))<<std::endl;
-	std::cout<<DVAL(sizeof(Encoded))<<std::endl;
-	std::cout<<DVAL(sizeof(std::string))<<std::endl;
+	std::cout<<"Static sizes:"<<STDENDL;
+	std::cout<<" "<<DVAL(sizeof(myIPv4))<<std::endl;
+	std::cout<<" "<<DVAL(sizeof(Encoded))<<std::endl;
+	std::cout<<" "<<DVAL(sizeof(std::string))<<std::endl;
 	stats->print(std::cout);
 
 	if (options.print_dicionary) {
