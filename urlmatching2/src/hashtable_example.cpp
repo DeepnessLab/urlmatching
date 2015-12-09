@@ -1,7 +1,7 @@
 /*
  * hashtable_example.cpp
  *
- *  Created on: 21 áéåð 2015
+ *  Created on: 21 ï¿½ï¿½ï¿½ï¿½ 2015
  *      Author: Daniel
  */
 
@@ -84,6 +84,8 @@ struct RunTimeStatsHashtable {
 		url_compressor_allocated_memory=0;
 		hashtable_strings_key_size=0;
 		hashtable_encoded_key_size=0;
+		insert_time_for_strings=0.0;
+		insert_time_for_encoded=0.0;
 	}
 
 	uint32_t num_of_urls;
@@ -95,6 +97,9 @@ struct RunTimeStatsHashtable {
 	uint32_t url_compressor_allocated_memory;
 	uint32_t hashtable_strings_key_size;
 	uint32_t hashtable_encoded_key_size;
+
+	double insert_time_for_strings;
+	double insert_time_for_encoded;
 
 //	double time_to_load;
 //	double time_to_encode;
@@ -120,6 +125,7 @@ void test_hashtable(CmdLineOptions& options) {
 	using namespace std;
 	RunTimeStatsHashtable rt_stats;
 
+	PREPARE_TIMING;
 
 	std::cout<<" --- Testing hashtable ---"<<std::endl;
 	options.PrintParameters(std::cout);
@@ -146,7 +152,7 @@ void test_hashtable(CmdLineOptions& options) {
 	}
 
 	bool retB = urlc.InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false);
-	uint32_t memory_footprint_estimation = urlc.SizeOfTotalAllocatedMemory();
+	uint32_t memory_allocated_estimation = urlc.SizeOfTotalAllocatedMemory();
 	assert (retB);
 
 	if (options.split_for_LPM) {	//free unecessary memory
@@ -207,16 +213,26 @@ void test_hashtable(CmdLineOptions& options) {
 	std::unordered_map<std::string,uint32_t> hashtable_string;
 	hashtable_string.reserve( howmanytocode);
 	std::cout<<"inserting all urls to a hashtable_string (std::unordered_map) .. "<<std::endl;
+	START_TIMING;
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 		myIPv4=i;
-		std::string str (urls[i]);	//new allocation
-		rt_stats.hashtable_strings_key_size += str.length() + 1 /*'\0'*/ + sizeof(str);
+		std::string str (urls[i].c_str());	//new allocation
+		uint32_t keysize = str.length() + 1 /*'\0'*/+ sizeof(str);
+		rt_stats.hashtable_strings_key_size += keysize;
+		rt_stats.mem_allocated_hashtable_strings += keysize;
+		rt_stats.mem_allocated_hashtable_strings += sizeof(myIPv4);
 		hashtable_string[str] = myIPv4;
 	}
-	rt_stats.mem_allocated_hashtable_strings+=rt_stats.hashtable_strings_key_size;
-	rt_stats.mem_allocated_hashtable_strings+=hashtable_string.size() * sizeof(myIPv4);
+	STOP_TIMING;
+	rt_stats.insert_time_for_strings = GETTIMING;
 	rt_stats.mem_footprint_hashtable_strings = get_curr_memsize() - rt_stats.mem_footprint_hashtable_strings;
+	for (uint32_t i = 0 ; i < hashtable_string.bucket_count(); i++ ) {
+		rt_stats.mem_allocated_hashtable_strings += 8;
+		rt_stats.mem_allocated_hashtable_strings += hashtable_string.bucket_size(i) * 8;
+	}
+
 	std::cout<<"hashtable_string.size() = " << hashtable_string.size() <<std::endl;
+	std::cout<<"hashtable_string.bucket_count() = " << hashtable_string.bucket_count() <<std::endl;
 
 	// Test hashtable using encoded buffer enclosed by Opaque
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize();
@@ -226,18 +242,29 @@ void test_hashtable(CmdLineOptions& options) {
 	SerialAllocator<char>* _charsAllocator = new SerialAllocator<char>(allocator_size + 10 );
 
 	std::cout<<"inserting all urls to a hashtable_encoded (std::unordered_map) .. "<<std::endl;
+	START_TIMING;
 	for (uint32_t i = 0 ; i <  howmanytocode; i++ ) {
 		myIPv4=i;
 		uint32_t* codedbuff = codedbuffers[i];
 		Encoded packed;
 		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator);
-		rt_stats.mem_allocated_hashtable_encoded+=sizeof(Encoded) + sizeof(myIPv4); //we add the allocator at the end
+		rt_stats.hashtable_encoded_key_size += sizeof(Encoded) ;
+		rt_stats.mem_allocated_hashtable_encoded+= sizeof(myIPv4); //we add the allocator at the end
 		hashtable_encoded[packed] = myIPv4;
 	}
+	STOP_TIMING;
+	rt_stats.insert_time_for_encoded = GETTIMING;
 	rt_stats.hashtable_encoded_key_size = _charsAllocator->capacity();
 	rt_stats.mem_allocated_hashtable_encoded+= rt_stats.hashtable_encoded_key_size;
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize() - rt_stats.mem_footprint_hashtable_encoded;
+
+	for (uint32_t i = 0 ; i < hashtable_encoded.bucket_count(); i++ ) {
+			rt_stats.mem_allocated_hashtable_encoded += 8;
+			rt_stats.mem_allocated_hashtable_encoded += hashtable_encoded.bucket_size(i) * 8;
+		}
+
 	std::cout<<"hashtable_encoded.size() = " << hashtable_encoded.size() <<std::endl;
+	std::cout<<"hashtable_encoded.bucket_count() = " << hashtable_encoded.bucket_count() <<std::endl;
 
 	if (options.test_decoding) {
 		std::cout<<"reading all urls from hashtable(std::unordered_map) and verify them.. "<<std::endl;
@@ -277,28 +304,35 @@ void test_hashtable(CmdLineOptions& options) {
 	//printing stats
 	// remember 1 B/ms == 1KB / sec
 	std::cout<<" ---"<<std::endl;
-	std::cout<<"Runtime Statistics: for "<<size<<" urls"<<std::endl;
+	std::cout<<"Hashtable Statistics: for "<<size<<" urls"<<std::endl;
 	std::cout<<"------------------"<<std::endl;
-	std::cout<<" URL compressor allocated memory = "<<Byte2KB(memory_footprint_estimation)<<"KB"<<std::endl;
-	std::cout<<"Memory Allocated:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_allocated_hashtable_strings)<<"KB"<<std::endl;
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_allocated_hashtable_encoded)<<"KB"<<std::endl;
+	std::cout<<" URL compressor allocated memory = "<<Byte2KB(memory_allocated_estimation)<<"KB"<<std::endl;
+
+	std::cout<<"Hashtable Memory Allocated:"<<std::endl;
+	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_allocated_hashtable_strings)<<"KB"<<"\t";
+	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_allocated_hashtable_encoded)<<"KB"<<"\t";
 	std::cout<<" Ratio = "<<double ( (double) rt_stats.mem_allocated_hashtable_encoded / (double)rt_stats.mem_allocated_hashtable_strings)<<std::endl;
 
-	std::cout<<"Memory footprint:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_footprint_hashtable_strings)<<"KB"<<std::endl;
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_footprint_hashtable_encoded)<<"KB"<<std::endl;
+	std::cout<<"Hashtable Memory footprint:"<<std::endl;
+	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_footprint_hashtable_strings)<<"KB"<<"\t";
+	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_footprint_hashtable_encoded)<<"KB"<<"\t";
 	std::cout<<" Ratio = "<<double ( (double) rt_stats.mem_footprint_hashtable_encoded / (double) rt_stats.mem_footprint_hashtable_strings)<<std::endl;
 
-	std::cout<<"Memory keysize comparison:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.hashtable_strings_key_size)<<"KB"<<std::endl;
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.hashtable_encoded_key_size)<<"KB"<<std::endl;
+	std::cout<<"Keysize Memory allocated:"<<std::endl;
+	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.hashtable_strings_key_size)<<"KB"<<"\t";
+	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.hashtable_encoded_key_size)<<"KB"<<"\t";
 	std::cout<<" Ratio = "<<double ( (double) rt_stats.hashtable_encoded_key_size / (double) rt_stats.hashtable_strings_key_size)<<std::endl;
+
+	std::cout<<"Insertion timing:"<<std::endl;
+	std::cout<<" hashtable strings = "<<std::setprecision(2)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
+	std::cout<<" hashtable encoded = "<<std::setprecision(2)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
+	std::cout<<" Ratio = "<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
 
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
 	const UrlCompressorStats* stats = urlc.get_stats();
+	std::cout<<DVAL(sizeof(myIPv4))<<std::endl;
 	std::cout<<DVAL(sizeof(Encoded))<<std::endl;
 	std::cout<<DVAL(sizeof(std::string))<<std::endl;
 	stats->print(std::cout);

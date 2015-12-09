@@ -13,6 +13,9 @@
 #include "easylogging++.h"
 
 
+
+//Debug output options:
+//---------------------
 #define DBG_TO_NONE 0
 #define DBG_TO_LOG 1
 #define DBG_TO_STDOUT 2
