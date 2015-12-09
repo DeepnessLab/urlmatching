@@ -3,6 +3,10 @@
  *
  *  Created on: 1 2014
  *      Author: Daniel
+ *
+ *  The system contains a centralized logging infrastructure, located in logger.h
+ *  Debug logs are enabled only when DEBUG_BUILD label is set.
+ *
  */
 
 #include <cstring>
