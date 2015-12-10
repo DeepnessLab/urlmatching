@@ -126,7 +126,7 @@ static int counter_root = 0;
 #endif
 
 int getNextState_LT(State *lookupTableState, char *str, int length, int *idx, NextStateResult *result, StateMachine *machine, PatternTable *patternTable, int verbose) {
-	int id;
+//	int id;
 	int i, count, ind;
 
 #ifdef COUNT_CALLS
@@ -157,7 +157,7 @@ int getNextState_LT(State *lookupTableState, char *str, int length, int *idx, Ne
 				if (i * 8 + 8 < (int)c)
 					break;
 			}
-			id = (lookupTableState[2] << 8) | lookupTableState[3];
+//			id = (lookupTableState[2] << 8) | lookupTableState[3];
 //			result->pattern = patternTable->patterns[id][count];
 		}
 		result->fail = FALSE;
