@@ -17,6 +17,7 @@
 #include <string.h>
 #include <assert.h>
 #include <map>
+#include <sstream>
 #include "MatchingFunctions.h"
 #include "../UrlToolkit/UrlDictionay.h"
 #include "../UrlToolkit/UrlDictionaryTypes.h"
@@ -219,7 +220,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 }
 
 /* use this function to build a complimentary patterns table for symbols*/
-void ACWrapperCompressed::make_pattern_to_symbol_list() {
+void ACWrapperCompressed::make_pattern_to_symbol_list(bool verbose) {
 	char ***patterns;
 	patterns=_machine->patternTable->patterns;
 
@@ -278,12 +279,11 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 	_symbolsTableLevel1 = new SerialAllocator<symbolT*>(level1_size);
 	_symbolsTableLevel2 = new SerialAllocator<symbolT >(level2_size);
 
-
-	ON_DEBUG_ONLY(std::cout<<"Print cached patterns table of size "<< size<<std::endl);
+	COND_DBG(verbose, "Print cached patterns table of size "<< size);
 	for (uint32_t i = 0; i < size; i++) {
 		if (patterns[i] == NULL) {
 			symbolsTable[i]=NULL;
-			ON_DEBUG_ONLY(std::cout<<"patterns["<<i<<"]=NULL"<<std::endl);
+			COND_DBG(verbose, "patterns["<<i<<"]=NULL");
 			continue;
 		}
 		uint32_t num_of_j = 0;	//location of the terminating NULL
@@ -299,26 +299,27 @@ void ACWrapperCompressed::make_pattern_to_symbol_list() {
 		symbolsTable[i][num_of_j] = NULL;
 
 		if (num_of_j == 0) {
-			ON_DEBUG_ONLY(std::cout<<"patterns["<<i<<"][0]=EMPTY"<<std::endl);
+			COND_DBG(verbose, "patterns["<<i<<"][0]=EMPTY"<<std::endl);
 			continue;
 		}
 
 		//assign symbols
 		for (uint32_t j=0;j<num_of_j;j++) {
 			symbolT* symb_string = create_symb_string (patterns[i][j]);
-#if BUILD_DEBUG
-			std::cout<< "patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j] << "->";
-			for(symbolT* sym = symb_string; *sym != S_NULL; sym++) {
-				std::cout<< *sym<< ":"<<(*_patternsList)[*sym]->_str <<"; ";
+			if (verbose) {
+				std::stringstream out;
+				out <<"patterns["<<i<<"]["<<j<<"  /"<<num_of_j<<"]=" << patterns[i][j] << "->";
+				for(symbolT* sym = symb_string; *sym != S_NULL; sym++) {
+					out << *sym<< ":"<<(*_patternsList)[*sym]->_str <<"; ";
+				}
+				COND_DBG(verbose, out);
 			}
-			std::cout<<std::endl;
-#endif
 			symbolsTable[i][j] = symb_string;
 		}
 	}
 	_symbolsTable.table = symbolsTable;
 	_symbolsTable.size = size;
-	ON_DEBUG_ONLY(std::cout<<"FINISHED Print cached patterns table"<<std::endl);
+	COND_DBG(verbose, "FINISHED Print cached patterns table");
 }
 
 bool ACWrapperCompressed::MatchPatterns(std::string input_str, symbolT* result) {
