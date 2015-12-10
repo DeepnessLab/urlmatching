@@ -30,11 +30,9 @@
 
 
 typedef CodePack::CodePackT Encoded ;
+typedef uint32_t IPv4_t;
 
 namespace std {
-
-
-
 template <>
 struct hash<Encoded>
 {
@@ -42,7 +40,6 @@ struct hash<Encoded>
 		return t.hash();
 	}
 };
-
 }	//namespace std
 
 struct EncodedHasher
@@ -51,8 +48,6 @@ struct EncodedHasher
 		return t.hash();
 	}
 };
-
-
 
 
 struct RunTimeStatsHashtable {
@@ -69,6 +64,10 @@ struct RunTimeStatsHashtable {
 		hashtable_encoded_key_size=0;
 		insert_time_for_strings=0.0;
 		insert_time_for_encoded=0.0;
+
+		number_oflookups=0;
+		lookup_time_for_strings=0.0;
+		lookup_time_for_encoded=0.0;
 	}
 
 	uint32_t num_of_urls;
@@ -84,6 +83,9 @@ struct RunTimeStatsHashtable {
 	double insert_time_for_strings;
 	double insert_time_for_encoded;
 
+	uint32_t number_oflookups;
+	double lookup_time_for_strings;
+	double lookup_time_for_encoded;
 };
 
 
@@ -105,6 +107,10 @@ void test_hashtable(CmdLineOptions& options) {
 	options.PrintParameters(std::cout);
 	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
 	HeavyHittersParams_t& params = customParams; //default_hh_params;
+
+	// ----
+	//    Create compression module
+	// ------------------------------------
 
 	UrlCompressor urlc;
 
@@ -136,9 +142,9 @@ void test_hashtable(CmdLineOptions& options) {
 
 	sanityTesting(urlc, false);
 
-	// ----   encode/decode entire urlsfile   ----
-
-	//count urls and prepare coding buffers
+	// ----
+	//	Count urls and prepare coding buffers
+	// ------------------------------------
 	std::cout<<"Preparing: reading file and allocating memory... "<<std::endl;
 	std::deque<std::string>& urls = url_deque;
 	std::deque<uint32_t*> codedbuffers;
@@ -148,7 +154,9 @@ void test_hashtable(CmdLineOptions& options) {
 		if ( (it->length() == 0 )||(*it == "") ) {
 			std::cout<<"Skipping url in line " << urls.size() +1<<STDENDL;
 		} else{
-			uint32_t* codedbuff = new uint32_t[it->length()];
+			uint32_t length = it->length() ;
+//			length = (length *  sizeof(char))/ sizeof(uint32_t);
+			uint32_t* codedbuff = new uint32_t[length+2];
 			codedbuffers.push_back(codedbuff);
 			total_input_size += it->length();
 		}
@@ -160,13 +168,13 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<std::endl;
 	std::cout<<"-- Hashtable Testing on " << howmanytocode << " urls --" <<STDENDL;
 
-	//encode all urls
-	std::cout<<"encoding ... "<<std::endl;
+	// ----
+	//	Encode all urls to determine allocator size
+	// ------------------------------------
+	std::cout<<"Preparing: encoding all urls for statistics"<<std::endl;
 	uint32_t decoded_size = 0;
 	uint32_t encoded_size = 0;
-
 	uint32_t allocator_size = 0;
-
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
@@ -180,9 +188,11 @@ void test_hashtable(CmdLineOptions& options) {
 
 
 	//Simulate Hashtable <url, IPv4 (uint32_t)>
-	uint32_t myIPv4=0xEEEE;
+	IPv4_t myIPv4=0xDEAD;
 
-	// Test hashtable using simple strings
+	// ----
+	// 	Test hashtable using <std::string,IPV4>
+	// ------------------------------------
 	rt_stats.mem_footprint_hashtable_strings = get_curr_memsize();
 	std::unordered_map<std::string,uint32_t> hashtable_string;
 	hashtable_string.reserve( howmanytocode);
@@ -205,10 +215,9 @@ void test_hashtable(CmdLineOptions& options) {
 		rt_stats.mem_allocated_hashtable_strings += hashtable_string.bucket_size(i) * 8;
 	}
 
-	std::cout<<"hashtable_string.size() = " << hashtable_string.size() <<std::endl;
-	std::cout<<"hashtable_string.bucket_count() = " << hashtable_string.bucket_count() <<std::endl;
-
-	// Test hashtable using encoded buffer enclosed by Opaque
+	// ----
+	//	Test hashtable using <Encoded,IPV4>
+	// ------------------------------------
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize();
 	std::unordered_map<Encoded,uint32_t,EncodedHasher> hashtable_encoded;
 	hashtable_encoded.reserve( howmanytocode);
@@ -220,7 +229,7 @@ void test_hashtable(CmdLineOptions& options) {
 	for (uint32_t i = 0 ; i <  howmanytocode /*howmanytocode*/; i++ ) {
 		myIPv4=i;
 		uint32_t* codedbuff = codedbuffers[i];
-
+		buff_size = BUFFSIZE;
 		urlc.encode_2(urls[i],codedbuff,buff_size);	//redo the encoding process
 		Encoded packed;
 		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator);
@@ -235,12 +244,61 @@ void test_hashtable(CmdLineOptions& options) {
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize() - rt_stats.mem_footprint_hashtable_encoded;
 
 	for (uint32_t i = 0 ; i < hashtable_encoded.bucket_count(); i++ ) {
-			rt_stats.mem_allocated_hashtable_encoded += 8;
-			rt_stats.mem_allocated_hashtable_encoded += hashtable_encoded.bucket_size(i) * 8;
-		}
+		rt_stats.mem_allocated_hashtable_encoded += 8;
+		rt_stats.mem_allocated_hashtable_encoded += hashtable_encoded.bucket_size(i) * 8;
+	}
 
-	std::cout<<"hashtable_encoded.size() = " << hashtable_encoded.size() <<std::endl;
-	std::cout<<"hashtable_encoded.bucket_count() = " << hashtable_encoded.bucket_count() <<std::endl;
+	// ----
+	//	Lookup testing preparation step
+	// ------------------------------------
+	std::srand(std::time(0)); 						// use current time as seed for random generator
+	std::deque<uint32_t> random_indices;
+	for (int i=0; i < 10000; i++) {
+		uint32_t idx = (uint32_t) std::rand();
+		idx = idx % urls.size();
+		random_indices.push_back(idx);
+	}
+	rt_stats.number_oflookups = random_indices.size();
+
+	// ----
+	//	Lookup in string hashtable
+	// ------------------------------------
+	IPv4_t verifier=0;
+	std::cout<<"Performing "<<random_indices.size()<<" lookups on hashtable_strings (std::unordered_map) .. "<<std::endl;
+	START_TIMING;
+	for (std::deque<uint32_t>::iterator it=random_indices.begin() ; it != random_indices.end(); ++it) {
+		uint32_t idx = *it;
+		std::string str = urls[idx];
+		IPv4_t ip = hashtable_string[str];
+		verifier += (ip - *it);
+	}
+	STOP_TIMING;
+	if (verifier!=0)
+			std::cout<<"Some wrong IPs were retrieved " <<STDENDL;
+	rt_stats.lookup_time_for_strings = GETTIMING;
+
+	// ----
+	//	Lookup in encoded hashtable
+	// ------------------------------------
+	SerialAllocator<char>* _charsAllocator2 = new SerialAllocator<char>(allocator_size + 10 );
+	verifier=0;
+	std::cout<<"Performing "<<random_indices.size()<<" lookups on hashtable_encoded (std::unordered_map) .. "<<std::endl;
+	START_TIMING;
+	for (std::deque<uint32_t>::iterator it=random_indices.begin() ; it != random_indices.end(); ++it) {
+		uint32_t idx = *it;
+		std::string str = urls[idx];
+		uint32_t codedbuff[BUFFSIZE];
+		buff_size = BUFFSIZE;
+		urlc.encode_2(str,codedbuff,buff_size);	//redo the encoding process
+		Encoded packed;
+		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator2);
+		IPv4_t ip = hashtable_encoded[packed];
+		verifier += (ip - *it);
+	}
+	STOP_TIMING;
+	if (verifier!=0)
+		std::cout<<"Some wrong IPs were retrieved " <<STDENDL;
+	rt_stats.lookup_time_for_encoded = GETTIMING;
 
 	if (options.test_decoding) {
 		std::cout<<"reading all urls from hashtable(std::unordered_map) and verify them.. "<<std::endl;
@@ -307,6 +365,12 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
 	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
+	std::cout<<std::setprecision(6);
+
+	std::cout<<rt_stats.number_oflookups << " Lookup time:"<<std::endl;
+	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.lookup_time_for_strings<<"sec"<<"\t";
+	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.lookup_time_for_encoded<<"sec"<<"\t";
+	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.lookup_time_for_encoded / rt_stats.lookup_time_for_strings)<<std::endl;
 	std::cout<<std::setprecision(6);
 
 	std::cout<<"------------------"<<std::endl;
