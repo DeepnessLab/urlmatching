@@ -235,7 +235,7 @@ void test_article(CmdLineOptions& options)
 
 	if (options.test_decoding) {
 		//decode all urls
-		std::cout<<"verify correct coding by decoding last set ... "<<std::endl;
+		std::cout<<"verify correct coding by decoding last set ... ";
 		START_TIMING;
 		for (uint32_t n = 0; n < set_size; n++ ) {
 			uint32_t idx = set[n];
@@ -244,6 +244,7 @@ void test_article(CmdLineOptions& options)
 			std::string decoded_str;
 			urlc->decode(decoded_str,codedbuff,buff_size);
 			if (decoded_str != urls[idx]) {
+				std::cout<<std::endl;
 				std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
 				std::cout<<"  " << DVAL(idx)<< " "<< DVAL(urls[idx])<<" != "<<DVAL(decoded_str)<<STDENDL;
 				std::cout<<"  had length "<<DVAL(codedbuff[0])<<STDENDL;
@@ -251,7 +252,7 @@ void test_article(CmdLineOptions& options)
 			}
 		}
 		STOP_TIMING;
-		std::cout<<"  passed  "<<STDENDL;
+		std::cout<<"100%  "<<STDENDL;
 	}
 	s.time_to_decode = (options.test_decoding) ? GETTIMING: 0l;
 
@@ -383,7 +384,7 @@ void test_encode(CmdLineOptions& options) {
 
 	if (options.test_decoding) {
 		//decode all urls
-		std::cout<<"decoding ... "<<std::endl;
+		std::cout<<"decoding ... \r";
 		START_TIMING;
 		for (uint32_t i = 0; i < num_of_urls; i++ ) {
 			buff_size = BUFFSIZE;
@@ -397,9 +398,10 @@ void test_encode(CmdLineOptions& options) {
 				return;
 			}
 			if (i%status_every == 0)
-				std::cout<<"  passed "<<(100*(i+1))/num_of_urls<<"%"<<std::endl;
+				std::cout<<"decoding ... "<<(100*(i+1))/num_of_urls<<"%\r";
 		}
 		STOP_TIMING;
+		std::cout<<"decoding ... 100%"<<std::endl;
 	}
 	s.time_to_decode = (options.test_decoding) ? GETTIMING: 0l;
 
@@ -621,10 +623,9 @@ void test_main(CmdLineOptions& options) {
 		encoded_size_bits += codedbuff[0] ;
 	}
 
-
 	if (options.test_decoding) {
 		//decode all urls
-		std::cout<<"decoding ... "<<std::endl;
+		std::cout<<"decoding ... \r";
 		START_TIMING;
 		for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 			buff_size = BUFFSIZE;
@@ -638,9 +639,10 @@ void test_main(CmdLineOptions& options) {
 				return;
 			}
 			if (i%status_every == 0)
-				std::cout<<"  passed "<<(100*(i+1))/howmanytocode<<"%"<<std::endl;
+				std::cout<<"decoding ... "<<(100*(i+1))/(start_at + howmanytocode)<<"%\r";
 		}
 		STOP_TIMING;
+		std::cout<<"decoding ... 100%"<<std::endl;
 	}
 	s.time_to_decode = (options.test_decoding) ? GETTIMING: 0l;
 

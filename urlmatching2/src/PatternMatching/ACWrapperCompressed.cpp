@@ -393,6 +393,9 @@ void ACWrapperCompressed::dump_states(std::string filename) const {
 
 void ACWrapperCompressed::optimize_statemachine()
 {
+	if (!_has_patterns)
+		return;
+
 	std::string filename = "tmpACDUMPFILE";
 	int mem_1 = get_curr_memsize();
 	dumpStateMachine(this->_machine, filename.c_str());
