@@ -67,6 +67,11 @@
 #elif DEBUG_OUTPUT == DBG_TO_NONE
 #define DBG(what) do { } while(0)
 
+#define COND_DBG(flag,what) \
+	if (flag)  {\
+		DBG(what);\
+	}
+
 #endif
 
 

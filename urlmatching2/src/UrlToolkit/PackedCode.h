@@ -124,7 +124,7 @@ struct CodePackT {
 		char* right = other.getBuff();
 		uint16_t accu = 0;
 		left_len = this->getByteSize();
-		while (left_len < accu) {
+		while (left_len > accu) {
 			if (*left != *right)
 				return false;
 			left++;
