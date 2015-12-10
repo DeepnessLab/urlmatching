@@ -1,7 +1,7 @@
 /*
  * ACWrapperCompressed.h
  *
- *  Created on: 7 áãöî 2014
+ *  Created on: 7 ï¿½ï¿½ï¿½ï¿½ 2014
  *      Author: Daniel
  */
 
@@ -75,7 +75,7 @@ public:
 
 
 private:
-	void make_pattern_to_symbol_list();
+	void make_pattern_to_symbol_list(bool verbose = false);
 
 	inline
 	symbolT* create_symb_string (const char* c_string);
