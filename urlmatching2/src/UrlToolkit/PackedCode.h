@@ -120,14 +120,18 @@ struct CodePackT {
 
 		if (left_len != right_len)
 			return false;
-		char* left = this->getBuff();
+		char* left =  this->getBuff();
 		char* right = other.getBuff();
-		for (uint32_t i = 0; i <= left_len ; i++) {
+		uint16_t accu = 0;
+		left_len = this->getByteSize();
+		while (left_len < accu) {
 			if (*left != *right)
 				return false;
 			left++;
 			right++;
+			accu++;
 		}
+
 		return true;
 	}
 
