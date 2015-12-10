@@ -49,6 +49,7 @@ public:
 	 * @return true is succeed, false for fail
 	 */
 	virtual bool MatchPatterns(std::string input_str, symbolT* result);
+	virtual bool MatchPatternsNoPatterns(std::string input_str, symbolT* result);
 
 	//Dump the state machine and reload it from dump file since it should take less memory
 	void optimize_statemachine();
@@ -71,17 +72,18 @@ public:
 	inline uint32_t getStateMachineSize() const { return _statemachine_size; }
 
 	virtual inline
-	bool isLoaded() const { return is_loaded; }
+	bool isLoaded() const { return _is_loaded; }
 
 
 private:
+
+	//Methods
 	void make_pattern_to_symbol_list(bool verbose = false);
+	inline	symbolT* create_symb_string (const char* c_string);
 
-	inline
-	symbolT* create_symb_string (const char* c_string);
-
-	//members
-	bool is_loaded;
+	//Members
+	bool _is_loaded;
+	bool _has_patterns;
 
 	Symbol2pPatternVec* _patternsList; //input during load
 	patternsMapType* _patternsMap;	//temporary map used during LoadPatterns
