@@ -152,7 +152,11 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 
 	std::list<signature_t>& common_strings = ldhh.get_signatures();
 	size_t                  urls_count     = ldhh.get_pckt_count();
-	DBG("** scanned " << urls_count << " urls " << std::endl );
+	DBG("** scanned " << urls_count << " urls, found " <<common_strings.size()<< " patterns"<< std::endl );
+	if (params.n2 == 0) {
+		common_strings.clear();
+		DBG("Special mode - huffman only was detected. i.e n2=0");
+	}
 
 	//Evaluate total char size for serial allocator
 	uint64_t total_char_size = 0;
@@ -180,8 +184,6 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 	_statistics.number_of_urls = urls_count;
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
-
-//	prepare_modules();
 
 
 	_symbol2pattern_db.shrink_to_fit();

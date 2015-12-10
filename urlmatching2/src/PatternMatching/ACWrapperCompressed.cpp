@@ -64,7 +64,8 @@ int special_handle_pattern(char* str,uint32_t idx, void* data) {
 
 
 ACWrapperCompressed::ACWrapperCompressed() :
-		is_loaded(false),
+		_is_loaded(false),
+		_has_patterns(false),
 		_patternsList(NULL),
 		_patternsMap(NULL),
 		_machine(NULL),
@@ -91,15 +92,6 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 		_patternsMap = 0;
 	}
 
-//	for (uint32_t i = 0 ; i < _symbolsTable.size; i++ ) {
-//		if (_symbolsTable.table[i] == NULL)
-//			continue;
-//		uint32_t counter = 0;
-//		for (counter = 0; _symbolsTable.table[i][counter] != NULL; counter++) {
-//			delete[] _symbolsTable.table[i][counter];
-//		}
-//		delete[] _symbolsTable.table[i];
-//	}
 	if (_symbolsTable.table != NULL )
 		delete[] _symbolsTable.table;
 
@@ -116,7 +108,7 @@ bool ACWrapperCompressed::load_patterns(std::string filepath) {
 	const char* tmp = filepath.c_str();
 	_machine = createStateMachine(tmp,100,100,0);
 	make_pattern_to_symbol_list();
-	is_loaded = true;
+	_is_loaded = true;
 	return true;
 
 }
@@ -137,6 +129,7 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 			const uint32_t c = (uint32_t) ((*patternsList)[i]->_str)[0];
 			_char_to_symbol[c] = i;
 		} else {
+			_has_patterns = true;
 			list.insert((*patternsList)[i]);
 			const char* s = (*patternsList)[i]->_str;
 			_patternsMap->insert(std::make_pair(s,i));
@@ -144,18 +137,24 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 		}
 	}
 
-	int mem = get_curr_memsize();
-	_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
-	_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
-	std::cout<<"AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
-	_machine->handlePatternFunc = handle_pattern;
+	if (_has_patterns) {
+		int mem = get_curr_memsize();
+		_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
+		_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
+		std::cout<<"AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
+		_machine->handlePatternFunc = handle_pattern;
+		// Build the complimantry table symbol --> pattern
+		make_pattern_to_symbol_list();
+	} else {
+		_machine = NULL;
+		_statemachine_size = 0;
+		_symbolsTableLevel1 = new SerialAllocator<symbolT*>(0);
+		_symbolsTableLevel2 = new SerialAllocator<symbolT >(0);
+	}
 
-
-	// Build the complimantry table symbol --> pattern
-	make_pattern_to_symbol_list();
 	delete _patternsMap;
 	_patternsMap=0;
-	is_loaded = true;
+	_is_loaded = true;
 
 	//Use it for debug size
 //	std::cout<< "AC module sizes allocated size: "<<STDENDL;
@@ -221,6 +220,10 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 
 /* use this function to build a complimentary patterns table for symbols*/
 void ACWrapperCompressed::make_pattern_to_symbol_list(bool verbose) {
+	if(!_has_patterns) {
+		return;
+	}
+	
 	char ***patterns;
 	patterns=_machine->patternTable->patterns;
 
@@ -330,6 +333,11 @@ bool ACWrapperCompressed::MatchPatterns(std::string input_str, symbolT* result) 
 		result[0]=S_NULL;
 		return true;
 	}
+
+	if (! _has_patterns) {
+		return MatchPatternsNoPatterns(input_str, result);
+	}
+
 	//prepare metadata
 	urlMatchingType module;
 	initModule(module);
@@ -356,6 +364,17 @@ bool ACWrapperCompressed::MatchPatterns(std::string input_str, symbolT* result) 
 			, &stats);
 	finalize_result(module,result);
 
+	return true;
+}
+
+bool ACWrapperCompressed::MatchPatternsNoPatterns(std::string input_str, symbolT* result) {
+	const char* str = input_str.c_str();
+	uint16_t i=0;
+	for (i=0 ; i < input_str.length();i++) 	{
+		uint32_t c = (uint32_t) str[i];
+		result[i] = _char_to_symbol[c];
+	}
+	result[i]=S_NULL;
 	return true;
 }
 

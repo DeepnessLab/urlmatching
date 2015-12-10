@@ -1,7 +1,7 @@
 /*
  * tester.h
  *
- *  Created on: 19 бреб 2014
+ *  Created on: 19 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -26,8 +26,8 @@
 inline
 void getWorkingDirectory(std::string& out ) {
 	char pBuf[MAX_PATH_2];
-	GetCurrentDir(pBuf, MAX_PATH_2);
-	out.assign(pBuf);
+	char* p = GetCurrentDir(pBuf, MAX_PATH_2);
+	out.assign(p);
 }
 
 
