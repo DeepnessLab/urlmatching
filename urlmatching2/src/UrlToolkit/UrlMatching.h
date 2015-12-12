@@ -1,5 +1,5 @@
 /*
- * UrlDictionay.h
+ * UrlMatching.h
  *
   *  Created on: 18 December 2014
  *	    Author: Daniel Krauthgamer
@@ -101,7 +101,7 @@ public:
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
-	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
+	UrlCompressorStatus encode_slow(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
 
 	//Decode in_encoded_buf
 	//in_encoded_buf[0] contains the length of huffman coded bit

@@ -39,7 +39,7 @@ public:
 			, bool optimizeAnchors = false);
 
 	//Load Patterns from file (not in use)
-	virtual bool load_patterns(std::string filepath);
+	virtual bool LoadPatterns(std::string filepath);
 
 	/**
 	 * @param input_str - input string to find matches

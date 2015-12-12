@@ -31,7 +31,7 @@ public:
 	virtual inline bool isInit() {
 		return (_machine == NULL) ? false : true;
 	}
-	virtual bool load_patterns(std::string filepath);
+	virtual bool LoadPatterns(std::string filepath);
 	virtual bool load_patterns(Symbol2pPatternVec patternsList, uint32_t size);
 
 	virtual bool MatchPatterns(std::string input_str, symbolT* result);

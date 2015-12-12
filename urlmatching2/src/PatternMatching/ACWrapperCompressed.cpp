@@ -103,7 +103,7 @@ ACWrapperCompressed::~ACWrapperCompressed() {
 }
 
 
-bool ACWrapperCompressed::load_patterns(std::string filepath) {
+bool ACWrapperCompressed::LoadPatterns(std::string filepath) {
 	assert(false); // not supported
 	const char* tmp = filepath.c_str();
 	_machine = createStateMachine(tmp,100,100,0);

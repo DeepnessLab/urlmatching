@@ -1,8 +1,10 @@
 /*
- * types.h
+ * UrlMatchingTypes.h
  *
- *  Created on: 5 ���� 2014
- *      Author: Daniel
+  *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  General types needed for UrlMathchingModule
  */
 
 #ifndef URLDICTIONARYTYPES_H_

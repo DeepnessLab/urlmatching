@@ -1,8 +1,13 @@
 /*
  * UrlMatchingFunctions.h
  *
- *  Created on: 7 ���� 2014
- *      Author: Daniel
+ *  Created on: 7 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *  Since the Aho Corasick is written in C, and had no way to return the matching patterns back to caller it was
+ *  modified to get `handle function` to execute the all matched string on it.
+ *  MatchingFunctions.h contains those `handle pattern functions`
+ *
  */
 
 #ifndef PATTERNMATCHING_MATCHINGFUNCTIONS_H_
@@ -46,10 +51,8 @@ typedef struct urlMatchingType {
 	symbolTableType* symbolsTable;
 } urlMatchingType;
 
+//This method is very slow since it uses stringstream object, don't use it in Release
 void debugPrintModule (urlMatchingType& urlmatching);
-
-//some forward declarations
-//inline void  calcViPi(urlMatchingType& module);
 
 int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 
@@ -61,8 +64,6 @@ void calcViPi(urlMatchingType& module) {
 	uint32_t index4PV = module.index + 1 ;
 	DBG("calcViPi:" << DVAL (index4PV));
 	ASSERT(module.matching_symbols_idx > 0);
-
-
 
 	//calc V[index4PV] according to module.matching_symbols_arr[0]
 	ASSERT (index4PV < MAX_URL_LENGTH);
