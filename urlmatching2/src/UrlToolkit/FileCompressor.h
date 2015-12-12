@@ -15,8 +15,8 @@
 
 class FileCompressor {
 public:
-	FileCompressor();
-	virtual ~FileCompressor();
+	FileCompressor() {}
+	virtual ~FileCompressor() {}
 
 	static bool compress(std::string& text_filename, std::string& compressed_filename);
 
