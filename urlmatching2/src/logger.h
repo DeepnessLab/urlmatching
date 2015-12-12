@@ -31,6 +31,8 @@
 #define DEBUG_OUTPUT DBG_TO_NONE
 #endif
 
+#define IS_EASYLOGGING_DEFINED (DEBUG_OUTPUT == DBG_TO_LOG)
+
 
 #ifdef BUILD_DEBUG
 #define ON_DEBUG_ONLY(what) do {what ; } while (0)
@@ -60,23 +62,18 @@
 #define BVAL(x) #x"="<<((x)?"true":"false")
 
 #if DEBUG_OUTPUT == DBG_TO_LOG
-
 #define DBG(what) do { std::stringstream s; \
 	s << what; \
 	LOG(DEBUG) << s.str(); } while(0)
 #elif DEBUG_OUTPUT == DBG_TO_STDOUT
 #define DBG(what) std::cout<< what <<std::endl
-
 #elif DEBUG_OUTPUT == DBG_TO_NONE
 #define DBG(what) do { } while(0)
+#endif
 
 #define COND_DBG(flag,what) \
 	if (flag)  {\
 		DBG(what);\
 	}
-
-#endif
-
-
 
 #endif /* LOGGER_H_ */

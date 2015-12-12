@@ -1,35 +1,31 @@
 /*
- * Huffman.cpp
+ * Huffman.h
+ *	Based of huffman source code
+ *	  taken from http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
+ *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
  *
- *  Created on: 1 ���� 2014
- *      Author: Daniel
+ *  Please read huffman.h header comment
+ *
  */
+
 
 #include <stdio.h>
 #include <assert.h>
-
 #include "Huffman.h"
 #include "../common.h"
 #include "../logger.h"
 
-Huffman::Huffman() :
-_is_loaded(false),_freq_size(0){
-	// TODO Auto-generated constructor stub
 
-}
-
-Huffman::~Huffman() {
-	// TODO Auto-generated destructor stub
-}
-
-INode* Huffman::BuildTree()
+INode* Huffman::BuildTree(freqT* frequencies)
 {
+	assert(frequencies!=0);
 	std::priority_queue<INode*, std::vector<INode*>, NodeCmp> trees;
 
 	for (symbolT i = 0; i < _freq_size; ++i)
 	{
-		if(_frequencies[i] != 0)
-			trees.push(new LeafNode(_frequencies[i], (symbolT)i));
+		if(frequencies[i] != 0)
+			trees.push(new LeafNode(frequencies[i], (symbolT)i));
 	}
 	while (trees.size() > 1)
 	{
@@ -47,8 +43,6 @@ INode* Huffman::BuildTree()
 
 void Huffman::free_encoding_memory() {
 		_symbol2codesMap.clear();
-//		_codes2symbolsMap.clear();
-//		_is_loaded = false;
 }
 
 HuffCode Huffman::encode(symbolT symbol) {
@@ -91,21 +85,8 @@ void Huffman::load(freqT* frequencies, uint32_t size) {
 	DBG("Entered Huffman::load size="<<size);
 	_freq_size = size;
 
-	if (_frequencies!=NULL) {
-		DELETE_AND_NULL(_frequencies);
-	}
-
-	_frequencies = frequencies;
-
-	//debug print
-//	std::cout<<"Input frequencies for symbols:"<<std::endl;
-//	for (uint32_t i =0 ; i< _freq_size ; i++) {
-//		DBG("frequencies["<<i<<"]="<<frequencies[i]);
-//	}
-	INode* root = BuildTree();
-
+	INode* root = BuildTree(frequencies);
 	Huffman::GenerateCodes(root, HuffCode(), _symbol2codesMap);
-
 	for (HuffCodeMap::const_iterator it = _symbol2codesMap.begin(); it != _symbol2codesMap.end(); ++it)
 	{
 		_codes2symbolsMap.insert( std::pair<HuffCode,symbolT>(it->second,it->first) );
