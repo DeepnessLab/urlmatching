@@ -153,17 +153,12 @@ void test_hashtable(CmdLineOptions& options) {
 	// ------------------------------------
 	std::cout<<"Preparing: reading file and allocating memory... "<<std::endl;
 	std::deque<std::string>& urls = url_deque;
-	std::deque<uint32_t*> codedbuffers;
 	uint32_t total_input_size = 0;
 	uint32_t buff_size = BUFFSIZE;
 	for (std::deque<std::string>::iterator it = url_deque.begin(); it != url_deque.end(); ++it) {
 		if ( (it->length() == 0 )||(*it == "") ) {
 			std::cout<<"Skipping url in line " << urls.size() +1<<STDENDL;
 		} else{
-			uint32_t length = it->length() ;
-//			length = (length *  sizeof(char))/ sizeof(uint32_t);
-			uint32_t* codedbuff = new uint32_t[length+2];
-			codedbuffers.push_back(codedbuff);
 			total_input_size += it->length();
 		}
 	}
@@ -182,8 +177,8 @@ void test_hashtable(CmdLineOptions& options) {
 	uint32_t encoded_size = 0;
 	uint32_t allocator_size = 0;
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
+		uint32_t codedbuff[BUFFSIZE];
 		buff_size = BUFFSIZE;
-		uint32_t* codedbuff = codedbuffers[i];
 		urlc.encode(urls[i],codedbuff,buff_size);
 		allocator_size += conv_bits_to_bytes(codedbuff[0]);
 		allocator_size += sizeof(CodePack::lenT);
@@ -316,8 +311,7 @@ void test_hashtable(CmdLineOptions& options) {
 			myIPv4 = it->second;
 			uint32_t idx = myIPv4;
 			Encoded packed = it->first;
-
-			uint32_t* codedbuff = codedbuffers[idx];
+			uint32_t codedbuff[BUFFSIZE];
 			codedbuff[0] = packed.getBitLen();
 			packed.UnPack(&(codedbuff[1]));
 
@@ -333,13 +327,6 @@ void test_hashtable(CmdLineOptions& options) {
 			}
 		}
 
-	}
-
-
-	//free what was never yours
-	for (uint32_t i = 0 ; i < urls.size(); i++ ) {
-		uint32_t* codedbuff = codedbuffers[i];
-		delete[] codedbuff;
 	}
 
 	uint32_t size = urls.size();
@@ -375,9 +362,9 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
 	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(6)
+	std::cout<<" hashtable strings = "<<std::setprecision(5)
 	<<(long double) ( (long double) rt_stats.decompressed_size / rt_stats.insert_time_for_strings) *8/1024/1024<<"Mbps"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(6)
+	std::cout<<" hashtable encoded = "<<std::setprecision(5)
 	<<(long double) ( (long double) rt_stats.decompressed_size / rt_stats.insert_time_for_encoded) *8/1024/1024<<"Mbps"<<std::endl;
 	std::cout<<std::setprecision(6);
 
@@ -386,9 +373,9 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.lookup_time_for_strings<<"sec"<<"\t";
 	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.lookup_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.lookup_time_for_encoded / rt_stats.lookup_time_for_strings)<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(6)
+	std::cout<<" hashtable strings = "<<std::setprecision(5)
 		<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_strings) *8/1024/1024<<"Mbps"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(6)
+	std::cout<<" hashtable encoded = "<<std::setprecision(5)
 		<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_encoded) *8/1024/1024<<"Mbps"<<std::endl;
 	std::cout<<std::setprecision(6);
 
