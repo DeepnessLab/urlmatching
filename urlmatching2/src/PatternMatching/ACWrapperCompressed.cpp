@@ -1,17 +1,13 @@
 /*
  * ACWrapperCompressed.cpp
  *
- *  Created on: 7 ���� 2014
- *      Author: Daniel
- */
-
-
-/*
- * AhoCrosarikClassic.cpp
+ *  Created on: 7 December 2014
+ *      Author: Daniel Krauhgamer
  *
- *  Created on: 14 ���� 2014
- *      Author: Daniel
+ *  Please see header file for comments
+ *
  */
+
 
 #include "../PatternMatching/ACWrapperCompressed.h"
 #include <string.h>
@@ -28,30 +24,6 @@ extern "C" {
 #include "../StateMachine/StateMachineDumper.h"
 
 }
-
-
-//#define DBG(__str__) std::cout<<__str__
-
-
-//uint32_t getStringFromMap(char* out_buff, uint32_t max_size) {
-//	ACWrapperClassic ac = ACWrapperClassic::getInstance();
-//	std::string* str= ac.nextPattern();
-//	if (str==NULL)
-//		return 0;
-//	const char* chars= str->c_str();
-//	strncpy(out_buff,chars,max_size);
-//	return strlen(chars);
-//}
-//
-//uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct) {
-//	stringlistType* list_describtor = (stringlistType*) list_struct;
-//	if (list_describtor->index == list_describtor->size)
-//		return 0;
-//	const char* chars= list_describtor->list[list_describtor->index]->c_str();
-//	list_describtor->index = list_describtor->index+1;
-//	strncpy(out_buff,chars,max_size);
-//	return strlen(chars);
-//}
 
 int special_handle_pattern(char* str,uint32_t idx, void* data) {
 	urlMatchingType* url_module = (urlMatchingType*) data;
@@ -141,7 +113,7 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 		int mem = get_curr_memsize();
 		_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
 		_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
-		std::cout<<"AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB"<<std::endl; //todo: remove this line
+		DBG("AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB");
 		_machine->handlePatternFunc = handle_pattern;
 		// Build the complimantry table symbol --> pattern
 		make_pattern_to_symbol_list();
@@ -208,7 +180,7 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 		tk = strtok(NULL, _delimiter);
 	}
 	if ((length-1) != counter) {	//lenght includes the S_NULL
-		ON_DEBUG_ONLY(std::cout<<"error lenght "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL);
+		ON_DEBUG_ONLY(std::cout<<"error length "<<DVAL(length)<<" "<<DVAL(counter)<<STDENDL);
 		ASSERT((length-1) != counter);
 	}
 
@@ -396,21 +368,19 @@ void ACWrapperCompressed::optimize_statemachine()
 	if (!_has_patterns)
 		return;
 
-	std::string filename = "tmpACDUMPFILE";
-	int mem_1 = get_curr_memsize();
+	std::string filename = "tmpACDUMPFILE.deleteme";
+	int mem_before = get_curr_memsize();
 	dumpStateMachine(this->_machine, filename.c_str());
 	if (_machine != NULL) {
 			destroyStateMachine(_machine);
 			_machine = NULL;
 	}
-	std::cout<<"Read dump.."<<std::endl;	//todo: remove this prints
-	int mem_before = get_curr_memsize();
+	DBG("Read dump..");
 	this->_machine = createStateMachineFromDump(filename.c_str());
 	patterntable_destroy(_machine->patternTable);
 	_machine->patternTable = 0 ;
 	int mem_after = get_curr_memsize();
 	_statemachine_size = (uint32_t) mem_after - (uint32_t) mem_before;
-	//todo: remove this prints
-	std::cout<<"AC state machine Optimization reduced: "<< Byte2KB(mem_1 - mem_after)<<"KB"<<std::endl; //todo: remove this line
-	std::cout<<"AC state machine NEW real size = "<< Byte2KB(_statemachine_size)<<"KB"<<std::endl; //todo: remove this line
+	DBG("AC state machine Optimization reduced: "<< Byte2KB(mem_before - mem_after)<<"KB");
+	DBG("AC state machine NEW real size = "<< Byte2KB(_statemachine_size)<<"KB");
 }

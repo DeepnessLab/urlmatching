@@ -1,8 +1,8 @@
 /*
  * addons.h
  *
- *  Created on: 1 ���� 2015
- *      Author: Daniel
+ *  Created on: 1 April 2015
+ *      Author: Daniel Krauthgamer
  */
 
 #ifndef HEAVYHITTERS_ADDONS_H_
@@ -39,39 +39,6 @@ memmem(const void *l, size_t l_len, const void *s, size_t s_len)
 	return NULL;
 }
 
-
-//
-//
-///*
-// * The memmem() function finds the start of the first occurrence of the
-// * substring 'needle' of length 'nlen' in the memory area 'haystack' of
-// * length 'hlen'.
-// *
-// * The return value is a pointer to the beginning of the sub-string, or
-// * NULL if the substring is not found.
-// */
-//void *memmem(const void *haystack, size_t hlen, const void *needle, size_t nlen)
-//{
-//    int needle_first;
-//    const void *p = haystack;
-//    size_t plen = hlen;
-//
-//    if (!nlen)
-//        return NULL;
-//
-//    needle_first = *(unsigned char *)needle;
-//
-//    while (plen >= nlen && (p = memchr(p, needle_first, plen - nlen + 1)))
-//    {
-//        if (!memcmp(p, needle, nlen))
-//            return (void *)p;
-//
-//        p+=1;
-//        plen = (size_t) hlen - (p - haystack);
-//    }
-//
-//    return NULL;
-//}
 
 
 #endif /* HEAVYHITTERS_ADDONS_H_ */

@@ -1,8 +1,11 @@
 /*
  * ACWrapperCompressed.h
  *
- *  Created on: 7 ���� 2014
- *      Author: Daniel
+ *  Created on: 7 December 2014
+ *      Author: Daniel Krauhgamer
+ *
+ *  A C++ Wrapper module for Compressed Aho-Corasick written in C.
+ *  It is performance enhanced for memory efficiency. It does not hold a copy of the pattern themselves.
  */
 
 #ifndef PATTERNMATCHING_ACWRAPPERCOMPRESSED_H_
@@ -105,10 +108,6 @@ private:
 	const char* _delimiter = "`";
 
 };
-
-
-
-
 
 
 #endif /* PATTERNMATCHING_ACWRAPPERCOMPRESSED_H_ */
