@@ -1,9 +1,13 @@
-# urlmatching based compression algorithm
+# ***urlmatching*** based compression algorithm
 This project implements the URL compression algorithm descibed in ***"Scalable URL Matching with Small Memory Footprint"*** article. The project should be compiled under C++11
 * The project contains a tester code to test the performance of module.
 * The recommanded parameters are ```n=3000,r=0.5,k=8```
 * To lean how to use the code explore the teseter's code in  ```tester.cpp```
-* This tool uses the ```easylogging++```WIN/LINUX independent framework from https://github.com/easylogging/easyloggingpp
+
+#### Acknowledgments:
+* This framework uses the ```easylogging++```WIN/LINUX independent framework from https://github.com/easylogging/easyloggingpp
+* This framework uses the compressed Aho-Corasik pattern matching algorithm in https://github.com/DeepnessLab/mca2. This code was generalized using a C-like visitor design pattern (the AH-Compressed executes a function on any matched pattern).
+* This framework uses the ***Double Heavy Hitters algorithm*** from www.deepness-lab.org/pubs/ancs13_autosig.pdf
 
 # API
 The main module is located in `UrlMatchingModule.h` and contains api for:
