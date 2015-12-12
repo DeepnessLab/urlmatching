@@ -1,10 +1,12 @@
 /*
  * FileCompressor.h
  *
- *  Created on: 7 αιεμ 2015
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  Basic module to compress textfile containing urls using urlmatching framework
+ *
  */
-
 #ifndef URLTOOLKIT_FILECOMPRESSOR_H_
 #define URLTOOLKIT_FILECOMPRESSOR_H_
 

@@ -19,12 +19,30 @@
 #include "tester.h"
 #include "UrlToolkit/UrlDictionay.h"
 #include "cmd_line_options.h"
-#include "easylogging++.h"
+#include "logger.h"
 
 
-#ifdef BUILD_DEBUG
+#if IS_EASYLOGGING_DEFINED
 INITIALIZE_EASYLOGGINGPP
 #endif
+
+void init_easy_logging(std::string configuration_file_path)
+{
+#if IS_EASYLOGGING_DEFINED
+
+	// Load configuration from file
+	std::string logger_config_file(configuration_file_path.c_str());
+    el::Configurations conf(configuration_file_path.c_str());
+    // Reconfigure single logger
+//    el::Loggers::reconfigureLogger("default", conf);
+    // Actually reconfigure all loggers instead
+    el::Loggers::reconfigureAllLoggers(conf);
+
+    el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);
+    // Now all the loggers will use configuration from file
+#endif
+    return;
+}
 
 
 int main(int argc, char* argv[])
@@ -38,18 +56,7 @@ int main(int argc, char* argv[])
 		options.logger_config = path + "/src/easylogging.conf";
 	}
 
-#ifdef BUILD_DEBUG
-	// Load configuration from file
-	std::string logger_config_file(options.logger_config.c_str());
-    el::Configurations conf(logger_config_file.c_str());
-    // Reconfigure single logger
-//    el::Loggers::reconfigureLogger("default", conf);
-    // Actually reconfigure all loggers instead
-    el::Loggers::reconfigureAllLoggers(conf);
-
-    el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);
-    // Now all the loggers will use configuration from file
-#endif
+	init_easy_logging(options.logger_config);
 
     clock_t begin,end;
     begin = std::clock(); ;

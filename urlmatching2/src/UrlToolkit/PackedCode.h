@@ -1,8 +1,11 @@
 /*
  * PackedCode.h
  *
- *  Created on: 22 ���� 2015
- *      Author: Daniel
+*  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  See header file for comments.
+ *
  */
 
 #ifndef URLTOOLKIT_PACKEDCODE_H_

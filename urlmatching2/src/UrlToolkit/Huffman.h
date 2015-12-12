@@ -1,18 +1,17 @@
 /*
  * Huffman.h
- *	Taken from http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
- *  Created on: 1 бреб 2014
- *      Author: Daniel
+ *	Based of huffman source code
+ *	  taken from http://rosettacode.org/wiki/Huffman_coding#C.2B.2B
+ *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  This Huffman implementation is created to be general, for a large dictionary size.
+ *  It can be extended by defining symbolT
+ *
  */
 
 #ifndef HUFFMAN_H_
 #define HUFFMAN_H_
-
-//#include <stddef.h>
-//#include <stdint.h>
-//#include <map>
-//#include <vector>
-
 
 #include <iostream>
 #include <queue>
@@ -25,9 +24,6 @@
 #include <sstream>
 #include "UrlDictionaryTypes.h"
 
-
-//const int UniqueSymbols = 1 << CHAR_BIT;
-//const char* SampleString = "this is an example for huffman encoding";
 
 typedef std::vector<bool> HuffCode;
 typedef std::map<uint32_t, HuffCode> HuffCodeMap;
@@ -75,8 +71,8 @@ struct NodeCmp {
 
 class Huffman {
 public:
-	Huffman();
-	virtual ~Huffman();
+	Huffman() : _is_loaded(false),_freq_size(0) {}
+	virtual ~Huffman()  {}
 
 	void load(freqT* frequencies, uint32_t size);
 	void free_encoding_memory();
@@ -107,7 +103,7 @@ public:
 
 
 private:
-	INode* BuildTree();
+	INode* BuildTree(freqT* frequencies);
 	void FreeTree(const INode* node);
 	void GenerateCodes(const INode* node, const HuffCode& prefix,
 			HuffCodeMap& outCodes);
@@ -115,7 +111,6 @@ private:
 	HuffCodeMap _symbol2codesMap;
 	HuffSymbMap _codes2symbolsMap;
 	bool 		_is_loaded ;
-	freqT* 		_frequencies = NULL;
 	uint32_t 	_freq_size ;
 
 };

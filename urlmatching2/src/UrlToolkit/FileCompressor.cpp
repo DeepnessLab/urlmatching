@@ -1,10 +1,12 @@
 /*
  * FileCompressor.cpp
  *
- *  Created on: July 7th 2015
- *      Author: Daniel Krauthamer
+ *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  See header file for comments.
+ *
  */
-
 #include <fstream>
 #include <iostream>
 #include <iomanip>

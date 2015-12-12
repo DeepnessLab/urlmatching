@@ -1,8 +1,11 @@
 /*
  * UrlDictionay.cpp
  *
- *  Created on: 1 ���� 2014
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *	    Author: Daniel Krauthgamer
+ *
+ *  See header file for comments.
+ *
  */
 
 #include <fstream>
