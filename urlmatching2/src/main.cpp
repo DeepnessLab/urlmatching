@@ -1,8 +1,8 @@
 /*
  * main.cpp
  *
- *  Created on: 1 2014
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
  *
  *  The system contains a centralized logging infrastructure, located in logger.h
  *  Debug logs are enabled only when DEBUG_BUILD label is set.
@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 
 	std::string path;
 	getWorkingDirectory(path);
-	//	std::cout<<"running from path="<<path<<std::endl;
 
 	CmdLineOptions options(argc, argv);
 	if (options.logger_config == "") {
@@ -55,8 +54,6 @@ int main(int argc, char* argv[])
     clock_t begin,end;
     begin = std::clock(); ;
 	run_cmd_main(options);
-//	test_main(options);			//todo remove this
-//	test_hashtable(options);	//todo remove this
 	end = std::clock();;
 	double test_time = double(end - begin) / (CLOCKS_PER_SEC);
 	std::cout<<"TEST ENDED, took " << test_time / 60 << " min."<< std::endl;

@@ -1,12 +1,12 @@
 /* 
  * File:   cmd_line_parser.cpp
- * Author: golanp
- * 
- * Created on December 7, 2013, 4:46 PM
- * Edited by Michal
- * Added the option of string use.
+ * Created on: 18 December 2014
+ *     Author: Daniel Krauthgamer
+ *
+ * define the CmdLineOptions class, parsing the cmd parameters
  */
-#define _GLIBCXX_USE_C99 1
+
+//#define _GLIBCXX_USE_C99 1
 
 #include <stdlib.h>
 #include <getopt.h>
@@ -52,7 +52,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		if (this->cmd == "-h") {
 			usage();
 		} else {
-			std::cout<<"Uknown CMD, use -h for help"<<std::endl;
+			std::cout<<"Unknown CMD, use -h for help"<<std::endl;
 		}
 		exit(0);
 	}

@@ -1,8 +1,10 @@
 /*
  * hashtable_example.cpp
  *
- *  Created on: 21 ���� 2015
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *  Tester for using the module as hash keys
  */
 
 #include <cstring>

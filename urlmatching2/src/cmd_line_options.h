@@ -1,10 +1,10 @@
 /* 
  * File:   cmd_line_parser.h
- * Author: golanp
+ * Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
  *
- * Created on December 7, 2013, 4:46 PM
- * Edited by Michal
- * Added the option of string use.
+ * define the CmdLineOptions class, parsing the cmd parameters
+ *
  */
 
 #ifndef CMD_LINE_PARSER_H

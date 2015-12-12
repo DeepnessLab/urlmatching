@@ -1,8 +1,10 @@
 /*
  * tester.cpp
  *
- *  Created on: 18 ���� 2014
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *  Tester implementation for the module
  */
 #define _GLIBCXX_USE_C99 1
 
