@@ -2,8 +2,10 @@
  * MatchingFunctions.cpp
 
  *
- *  Created on: 8 ���� 2014
- *      Author: Daniel
+ *  Created on: 8 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *	See header file for comments
  */
 
 #include "MatchingFunctions.h"
@@ -14,10 +16,6 @@
 
 int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 {
-//	if (str == NULL) {
-//		DBG("** handled str=NULL at "<<DVAL(idx)<<" **");
-//		return 0;
-//	}
 	urlMatchingType* url_module = (urlMatchingType*) data;
 	ASSERT(url_module!=NULL);
 	DBG("handle_pattern: \""<<str<< "\" at "<<idx);
@@ -64,7 +62,6 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 		ld cost =  (ld) (Pattern::C_state * num_states) + h;
 		if (gain >= cost)
 			break;
-//		std::cout<<"Skipping anchor: "<<p->_str<<STDENDL;
 		p->_frequency=0;
 		p = list->getNext();
 	}
@@ -104,9 +101,6 @@ void debugPrintModule (urlMatchingType& urlmatching) {
 				<<(*urlmatching.list)[urlmatching.matching_symbols_arr[i]]->_str << ",";
 	}
 	DBG(s3<<"]");
-//	patternsMapType* patternDB;						//map consist of <char* pattern , symbol >
-//		symbolT* char_to_symbol;						//array [char] = symbols
-
 }
 
 

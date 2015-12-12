@@ -1,5 +1,5 @@
 /*
- * UrlDictionay.cpp
+ * UrlMatching.cpp
  *
  *  Created on: 18 December 2014
  *	    Author: Daniel Krauthgamer
@@ -502,7 +502,7 @@ void UrlMatchingModule::prepare_huffman() {
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
-UrlCompressorStatus UrlMatchingModule::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+UrlCompressorStatus UrlMatchingModule::encode_slow(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;

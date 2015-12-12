@@ -168,7 +168,7 @@ void CmdLineOptions::PrintParameters(std::ostream& log){
 
 void CmdLineOptions::usage() {
 	std::cout << std::endl;
-	std::cout << "Usage: urlcompressor [CMD] [-f urls_path] <options> <compression params>" << std::endl
+	std::cout << "Usage: UrlMatchingTester [CMD] [-f urls_path] <options> <compression params>" << std::endl
 			<< std::endl
 			<< " 1. testing CMD: test, ,testhash, article"<<std::endl
 			<< "    -f [String] urls filepath  - required" << std::endl
