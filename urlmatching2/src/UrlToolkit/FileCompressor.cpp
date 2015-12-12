@@ -120,7 +120,7 @@ bool FileCompressor::compress(std::string& text_filename,
 	for (uint32_t i = 0; i < num_of_urls; i++) {
 		buff_length = BUFFSIZE;
 		resetbuff(codedbuff, BUFFSIZE);
-		urlc.encode_2(url_deque[i], codedbuff, buff_length);
+		urlc.encode(url_deque[i], codedbuff, buff_length);
 
 		if (codedbuff[0] > UINT16_MAX) {
 			std::cout << "ERROR at line " << i + 1 << ": bit counter "

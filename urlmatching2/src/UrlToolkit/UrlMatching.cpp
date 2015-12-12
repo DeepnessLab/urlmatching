@@ -549,7 +549,7 @@ void print(std::ostream& o, uint32_t buf) {
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
-UrlCompressorStatus UrlMatchingModule::encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+UrlCompressorStatus UrlMatchingModule::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -809,7 +809,7 @@ bool UrlMatchingModule::sanity()
 	std::string my_string = "http://www.besound.com/pushead/home.html";
 	uint32_t buff_size = 100;
 	uint32_t codedbuff[100] ;
-	encode_2(my_string,codedbuff,buff_size);
+	encode(my_string,codedbuff,buff_size);
 
 	std::string decoded_str;
 	int ret = decode(decoded_str,codedbuff,buff_size);

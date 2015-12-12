@@ -99,7 +99,7 @@ public:
 
 	//This a much faster encoder
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
-	UrlCompressorStatus encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
+	UrlCompressorStatus encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size);
 	//buf_size - input: out_encoded_buf max size, out - number of coded buffer
 	UrlCompressorStatus encode_slow(std::string url, uint32_t* out_encoded_buf, uint32_t& out_buf_size);
 
