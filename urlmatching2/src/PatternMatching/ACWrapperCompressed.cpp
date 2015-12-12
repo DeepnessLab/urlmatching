@@ -20,8 +20,8 @@
 #include "../common.h"
 
 extern "C" {
-#include "../Common/Types.h"
-#include "../StateMachine/StateMachineDumper.h"
+#include "../AhoCorasick/Common/Types.h"
+#include "../AhoCorasick/StateMachine/StateMachineDumper.h"
 
 }
 

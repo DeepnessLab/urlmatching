@@ -11,7 +11,7 @@
 #include "../Common/Types.h"
 #include "../Common/PatternTable.h"
 #include "../Common/HashMap/HashMap.h"
-#include "../AhoCorasick/ACBuilder.h"
+#include "../ACBuilder.h"
 
 
 //handle patterns from outside

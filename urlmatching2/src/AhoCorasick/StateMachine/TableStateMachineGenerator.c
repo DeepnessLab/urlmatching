@@ -6,9 +6,9 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include "../AhoCorasick/ACTypes.h"
-#include "../AhoCorasick/ACBuilder.h"
-#include "../AhoCorasick/NodeQueue.h"
+#include "../ACTypes.h"
+#include "../ACBuilder.h"
+#include "../NodeQueue.h"
 #include "../Common/HashMap/HashMap.h"
 #include "TableStateMachineGenerator.h"
 

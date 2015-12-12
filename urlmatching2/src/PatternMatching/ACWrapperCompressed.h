@@ -20,8 +20,8 @@
 
 extern "C"
 {
-#include "../StateMachine/StateMachine.h"
-#include "../StateMachine/StateMachineGenerator.h"
+#include "../AhoCorasick/StateMachine/StateMachine.h"
+#include "../AhoCorasick/StateMachine/StateMachineGenerator.h"
 #include "../AhoCorasick/ACBuilder.h"
 }
 

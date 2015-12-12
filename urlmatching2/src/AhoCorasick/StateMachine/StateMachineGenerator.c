@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../Common/Flags.h"
-#include "../AhoCorasick/ACBuilder.h"
-#include "../AhoCorasick/NodeQueue.h"
+#include "../ACBuilder.h"
+#include "../NodeQueue.h"
 #include "../Common/StateTable.h"
 #include "../Common/FastLookup/FastLookup.h"
 #include "StateGenerator.h"
