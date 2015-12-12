@@ -19,7 +19,6 @@
 
 #include "tester.h"
 #include "UrlToolkit/Huffman.h"
-#include "PatternMatching/ACWrapperClassic.h"
 #include "UrlToolkit/UrlMatching.h"
 #include "HeavyHitters/dhh_lines.h"
 #include "UrlToolkit/CodePack.h"

@@ -15,7 +15,6 @@
 #include <string>
 
 #include "UrlToolkit/Huffman.h"
-#include "PatternMatching/ACWrapperClassic.h"
 #include "tester.h"
 #include "UrlToolkit/UrlMatching.h"
 #include "cmd_line_options.h"
