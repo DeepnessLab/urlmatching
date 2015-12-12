@@ -12,6 +12,7 @@
 #define URLTOOLKIT_PACKEDCODE_H_
 
 #include "UrlMatchingTypes.h"
+#include "../HeavyHitters/crc32c.h"
 
 
 //Convert uint32_t buff from LittleEndian to BigEndian and vice versa
@@ -125,30 +126,26 @@ struct CodePackT {
 			return false;
 		char* left =  this->getBuff();
 		char* right = other.getBuff();
-		uint16_t accu = 0;
 		left_len = this->getByteSize();
-		while (left_len > accu) {
-			if (*left != *right)
-				return false;
-			left++;
-			right++;
-			accu++;
-		}
+		if (memcmp(left,right,left_len) == 0)
+			return true;
+		return false;
 
-		return true;
 	}
 
 	std::size_t hash() const {
 		std::size_t ret = 0;
-		std::hash<size_t> hasher;
 		CodePack::lenT len = getByteSize();
 		char* curr = getBuff();
-		for (uint32_t i = 0; i < len ; i++) {
-			ret <<=8;
-			ret += (*curr) ; // overloading
-			curr++;
-		}
-		return hasher(ret);
+		ret=crc32cComplete(curr,len);
+		return ret;
+//		for (uint32_t i = 0; i < len ; i++) {
+//			ret <<=8;
+//			ret += (*curr) ; // overloading
+//			curr++;
+//		}
+//		std::hash<size_t> hasher;
+//		return hasher(ret);
 	}
 
 };

@@ -182,7 +182,7 @@ void test_article(CmdLineOptions& options)
 		for (uint32_t i = 0 ; i < urls_size; i++ ) {
 			uint32_t* codedbuff = codedbuffers[i];
 			uint32_t buffsize = (uint32_t) urls[i].length();
-			urlc->encode_2(urls[i], codedbuff, buffsize);
+			urlc->encode(urls[i], codedbuff, buffsize);
 			s.decoded_size+=urls[i].length() + 1 /* for \n at the end of the original line */;
 			encoded_size_bits += codedbuff[0] ;
 		}
@@ -224,7 +224,7 @@ void test_article(CmdLineOptions& options)
 			uint32_t* codedbuff = codedbuffers[idx];
 			for (uint32_t t = 1 ; t <= times ; t ++) {
 				buff_size = BUFFSIZE;
-				urlc->encode_2(urls[idx],codedbuff,buff_size);
+				urlc->encode(urls[idx],codedbuff,buff_size);
 				s.decoded_stream_size+=urls[idx].length();
 				encoded_stream_bitsize += codedbuff[0] ;
 			}
@@ -367,7 +367,7 @@ void test_encode(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
-			urlc.encode_2(urls[i],codedbuff,buff_size);
+			urlc.encode(urls[i],codedbuff,buff_size);
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
 		}
@@ -609,7 +609,7 @@ void test_main(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
-			urlc.encode_2(urls[i],codedbuff,buff_size);
+			urlc.encode(urls[i],codedbuff,buff_size);
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
 		}
@@ -766,7 +766,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<"encode string= "<<my_string<<std::endl;
 	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode_2(my_string,codedbuff,buff_size);
+	urlc.encode(my_string,codedbuff,buff_size);
 	std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
 
 	std::string decoded_str;
@@ -827,7 +827,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		buff_size = BUFFSIZE;
 		uint32_t* codedbuff = codedbuffers[i];
-		urlc.encode_2(urls[i],codedbuff,buff_size);
+		urlc.encode(urls[i],codedbuff,buff_size);
 		decoded_size+=urls[i].length();
 		encoded_size+=buff_size;
 		if (i%status_every == 0)
@@ -985,7 +985,7 @@ bool sanityTesting(UrlMatchingModule& urlc , bool verbose) {
 		std::cout<<"Sanity testing on \""<<my_string<<"\""<<std::endl;
 	uint32_t buff_size = BUFFSIZE;
 	uint32_t* codedbuff = new uint32_t[buff_size];
-	urlc.encode_2(my_string,codedbuff,buff_size);
+	urlc.encode(my_string,codedbuff,buff_size);
 	if (verbose)
 		std::cout<<"encoding length= "<<codedbuff[0]<<" "<<DVAL(buff_size)<< std::endl;
 

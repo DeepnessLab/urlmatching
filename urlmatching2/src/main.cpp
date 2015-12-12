@@ -21,9 +21,9 @@
 #include "Tester/tester.h"
 
 
-#if IS_EASYLOGGING_DEFINED
+//#if IS_EASYLOGGING_DEFINED
 INITIALIZE_EASYLOGGINGPP
-#endif
+//#endif
 
 void init_easy_logging(std::string configuration_file_path)
 {
