@@ -18,12 +18,12 @@
 
 
 #include "tester.h"
-#include "UrlToolkit/Huffman.h"
-#include "UrlToolkit/UrlMatching.h"
-#include "HeavyHitters/dhh_lines.h"
-#include "UrlToolkit/CodePack.h"
-#include "logger.h"
-#include "common.h"
+#include "../UrlToolkit/Huffman.h"
+#include "../UrlToolkit/UrlMatching.h"
+#include "../HeavyHitters/dhh_lines.h"
+#include "../UrlToolkit/CodePack.h"
+#include "../logger.h"
+#include "../common.h"
 
 
 #define BUFFSIZE 500

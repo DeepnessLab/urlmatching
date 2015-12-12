@@ -15,10 +15,10 @@
 #include <string>
 
 #include "UrlToolkit/Huffman.h"
-#include "tester.h"
 #include "UrlToolkit/UrlMatching.h"
-#include "cmd_line_options.h"
 #include "logger.h"
+#include "Tester/cmd_line_options.h"
+#include "Tester/tester.h"
 
 
 #if IS_EASYLOGGING_DEFINED
