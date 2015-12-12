@@ -8,7 +8,7 @@
 #ifndef ACTYPES_H_
 #define ACTYPES_H_
 
-#include "../Common/HashMap/HashMap.h"
+#include "Common/HashMap/HashMap.h"
 
 struct st_node;
 

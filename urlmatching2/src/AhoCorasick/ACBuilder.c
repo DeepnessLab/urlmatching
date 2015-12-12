@@ -8,10 +8,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include "../Common/Flags.h"
+#include "Common/Flags.h"
 #include "ACBuilder.h"
 #include "NodeQueue.h"
-#include "../Common/Types.h"
+#include "Common/Types.h"
 
 #define READ_BUFFER_SIZE 1024
 #define MAX_STATES 65536

@@ -9,7 +9,7 @@
 #define TABLESTATEMACHINEGENERATOR_H_
 
 #include "TableStateMachine.h"
-#include "../AhoCorasick/ACBuilder.h"
+#include "../ACBuilder.h"
 
 TableStateMachine *generateTableStateMachine(const char *path, int verbose);
 TableStateMachine *generateTableStateMachineFunc(getStringFuncType func, void* func_struct, int verbose);
