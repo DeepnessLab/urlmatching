@@ -22,7 +22,7 @@
 #include "PatternMatching/ACWrapperClassic.h"
 #include "UrlToolkit/UrlDictionay.h"
 #include "HeavyHitters/dhh_lines.h"
-#include "UrlToolkit/PackedCode.h"
+#include "UrlToolkit/CodePack.h"
 #include "logger.h"
 #include "common.h"
 

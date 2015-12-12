@@ -13,9 +13,8 @@
 
 #include "FileCompressor.h"
 #include "UrlDictionay.h"
-#include "PackedCode.h"
+#include "CodePack.h"
 
-//todo: clean comments and old code
 
 #define BUFFSIZE 255
 #define BAD1BAD1 0xBAD1BAD1
@@ -23,7 +22,7 @@
 #define MAGICSTR "ENDOFFILE"
 
 #ifdef BUILD_DEBUG	//On debug , add hex_verify value between each coded url for easier hex viewing
-static uint32_t hex_verify = 0xAAAAFFFF;
+static uint32_t hex_verify = 0xDEADBEEF;
 #endif
 
 
@@ -50,10 +49,6 @@ void print_buf(std::ofstream& ofs, uint32_t* buff, uint32_t len) {
 	ofs << std::setw(0) << std::dec << std::endl;
 }
 
-FileCompressor::FileCompressor() {
-	// TODO Auto-generated constructor stub
-
-}
 
 bool FileCompressor::compress(std::string& text_filename,
 		std::string& compressed_filename) {
@@ -117,7 +112,6 @@ bool FileCompressor::compress(std::string& text_filename,
 
 	//step B: store number of urls
 	uint32_t num_of_urls = url_deque.size();
-//	num_of_urls = 1;	//TODO: !!!!!!!!!!!!!!!!! remove !!!!!!!!!!!!!!
 	mem_block = (char *) &num_of_urls;
 	file.write(mem_block, sizeof(num_of_urls));
 
@@ -277,9 +271,5 @@ bool FileCompressor::extract(std::string& compressed_filename,
 		std::cout << "!!!System is little endian!!!" << STDENDL;
 	}
 	return true;
-}
-
-FileCompressor::~FileCompressor() {
-	// TODO Auto-generated destructor stub
 }
 
