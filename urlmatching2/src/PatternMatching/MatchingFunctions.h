@@ -8,7 +8,7 @@
 #ifndef PATTERNMATCHING_MATCHINGFUNCTIONS_H_
 #define PATTERNMATCHING_MATCHINGFUNCTIONS_H_
 
-#include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlMatchingTypes.h"
 #include <assert.h>
 #include <string.h>
 #include <cstring>

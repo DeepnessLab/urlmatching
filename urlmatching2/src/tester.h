@@ -48,7 +48,7 @@ void getWorkingDirectory(std::string& out ) {
 	std::cout<<"TEST \""<<#name<<"\" ENDED, took " << test_time / 60 << " min."<< std::endl;
 
 
-class UrlCompressor;
+class UrlMatchingModule;
 
 
 void run_cmd_main(CmdLineOptions& options);
@@ -65,7 +65,7 @@ void test_article					(CmdLineOptions& options);
 
 //The cmd tester (Main tester)
 void take_a_break(int seconds, std::string why);
-bool sanityTesting(UrlCompressor& urlc , bool verbose = false);
+bool sanityTesting(UrlMatchingModule& urlc , bool verbose = false);
 
 //Other testers (need to set manually in main.cpp)
 void test_LLH();

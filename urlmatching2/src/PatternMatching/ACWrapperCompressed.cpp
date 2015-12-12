@@ -19,8 +19,8 @@
 #include <map>
 #include <sstream>
 #include "MatchingFunctions.h"
-#include "../UrlToolkit/UrlDictionay.h"
-#include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlMatching.h"
+#include "../UrlToolkit/UrlMatchingTypes.h"
 #include "../common.h"
 
 extern "C" {

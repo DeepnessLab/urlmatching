@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef URLDICTIONAY_H_
-#define URLDICTIONAY_H_
+#ifndef URLMATCHING_H_
+#define URLMATCHING_H_
 
 #include <stdio.h>
 #include <string.h>
@@ -18,7 +18,7 @@
 #include "Huffman.h"
 //#include "PatternMatching/ACWrapperClassic.h"
 #include "../PatternMatching/ACWrapperCompressed.h"
-#include "UrlDictionaryTypes.h"
+#include "UrlMatchingTypes.h"
 #include "SerialAllocator.h"
 
 
@@ -35,14 +35,14 @@ enum UrlCompressorStatus {
 	STATUS_ERR_LOST_DECODED_DATA = -4
 };
 
-typedef struct HeavyHittersParams {
+typedef struct DoubleHeavyHittersParams {
 	int n1;
 	int n2;
 	float r;
 	size_t kgrams_size;
-} HeavyHittersParams_t;
+} DoubleHeavyHittersParams_t;
 
-typedef struct UrlCompressorStats {
+typedef struct UrlMatchingModuleStats {
 	//Importat:
 	//Adding new members ? don't forget to update reset() & print()
 	uint32_t number_of_symbols;
@@ -57,14 +57,14 @@ typedef struct UrlCompressorStats {
 	int 	 ac_memory_footprint;	//On linux only (otherwise 0)
 	uint32_t ac_memory_allocated;
 	int 	 ac_statemachine_footprint;
-	HeavyHittersParams_t params;
+	DoubleHeavyHittersParams_t params;
 	bool params_set;
 
 	uint32_t getACMachineEstSize() const { return (5 * total_patterns_length); }
 
 	void reset() ;
 
-	void reset(const HeavyHittersParams_t& params_) {
+	void reset(const DoubleHeavyHittersParams_t& params_) {
 		reset();
 		params = params_;
 		params_set = true;
@@ -72,14 +72,14 @@ typedef struct UrlCompressorStats {
 
 	void print(std::ostream& out) const ;
 
-} UrlCompressorStats_t;
+} UrlMatchingModuleStats_t;
 
-extern HeavyHittersParams_t default_hh_params;
+extern DoubleHeavyHittersParams_t default_hh_params;
 
-class UrlCompressor {
+class UrlMatchingModule {
 public:
-	UrlCompressor();
-	virtual ~UrlCompressor();
+	UrlMatchingModule();
+	virtual ~UrlMatchingModule();
 
 	//Cache urls in input file into deque of std::string of urls
 	static bool getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list);
@@ -88,7 +88,7 @@ public:
 	//Load urlmatching dictionary from list of strings
 	bool InitFromUrlsList(const std::deque<std::string>& orig_url_list,
 			const std::deque<std::string>& list_for_patterns,
-			const HeavyHittersParams_t params,
+			const DoubleHeavyHittersParams_t params,
 			const bool contains_basic_symbols,
 			bool optimize_size = false);
 
@@ -126,7 +126,7 @@ public:
 	}
 
 	uint32_t getDictionarySize()  const;
-	inline const UrlCompressorStats_t* get_stats() const {return  &_statistics; }
+	inline const UrlMatchingModuleStats_t* get_stats() const {return  &_statistics; }
 	bool sanity() ;
 
 	//Debug API
@@ -136,7 +136,7 @@ public:
 	//load list of urls and build cached database
 	//Deprecated!
 	bool LoadUrlsFromFile(const std::string& file_path,
-			const HeavyHittersParams_t params,
+			const DoubleHeavyHittersParams_t params,
 			const  bool contains_basic_symbols);
 
 	Huffman _huffman;
@@ -182,7 +182,7 @@ private:
 	ACWrapperCompressed algo;
 	bool _is_loaded;
 	symbolT _nextSymbol;
-	UrlCompressorStats_t _statistics;
+	UrlMatchingModuleStats_t _statistics;
 
 };
 
@@ -211,4 +211,4 @@ private:
 };
 
 
-#endif /* URLDICTIONAY_H_ */
+#endif /* URLMATCHING_H_ */

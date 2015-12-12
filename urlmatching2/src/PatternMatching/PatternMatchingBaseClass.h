@@ -1,7 +1,7 @@
 /*
  * AhoCorasikBase.h
  *
- *  Created on: 14 бреб 2014
+ *  Created on: 14 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -9,17 +9,7 @@
 #define WRAPPERS_PATTERNMATCHINGBASECLASS_H_
 
 #include <string>
-#include "../UrlToolkit/UrlDictionaryTypes.h"
-
-//class PatternCollector {
-//public:
-//	PatternCollector();
-//	virtual ~PatternCollector();
-//
-//	int virtual insert();
-//};
-
-
+#include "../UrlToolkit/UrlMatchingTypes.h"
 
 
 class PatternMatchingBaseClass {

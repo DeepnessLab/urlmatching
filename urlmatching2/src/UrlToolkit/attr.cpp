@@ -1,4 +1,4 @@
-#include "UrlDictionay.h"
+#include "UrlMatching.h"
 #include "../logger.h"
 #include "../common.h"
 #include <string.h>
@@ -33,7 +33,7 @@ long double Pattern::get_gain() const {
 	return ret;
 }
 
-void UrlCompressorStats::reset() {
+void UrlMatchingModuleStats::reset() {
 	params_set = false;
 	number_of_patterns = 0;
 	number_of_symbols = 0;
@@ -50,7 +50,7 @@ void UrlCompressorStats::reset() {
 }
 
 
-void UrlCompressorStats::print(std::ostream& out) const {
+void UrlMatchingModuleStats::print(std::ostream& out) const {
 	out<< "Number of symbols  = " << (number_of_symbols)<<STDENDL;
 	out<< "Number of patterns = " << (number_of_patterns)<<STDENDL;
 	out<< "Number_of urls     = " << (number_of_urls)<<STDENDL;
