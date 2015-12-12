@@ -1,8 +1,10 @@
 /*
  * tester.h
  *
- *  Created on: 19 ���� 2014
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *  Tester implementation for the module
  */
 
 #ifndef TESTER_H_

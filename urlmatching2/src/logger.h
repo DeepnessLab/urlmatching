@@ -1,8 +1,11 @@
 /*
  * logger.h
  *
- *  Created on: 9 ���� 2015
- *      Author: Daniel
+ *  Created on: 18 December 2014
+ *      Author: Daniel Krauthgamer
+ *
+ *  Logging header configuration.
+ *  Define where DEBUG_OUTPUT is streamed.
  */
 
 #ifndef LOGGER_H_
@@ -73,6 +76,7 @@
 	}
 
 #endif
+
 
 
 #endif /* LOGGER_H_ */
