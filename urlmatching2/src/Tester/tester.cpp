@@ -18,12 +18,12 @@
 #include <cstdlib>
 
 #include "tester.h"
-#include "UrlToolkit/Huffman.h"
-#include "UrlToolkit/UrlMatching.h"
-#include "UrlToolkit/FileCompressor.h"
-#include "HeavyHitters/dhh_lines.h"
-#include "logger.h"
-#include "common.h"
+#include "../UrlToolkit/Huffman.h"
+#include "../UrlToolkit/UrlMatching.h"
+#include "../UrlToolkit/FileCompressor.h"
+#include "../HeavyHitters/dhh_lines.h"
+#include "../logger.h"
+#include "../common.h"
 
 
 #define BUFFSIZE 500
