@@ -20,7 +20,7 @@
 #include "tester.h"
 #include "UrlToolkit/Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
-#include "UrlToolkit/UrlDictionay.h"
+#include "UrlToolkit/UrlMatching.h"
 #include "HeavyHitters/dhh_lines.h"
 #include "UrlToolkit/CodePack.h"
 #include "logger.h"
@@ -107,14 +107,14 @@ void test_hashtable(CmdLineOptions& options) {
 
 	std::cout<<" --- Testing hashtable ---"<<std::endl;
 	options.PrintParameters(std::cout);
-	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
 
 	// ----
 	//    Create compression module
 	// ------------------------------------
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 
 	std::deque<std::string> url_deque;
 	if (! urlc.getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
@@ -378,7 +378,7 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Algorithm Statistics:"<<STDENDL;
 	std::cout<<"--------------------"<<std::endl;
-	const UrlCompressorStats* stats = urlc.get_stats();
+	const UrlMatchingModuleStats* stats = urlc.get_stats();
 	std::cout<<"Static sizes:"<<STDENDL;
 	std::cout<<" "<<DVAL(sizeof(myIPv4))<<std::endl;
 	std::cout<<" "<<DVAL(sizeof(Encoded))<<std::endl;

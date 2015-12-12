@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string>
 #include <sstream>
-#include "UrlDictionaryTypes.h"
+#include "UrlMatchingTypes.h"
 
 
 typedef std::vector<bool> HuffCode;

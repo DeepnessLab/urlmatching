@@ -11,7 +11,7 @@
 #ifndef URLTOOLKIT_PACKEDCODE_H_
 #define URLTOOLKIT_PACKEDCODE_H_
 
-#include "UrlDictionaryTypes.h"
+#include "UrlMatchingTypes.h"
 
 
 //Convert uint32_t buff from LittleEndian to BigEndian and vice versa

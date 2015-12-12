@@ -18,7 +18,7 @@
 #include <algorithm>    // std::sort
 
 #ifndef UINT32_MAX
-#define UINT32_MAX  (0xffffffff)	//this is redefined
+#define UINT32_MAX  (0xffffffff)
 #endif
 
 #define STDENDL std::endl

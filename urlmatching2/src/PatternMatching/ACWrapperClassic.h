@@ -1,7 +1,7 @@
 /*
  * AhoCrosarikClassic.h
  *
- *  Created on: 14 бреб 2014
+ *  Created on: 14 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
@@ -10,7 +10,7 @@
 
 #include <map>
 #include <string>
-#include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlMatchingTypes.h"
 #include "PatternMatchingBaseClass.h"
 
 extern "C"

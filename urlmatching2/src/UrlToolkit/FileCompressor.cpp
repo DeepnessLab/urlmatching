@@ -12,7 +12,6 @@
 #include <iomanip>
 
 #include "FileCompressor.h"
-#include "UrlDictionay.h"
 #include "CodePack.h"
 
 
@@ -57,7 +56,7 @@ bool FileCompressor::compress(std::string& text_filename,
 }
 
 bool FileCompressor::compress(std::string& text_filename,
-		std::string& compressed_filename, HeavyHittersParams_t& params,
+		std::string& compressed_filename, DoubleHeavyHittersParams_t& params,
 		bool split_for_LPM, std::string delimiter) {
 
 	/*Format Dictionary|(uint32_t)Num Of Urls in file|
@@ -66,7 +65,7 @@ bool FileCompressor::compress(std::string& text_filename,
 	 * |magic|EOF
 	 */
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 
 	std::deque<std::string> url_deque;
 	if (!urlc.getUrlsListFromFile(text_filename, url_deque)) {
@@ -193,7 +192,7 @@ bool FileCompressor::extract(std::string& compressed_filename,
 		return false;
 	}
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 	bool ret = false;
 	//step A: read compression dictionary
 	ret = urlc.InitFromDictFileStream(file);

@@ -1,14 +1,14 @@
 /*
  * AhoCrosarikClassic.cpp
  *
- *  Created on: 14 бреб 2014
+ *  Created on: 14 пїЅпїЅпїЅпїЅ 2014
  *      Author: Daniel
  */
 
 #include "../PatternMatching/ACWrapperClassic.h"
 #include <string.h>
 #include <assert.h>
-#include "../UrlToolkit/UrlDictionay.h"
+#include "../UrlToolkit/UrlMatching.h"
 #include "MatchingFunctions.h"
 extern "C" {
 #include "../Common/Types.h"

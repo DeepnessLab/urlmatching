@@ -20,7 +20,7 @@
 #include "tester.h"
 #include "UrlToolkit/Huffman.h"
 #include "PatternMatching/ACWrapperClassic.h"
-#include "UrlToolkit/UrlDictionay.h"
+#include "UrlToolkit/UrlMatching.h"
 #include "UrlToolkit/FileCompressor.h"
 #include "HeavyHitters/dhh_lines.h"
 #include "logger.h"
@@ -75,11 +75,11 @@ struct RunTimeStats {
 
 void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_offline_compression);
 void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) ;
-void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stats );
-void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc);
-void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc);
+void printAlgorithmStats(CmdLineOptions& options, const UrlMatchingModuleStats* stats );
+void createOptionalDictionaryFile(CmdLineOptions& options, UrlMatchingModule& urlc);
+void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlMatchingModule& urlc);
 
-void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlCompressorStats* stats );
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlMatchingModuleStats* stats );
 
 
 void test_article(CmdLineOptions& options)
@@ -94,10 +94,10 @@ void test_article(CmdLineOptions& options)
 	//-------
 	options.PrintParameters(std::cout);
 	//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
-	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
 
-	UrlCompressor* urlc = new UrlCompressor();
+	UrlMatchingModule* urlc = new UrlMatchingModule();
 
 	std::deque<std::string> url_deque;
 	if (! urlc->getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
@@ -146,7 +146,7 @@ void test_article(CmdLineOptions& options)
 
 	//step 2: tkae offline and online measurements
 	//-------
-	urlc = new UrlCompressor();
+	urlc = new UrlMatchingModule();
 
 	take_a_break(options.break_time," before loading");
 	s.mem_footprint_est = get_curr_memsize();
@@ -277,7 +277,7 @@ void test_article(CmdLineOptions& options)
 	std::cout <<"--------------------"<<std::endl;
 	printRunTimeStats(options,s,false);
 	printCompressionStats(options,s);
-	const UrlCompressorStats* urlc_stats = urlc->get_stats();
+	const UrlMatchingModuleStats* urlc_stats = urlc->get_stats();
 	printAlgorithmStats(options,urlc_stats);
 
 	// create output files
@@ -298,7 +298,7 @@ void test_encode(CmdLineOptions& options) {
 	std::string dictionary_filename = options.getDictionaryFilename();
 
 	std::cout<< "Using dictionary from: " << dictionary_filename << STDENDL;
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 
 	take_a_break(options.break_time," before loading");
 	s.mem_footprint_est = get_curr_memsize();
@@ -424,7 +424,7 @@ void test_encode(CmdLineOptions& options) {
 	std::cout <<"--------------------"<<std::endl;
 	printRunTimeStats(options,s,false);
 	printCompressionStats(options,s);
-	const UrlCompressorStats* urlc_stats = urlc.get_stats();
+	const UrlMatchingModuleStats* urlc_stats = urlc.get_stats();
 	printAlgorithmStats(options,urlc_stats);
 
 	// create output files
@@ -442,10 +442,10 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	PREPARE_TIMING;
 	options.PrintParameters(std::cout);
 	//	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
-	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 
 	std::deque<std::string> url_deque;
 	if (! urlc.getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
@@ -530,10 +530,10 @@ void test_main(CmdLineOptions& options) {
 	std::cout<<" --- Test mode ---"<<std::endl;
 	options.PrintParameters(std::cout);
 //	std::cout<<"urls file path="<<options.input_urls_file_path<<std::endl;
-	HeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 
 	std::deque<std::string> url_deque;
 	if (! urlc.getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
@@ -665,7 +665,7 @@ void test_main(CmdLineOptions& options) {
 	std::cout <<"--------------------"<<std::endl;
 	printRunTimeStats(options,s,true);
 	printCompressionStats(options,s);
-	const UrlCompressorStats* urlc_stats = urlc.get_stats();
+	const UrlMatchingModuleStats* urlc_stats = urlc.get_stats();
 	printAlgorithmStats(options,urlc_stats);
 
 	// create output files
@@ -736,10 +736,10 @@ void test_url_dictionary_load_from_url_txt_file() {
 
 	std::cout<<"test file path="<<path<<std::endl;
 	int n = 1000;
-	HeavyHittersParams_t customParams = {/*n1*/ n, /*n2*/ n, /*r*/ 0.8, /*kgrams_size*/ 8};
-	HeavyHittersParams_t& params = customParams; //default_hh_params;
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ n, /*n2*/ n, /*r*/ 0.8, /*kgrams_size*/ 8};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
 
-	UrlCompressor urlc;
+	UrlMatchingModule urlc;
 	int break_time=0;
 	take_a_break(break_time," before loading");
 	std::deque<std::string> url_deque;
@@ -889,7 +889,7 @@ void test_url_dictionary_load_from_url_txt_file() {
 	std::cout<<DVAL(encoded_and_memory)<< 	"Bytes = " << double((double)encoded_and_memory / 1024) <<"KB"<< STDENDL;
 	std::cout<<"coding ratio (encoded_size/decoded_size) = "<< double((double)encoded_size/(double)decoded_size) * 100 << "%"<<STDENDL;
 	std::cout<<"coding ratio (encoded_size+memory_foot_print/decoded_size) = "<< double((double)(encoded_and_memory)/(double)decoded_size) * 100 << "%"<<STDENDL;
-	const UrlCompressorStats* stats = urlc.get_stats();
+	const UrlMatchingModuleStats* stats = urlc.get_stats();
 	stats->print(std::cout);
 
 /*
@@ -978,7 +978,7 @@ void take_a_break(int seconds, std::string why) {
 	std::cout<<" --> continuing"<<STDENDL;
 }
 
-bool sanityTesting(UrlCompressor& urlc , bool verbose) {
+bool sanityTesting(UrlMatchingModule& urlc , bool verbose) {
 
 	//Sanity testing - encode/decode a single string
 	std::string my_string = "http://www.besound.com/pushead/home.html";
@@ -1050,7 +1050,7 @@ void printCompressionStats(CmdLineOptions& options, RunTimeStats& s) {
 
 }
 
-void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stats ) {
+void printAlgorithmStats(CmdLineOptions& options, const UrlMatchingModuleStats* stats ) {
 	std::ostream& ofs=std::cout;
 	ofs <<"Algorithm's dicionary Statistics:"<<STDENDL;
 	ofs <<"--------------------------------"<<std::endl;
@@ -1058,7 +1058,7 @@ void printAlgorithmStats(CmdLineOptions& options, const UrlCompressorStats* stat
 	ofs <<"--------------------------------"<<std::endl;
 }
 
-void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlCompressorStats* stats ) {
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , const UrlMatchingModuleStats* stats ) {
 	using namespace std;
 	if (!options.custom_output_file)
 		return;
@@ -1104,7 +1104,7 @@ void createOptionalOutputFile(CmdLineOptions& options, RunTimeStats& rt_stat , c
 	out_file.close();
 }
 
-void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) {
+void createOptionalDictionaryFile(CmdLineOptions& options, UrlMatchingModule& urlc) {
 	using namespace std;
 	if (!options.print_dicionary)
 		return;
@@ -1115,7 +1115,7 @@ void createOptionalDictionaryFile(CmdLineOptions& options, UrlCompressor& urlc) 
 	std::cout << "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 }
 
-void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlCompressor& urlc) {
+void createOptionalDumpACStatesFile(CmdLineOptions& options, UrlMatchingModule& urlc) {
 	using namespace std;
 	if (options.dump_ac_statetable) {
 		urlc.dump_ac_states(options.dump_ac_statetable_filename);

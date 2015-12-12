@@ -15,7 +15,7 @@
 #include <map>
 #include <bitset>
 #include <assert.h>
-#include "UrlDictionay.h"
+#include "UrlMatching.h"
 #include "../HeavyHitters/dhh_lines.h"
 #include "../common.h"
 #include "../logger.h"
@@ -30,14 +30,14 @@
 typedef unsigned char uchar;
 
 //globals
-HeavyHittersParams_t default_hh_params {1000, 1000, 0.9, 8};
+DoubleHeavyHittersParams_t default_hh_params {1000, 1000, 0.9, 8};
 
-UrlCompressor::UrlCompressor():_huffman(), _charsAllocator(0), _strAllocator(0), _is_loaded(false), _nextSymbol(1)
+UrlMatchingModule::UrlMatchingModule():_huffman(), _charsAllocator(0), _strAllocator(0), _is_loaded(false), _nextSymbol(1)
 {
 
 }
 
-UrlCompressor::~UrlCompressor()
+UrlMatchingModule::~UrlMatchingModule()
 {
 
 	while (!_symbol2pattern_db.empty()) {
@@ -54,7 +54,7 @@ UrlCompressor::~UrlCompressor()
 
 }
 
-bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list) {
+bool UrlMatchingModule::getUrlsListFromFile(const std::string& urls_file, std::deque<std::string>& url_list) {
 	LineIteratorFile lit(urls_file.c_str(),'\n');
 	if (!lit.canRun())
 		return false;
@@ -78,7 +78,7 @@ bool UrlCompressor::getUrlsListFromFile(const std::string& urls_file, std::deque
 }
 
 void
-UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output , std::string delimiter)
+UrlMatchingModule::SplitUrlsList(const std::deque<std::string>& input, std::deque<std::string>& output , std::string delimiter)
 {
 	for (std::deque<std::string>::const_iterator it=input.begin(); it != input.end(); ++it) {
 		size_t start = 0;
@@ -99,9 +99,9 @@ UrlCompressor::SplitUrlsList(const std::deque<std::string>& input, std::deque<st
 }
 
 
-bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_list,
+bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url_list,
 		const std::deque<std::string>& list_for_patterns,
-		const HeavyHittersParams_t params,
+		const DoubleHeavyHittersParams_t params,
 		const  bool contains_basic_symbols,
 		bool optimize_ac_size)
 {
@@ -232,8 +232,8 @@ bool UrlCompressor::InitFromUrlsList(const std::deque<std::string>& orig_url_lis
 }
 
 //DEPRECATED
-bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
-									const HeavyHittersParams_t params,
+bool UrlMatchingModule::LoadUrlsFromFile(const std::string& file_path,
+									const DoubleHeavyHittersParams_t params,
 									const  bool contains_basic_symbols)
 {
 	reset();
@@ -306,7 +306,7 @@ bool UrlCompressor::LoadUrlsFromFile(const std::string& file_path,
 	return true;
 }
 
-bool UrlCompressor::StoreDictToFile(std::string& file_path)
+bool UrlMatchingModule::StoreDictToFile(std::string& file_path)
 {
 	std::ofstream file (file_path.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
 	if (!file.is_open()) {
@@ -322,7 +322,7 @@ bool UrlCompressor::StoreDictToFile(std::string& file_path)
 }
 
 
-bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
+bool UrlMatchingModule::StoreDictToFileStream(std::ofstream& file )
 {
 	/* File Format:
 	 *	Header|_statistics|
@@ -374,7 +374,7 @@ bool UrlCompressor::StoreDictToFileStream(std::ofstream& file )
 	return true;
 }
 
-bool UrlCompressor::InitFromDictFile(std::string& file_path, bool optimize_ac_size)
+bool UrlMatchingModule::InitFromDictFile(std::string& file_path, bool optimize_ac_size)
 {
 	std::ifstream file (file_path.c_str(), std::ios::in | std::ios::binary);
 	if (!file.is_open()) {
@@ -388,7 +388,7 @@ bool UrlCompressor::InitFromDictFile(std::string& file_path, bool optimize_ac_si
 	return ret;
 }
 
-bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac_size)
+bool UrlMatchingModule::InitFromDictFileStream(std::ifstream& file, bool optimize_ac_size)
 {
 	/* File Format:
 	 *	Header|_statistics|
@@ -489,7 +489,7 @@ bool UrlCompressor::InitFromDictFileStream(std::ifstream& file, bool optimize_ac
  * _huffman is needed when building the module to generate the huffman codes
  * Or when loading from a stored Dict file to enable decoding
  */
-void UrlCompressor::prepare_huffman() {
+void UrlMatchingModule::prepare_huffman() {
 	freqT* freqArr = new freqT[_nextSymbol];
 	for (symbolT i=0; i<_nextSymbol;i++)  {  //skip symbol 0
 			Pattern* pat =_symbol2pattern_db[i];
@@ -502,7 +502,7 @@ void UrlCompressor::prepare_huffman() {
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
-UrlCompressorStatus UrlCompressor::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+UrlCompressorStatus UrlMatchingModule::encode(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -549,7 +549,7 @@ void print(std::ostream& o, uint32_t buf) {
 }
 
 //out_buf_size[0] is the length of coded bits (number of coded + 1)
-UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
+UrlCompressorStatus UrlMatchingModule::encode_2(std::string url, uint32_t* out_encoded_buf, uint32_t& buf_size) {
 	ASSERT (buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -615,7 +615,7 @@ UrlCompressorStatus UrlCompressor::encode_2(std::string url, uint32_t* out_encod
 	return STATUS_OK;
 }
 
-UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size) {
+UrlCompressorStatus UrlMatchingModule::decode(std::string& url, uint32_t* in_encoded_buf, uint32_t in_buf_size) {
 	ASSERT (in_buf_size > 2);
 	if (isLoaded() == false) {
 		return STATUS_ERR_NOT_LOADED;
@@ -673,7 +673,7 @@ UrlCompressorStatus UrlCompressor::decode(std::string& url, uint32_t* in_encoded
 	return STATUS_OK;
 }
 
-uint32_t UrlCompressor::getDictionarySize()  const{
+uint32_t UrlMatchingModule::getDictionarySize()  const{
 	uint32_t size = 0;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 		Pattern* ptrn = _symbol2pattern_db[i];
@@ -687,7 +687,7 @@ uint32_t UrlCompressor::getDictionarySize()  const{
 	return size;
 }
 
-void UrlCompressor::print_database(std::ostream& ofs) const
+void UrlMatchingModule::print_database(std::ostream& ofs) const
 {
 	ofs <<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
 	ofs << "symbol, freq, code length (bits), string len, code, string"<<std::endl;
@@ -711,7 +711,7 @@ void UrlCompressor::print_database(std::ostream& ofs) const
 }
 
 
-void UrlCompressor::calculate_symbols_huffman_score() {
+void UrlMatchingModule::calculate_symbols_huffman_score() {
 	for (symbolT i=0; i < getDBsize() ;i++) {
 //	for (Symbol2PatternType::iterator iter=_symbol2pattern_db.begin(); iter!=_symbol2pattern_db.end();++iter) {
 		HuffCode code=_huffman.encode( _symbol2pattern_db[i]->_symbol );
@@ -722,7 +722,7 @@ void UrlCompressor::calculate_symbols_huffman_score() {
 	}
 }
 
-void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
+void UrlMatchingModule::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 	pat->_coded.length = code.size();
 	uint32_t buf_size = conv_bits_to_bytes(pat->_coded.length) ;
 	if (buf_size > MAX_CODED_HUFFMAN_SIZE*sizeof(uint32_t)) {
@@ -752,7 +752,7 @@ void UrlCompressor::prepare_huffman_code(Pattern* pat, HuffCode& code) {
 
 extern uint32_t Pattern::total_frequency;
 extern char 	Pattern::C_state;
-void UrlCompressor::reset(uint32_t reserved_size) {
+void UrlMatchingModule::reset(uint32_t reserved_size) {
 	if (isLoaded()) {
 		unload_and_return_false();
 	}
@@ -766,7 +766,7 @@ void UrlCompressor::reset(uint32_t reserved_size) {
 	setLoaded();
 }
 
-symbolT UrlCompressor::addPattern(const char* str, const freqT& frequency) {
+symbolT UrlMatchingModule::addPattern(const char* str, const freqT& frequency) {
 	Pattern* pat = new Pattern(_nextSymbol, frequency, str);
 //	_symbol2pattern_db[_nextSymbol]=pat;
 	_symbol2pattern_db.push_back( pat );
@@ -784,7 +784,7 @@ symbolT UrlCompressor::addPattern(const char* str, const freqT& frequency) {
 	return ret;
 }
 
-bool UrlCompressor::unload_and_return_false() {
+bool UrlMatchingModule::unload_and_return_false() {
 	for (Symbol2pPatternVec::iterator it = _symbol2pattern_db.begin(); it!= _symbol2pattern_db.end(); ++it){
 		delete *it;
 	}
@@ -793,14 +793,14 @@ bool UrlCompressor::unload_and_return_false() {
 	return false;
 }
 
-void UrlCompressor::prepare_modules() {
+void UrlMatchingModule::prepare_modules() {
 
 	DBG("prepare_database:" << DVAL(_nextSymbol));
 
 
 }
 
-bool UrlCompressor::sanity()
+bool UrlMatchingModule::sanity()
 {
 	if (!isLoaded()) {
 		return false;
@@ -824,7 +824,7 @@ bool UrlCompressor::sanity()
 	return true;
 }
 
-void UrlCompressor::dump_ac_states(std::string filename) const
+void UrlMatchingModule::dump_ac_states(std::string filename) const
 {
 	algo.dump_states(filename);
 }

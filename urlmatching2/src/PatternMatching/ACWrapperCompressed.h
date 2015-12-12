@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 #include <cstring>
-#include "../UrlToolkit/UrlDictionaryTypes.h"
+#include "../UrlToolkit/UrlMatchingTypes.h"
 #include "../UrlToolkit/SerialAllocator.h"
 #include "PatternMatchingBaseClass.h"
 
