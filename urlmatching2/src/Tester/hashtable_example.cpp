@@ -256,27 +256,27 @@ void test_hashtable(CmdLineOptions& options) {
 	//	Lookup testing preparation step
 	// ------------------------------------
 	std::srand(std::time(0)); 						// use current time as seed for random generator
-	std::deque<uint32_t> random_indices;
 	int num_of_lookups = (options.factor != 1) ? options.factor : 100000;	//use -x to use different number of lookups than 100000
+	uint32_t* random_indices = new uint32_t[num_of_lookups];
 	for (int i=0; i < num_of_lookups; i++) {
 		uint32_t idx = (uint32_t) std::rand();
 		idx = idx % howmanytocode;
-		random_indices.push_back(idx);
+		random_indices[i] = idx;
 		rt_stats.lookup_decompressed_size+=urls[idx].length();
 	}
-	rt_stats.number_oflookups = random_indices.size();
+	rt_stats.number_oflookups = num_of_lookups;
 
 	// ----
 	//	Lookup in string hashtable
 	// ------------------------------------
 	IPv4_t verifier=0;
-	std::cout<<"Performing "<<random_indices.size()<<" lookups on hashtable_strings (std::unordered_map) .. "<<std::endl;
+	std::cout<<"Performing "<<num_of_lookups<<" lookups on hashtable_strings (std::unordered_map) .. "<<std::endl;
 	START_TIMING;
-	for (std::deque<uint32_t>::iterator it=random_indices.begin() ; it != random_indices.end(); ++it) {
-		uint32_t idx = *it;
+	for (int i=0; i < num_of_lookups; i++) {
+		uint32_t idx = random_indices[i];
 		std::string str = urls[idx];
 		IPv4_t ip = hashtable_string[str];
-		verifier += (ip - *it);
+		verifier += (ip - random_indices[i]);
 	}
 	STOP_TIMING;
 	if (verifier!=0)
@@ -288,10 +288,10 @@ void test_hashtable(CmdLineOptions& options) {
 	// ------------------------------------
 	SerialAllocator<char>* _charsAllocator2 = new SerialAllocator<char>(allocator_size + 10 );
 	verifier=0;
-	std::cout<<"Performing "<<random_indices.size()<<" lookups on hashtable_encoded (std::unordered_map) .. "<<std::endl;
+	std::cout<<"Performing "<<num_of_lookups<<" lookups on hashtable_encoded (std::unordered_map) .. "<<std::endl;
 	START_TIMING;
-	for (std::deque<uint32_t>::iterator it=random_indices.begin() ; it != random_indices.end(); ++it) {
-		uint32_t idx = *it;
+	for (int i=0; i < num_of_lookups; i++) {
+		uint32_t idx = random_indices[i];
 		std::string str = urls[idx];
 		uint32_t codedbuff[BUFFSIZE];
 		buff_size = BUFFSIZE;
@@ -299,7 +299,7 @@ void test_hashtable(CmdLineOptions& options) {
 		Encoded packed;
 		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator2);
 		IPv4_t ip = hashtable_encoded[packed];
-		verifier += (ip - *it);
+		verifier += (ip - random_indices[i]);
 	}
 	STOP_TIMING;
 	if (verifier!=0)
