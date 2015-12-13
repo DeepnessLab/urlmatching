@@ -21,6 +21,12 @@ inline double Byte2KB(uint32_t bytes) {
 	return (double((double)bytes / 1024));
 }
 
+inline long double getMbps(uint32_t bytes, double seconds) {
+	long double ret = (long double) ( (long double) bytes / (long double) seconds *8/1024/1024 );
+	return ret;
+}
+
+
 #ifdef __unix__
 #include <malloc.h>
 inline
