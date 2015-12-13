@@ -257,7 +257,8 @@ void test_hashtable(CmdLineOptions& options) {
 	// ------------------------------------
 	std::srand(std::time(0)); 						// use current time as seed for random generator
 	std::deque<uint32_t> random_indices;
-	for (int i=0; i < 100000; i++) {
+	int num_of_lookups = (options.factor != 1) ? options.factor : 100000;	//use -x to use different number of lookups than 100000
+	for (int i=0; i < num_of_lookups; i++) {
 		uint32_t idx = (uint32_t) std::rand();
 		idx = idx % howmanytocode;
 		random_indices.push_back(idx);

@@ -11,6 +11,11 @@
 //#include <config.h>
 #include "crc32ctables.h"
 
+// define this with compilation flag -mcrc32, otherwise it won't compile
+// For more info:
+//   http://manpages.ubuntu.com/manpages/precise/man1/gcc.1.html
+#define HAVE_HW_CRC32 1
+
 /** Returns the initial value for a CRC32-C computation. */
 static inline uint32_t crc32cInit() {
     return 0xFFFFFFFF;
@@ -24,6 +29,7 @@ static inline uint32_t crc32cFinish(uint32_t crc) {
 
 #ifdef HAVE_HW_CRC32
 
+#ifndef __LP64__	//32bit system
 // Hardware-accelerated CRC-32C (using CRC32 instruction)
 static inline uint32_t crc32cHardware32(uint32_t crc, const void* data, size_t length) {
     const char* p_buf = (const char*) data;
@@ -60,62 +66,56 @@ static inline uint32_t crc32cHardware32(uint32_t crc, const void* data, size_t l
 
     return crc;
 }
+#else
 
 //commented out - should add ifdef since this won't compile on 32bit..
 // // Hardware-accelerated CRC-32C (using CRC32 instruction)
- /* static inline uint32_t crc32cHardware64(uint32_t crc, const void* data, size_t length) { */
- /*     const char* p_buf = (const char*) data; */
- /*     // alignment doesn't seem to help? */
- /*     uint64_t crc64bit = crc; */
- /*     for (size_t i = 0; i < length / sizeof(uint64_t); i++) { */
- /*         crc64bit = __builtin_ia32_crc32di(crc64bit, *(uint64_t*) p_buf); */
- /*         p_buf += sizeof(uint64_t); */
- /*     } */
+static inline uint32_t crc32cHardware64(uint32_t crc, const void* data, size_t length) {
+	const char* p_buf = (const char*) data;
+	// alignment doesn't seem to help?
+	uint64_t crc64bit = crc;
+	for (size_t i = 0; i < length / sizeof(uint64_t); i++) {
+		crc64bit = __builtin_ia32_crc32di(crc64bit, *(uint64_t*) p_buf);
+		p_buf += sizeof(uint64_t);
+	}
 
- /*     // This ugly switch is slightly faster for short strings than the straightforward loop */
- /*     uint32_t crc32bit = (uint32_t) crc64bit; */
- /*     length &= sizeof(uint64_t) - 1; */
- /*     /\* */
- /*     while (length > 0) { */
- /*         crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++); */
- /*         length--; */
- /*     } */
- /*     *\/ */
- /*     switch (length) { */
- /*         case 7: */
- /*             crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++); */
- /*         case 6: */
- /*             crc32bit = __builtin_ia32_crc32hi(crc32bit, *(uint16_t*) p_buf); */
- /*             p_buf += 2; */
- /*         // case 5 is below: 4 + 1 */
- /*         case 4: */
- /*             crc32bit = __builtin_ia32_crc32si(crc32bit, *(uint32_t*) p_buf); */
- /*             break; */
- /*         case 3: */
- /*             crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++); */
- /*         case 2: */
- /*             crc32bit = __builtin_ia32_crc32hi(crc32bit, *(uint16_t*) p_buf); */
- /*             break; */
- /*         case 5: */
- /*             crc32bit = __builtin_ia32_crc32si(crc32bit, *(uint32_t*) p_buf); */
- /*             p_buf += 4; */
- /*         case 1: */
- /*             crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf); */
- /*             break; */
- /*         case 0: */
- /*             break; */
- /*         default: */
- /*             break; */
- /*     } */
+	// This ugly switch is slightly faster for short strings than the straightforward loop
+	uint32_t crc32bit = (uint32_t) crc64bit;
+	length &= sizeof(uint64_t) - 1;
+	while (length > 0) {
+		crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++);
+		length--;
+	}
+	switch (length) {
+	case 7:
+		crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++);
+	case 6:
+		crc32bit = __builtin_ia32_crc32hi(crc32bit, *(uint16_t*) p_buf);
+		p_buf += 2;
+		// case 5 is below: 4 + 1
+		case 4:
+			crc32bit = __builtin_ia32_crc32si(crc32bit, *(uint32_t*) p_buf);
+			break;
+		case 3:
+			crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf++);
+		case 2:
+			crc32bit = __builtin_ia32_crc32hi(crc32bit, *(uint16_t*) p_buf);
+			break;
+		case 5:
+			crc32bit = __builtin_ia32_crc32si(crc32bit, *(uint32_t*) p_buf);
+			p_buf += 4;
+		case 1:
+			crc32bit = __builtin_ia32_crc32qi(crc32bit, *p_buf);
+			break;
+		case 0:
+			break;
+		default:
+			break;
+	}
 
- /*     return crc32bit; */
- /* } */
-
-
-
-
-
-
+	return crc32bit;
+}
+#endif
 /** Computes a complete CRC32C over data, using crc32c. */
 static inline uint32_t crc32cComplete(const void* data, size_t length) {  
     #ifdef __LP64__

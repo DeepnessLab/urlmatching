@@ -137,8 +137,10 @@ struct CodePackT {
 		std::size_t ret = 0;
 		CodePack::lenT len = getByteSize();
 		char* curr = getBuff();
+// CRC32 hash:
 		ret=crc32cComplete(curr,len);
 		return ret;
+// Alternative hash:
 //		for (uint32_t i = 0; i < len ; i++) {
 //			ret <<=8;
 //			ret += (*curr) ; // overloading
