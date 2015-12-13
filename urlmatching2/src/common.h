@@ -11,6 +11,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <ctime>
+
 #define DELETE_AND_NULL(ptr) \
 		{ delete ptr ;\
 		ptr = NULL; } while (0)
@@ -37,24 +39,20 @@ int get_curr_memsize() { return 0; }
 #endif
 
 
-#define GETTIMING double(end - begin) / (CLOCKS_PER_SEC)
-#define START_TIMING 	do {begin = std::clock();} while(0)
-#define STOP_TIMING 	do {end = std::clock();} while(0)
-#define PREPARE_TIMING clock_t begin,end
-
 /*
  * Unix/Windows
  * Timer:
  */
-class Timer {
+class TimerUtil {
 public:
-	Timer(bool start=true):
+	TimerUtil(bool start_now=true):
 		_begin(0),_time(0l),_running(false)
 	{
-		if (start)
+		if (start_now) {
 			start();
+		}
 	}
-	virtual ~Timer() {}
+	virtual ~TimerUtil() {}
 
 	void reset()	{
 		_time = 0;
@@ -76,6 +74,12 @@ public:
 	double get_seconds()	{
 		stop();
 		return double ( double (_time) / (CLOCKS_PER_SEC) );
+	}
+
+	// Stop and get_seconds
+	double get_milseconds()	{
+		stop();
+		return ( 1000.0 * double ( double (_time) / (CLOCKS_PER_SEC) ) );
 	}
 
 private:

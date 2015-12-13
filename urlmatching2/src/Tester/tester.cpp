@@ -35,7 +35,7 @@
 
 void run_cmd_main(CmdLineOptions& options) {
 	if (options.cmd == CMD_FULLTEST) {
-		test_main(options);
+		test_test(options);
 	} else if (options.cmd == CMD_BUILDDIC) {
 		test_build_dictionary_to_file(options);
 	} else if (options.cmd == CMD_ENCODE) {
@@ -209,6 +209,8 @@ void test_article(CmdLineOptions& options)
 	s.decoded_stream_size = 0;
 	s.time_to_encode = 0;
 	uint32_t encoded_stream_bitsize = 0;
+	TimerUtil encoding_timer(false);
+	s.num_of_urls = 0;
 	for (uint32_t set_num = 1 ; set_num <= num_of_sets; set_num ++)
 	{
 		//create random set
@@ -218,20 +220,21 @@ void test_article(CmdLineOptions& options)
 			set[n] = idx;
 		}
 		uint32_t buff_size = BUFFSIZE;
-		START_TIMING;
 		for (uint32_t n = 0 ; n < set_size; n++ ) {
 			uint32_t idx = set[n];
 			uint32_t* codedbuff = codedbuffers[idx];
 			for (uint32_t t = 1 ; t <= times ; t ++) {
 				buff_size = BUFFSIZE;
+		encoding_timer.start();
 				urlc->encode(urls[idx],codedbuff,buff_size);
+		encoding_timer.stop();
 				s.decoded_stream_size+=urls[idx].length();
 				encoded_stream_bitsize += codedbuff[0] ;
+				s.num_of_urls++;
 			}
 		}
-		STOP_TIMING;
-		s.time_to_encode += GETTIMING;
 	}
+	s.time_to_encode = encoding_timer.get_seconds();
 	std::cout<<"  passed  "<< num_of_sets * set_size *times << " urls"<<STDENDL;
 
 	if (options.test_decoding) {
@@ -266,7 +269,7 @@ void test_article(CmdLineOptions& options)
 	}
 
 	//prepare results for print and output
-	s.num_of_urls = num_of_sets * set_size *times;
+//	s.num_of_urls = num_of_sets * set_size *times;
 	s.encoded_stream_size = encoded_stream_bitsize/ (8);
 	s.encoded_stream_size = (encoded_stream_bitsize % (8) == 0)? s.encoded_stream_size : s.encoded_stream_size + 1;
 
@@ -521,7 +524,7 @@ void test_build_dictionary_to_file(CmdLineOptions& options) {
 	return;
 }
 
-void test_main(CmdLineOptions& options) {
+void test_test(CmdLineOptions& options) {
 	using namespace std;
 	RunTimeStats s;
 
@@ -605,17 +608,19 @@ void test_main(CmdLineOptions& options) {
 	uint32_t encoded_stream_bitsize = 0;
 
 	START_TIMING;
+	TimerUtil encoding_timer(false);
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		uint32_t* codedbuff = codedbuffers[i];
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
+	encoding_timer.start();
 			urlc.encode(urls[i],codedbuff,buff_size);
+	encoding_timer.stop();
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
 		}
 	}
-	STOP_TIMING;
-	s.time_to_encode = GETTIMING;
+	s.time_to_encode = encoding_timer.get_seconds();
 
 	//calculate decoded and encoded size
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
@@ -640,7 +645,7 @@ void test_main(CmdLineOptions& options) {
 				return;
 			}
 			if (i%status_every == 0)
-				std::cout<<"decoding ... "<<(100*(i+1))/(start_at + howmanytocode)<<"%\r";
+				std::cout<<"\rdecoding ... "<<(100*(i+1))/(start_at + howmanytocode)<<"%";
 		}
 		STOP_TIMING;
 		std::cout<<"decoding ... 100%"<<std::endl;
@@ -1011,7 +1016,7 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 
 	std::ostream& ofs=std::cout;
 
-	ofs <<"Runtime Statistics: for "<<stats.num_of_urls<<" urls"<<std::endl;
+	ofs <<"Runtime Statistics: for "<<stats.num_of_urls<<" urls, "<<Byte2KB(stats.decoded_stream_size)<<"KB"<<std::endl;
 	ofs <<"------------------"<<std::endl;
 	ofs <<"Loading: " << STDENDL;
 	ofs <<"  Time = " <<stats.time_to_load << "s,  Throughput = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
@@ -1019,6 +1024,7 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"  UrlCompressor total allocated memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
 	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Throughput= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
+	ofs <<"  " << DVAL(stats.decoded_stream_size) << "Bytes, " << DVAL(stats.time_to_encode) << "sec" <<  STDENDL;
 	if (options.test_decoding) {
 		ofs <<" time_to_decode ="<<stats.time_to_decode << "s, Throughput= "<< double(stats.encoded_stream_size/stats.time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	}

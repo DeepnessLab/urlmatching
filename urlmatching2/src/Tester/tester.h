@@ -54,7 +54,7 @@ class UrlMatchingModule;
 void run_cmd_main(CmdLineOptions& options);
 
 //cmds:
-void test_main						(CmdLineOptions& options);
+void test_test						(CmdLineOptions& options);
 void test_build_dictionary_to_file	(CmdLineOptions& options);
 void test_encode					(CmdLineOptions& options);
 void test_compress					(CmdLineOptions& options);
