@@ -27,7 +27,7 @@
 
 
 #define BUFFSIZE 500
-
+int retry_count = 1;
 
 
 typedef CodePack::CodePackT Encoded ;
@@ -68,7 +68,8 @@ struct RunTimeStatsHashtable {
 		insert_time_for_strings=0.0;
 		insert_time_for_encoded=0.0;
 
-		lookup_decompressed_size=0;
+		lookup_decompressed_size_for_string=0;
+		lookup_decompressed_size_for_encoded=0;
 		number_oflookups=0;
 		lookup_time_for_strings=0.0;
 		lookup_time_for_encoded=0.0;
@@ -88,7 +89,8 @@ struct RunTimeStatsHashtable {
 	double insert_time_for_strings;
 	double insert_time_for_encoded;
 
-	uint32_t lookup_decompressed_size;
+	uint32_t lookup_decompressed_size_for_string;
+	uint32_t lookup_decompressed_size_for_encoded;
 	uint32_t number_oflookups;
 	double lookup_time_for_strings;
 	double lookup_time_for_encoded;
@@ -103,10 +105,6 @@ void lookup_encoded_hashtable(UrlMatchingModule& urlc, unordered_map_encoded has
 		, std::deque<std::string>& urls, uint32_t* random_indices, int num_of_lookups, RunTimeStatsHashtable& rt_stats);
 
 
-long double getMbps(uint32_t bytes, double seconds) {
-	long double ret = (long double) ( (long double) bytes / (long double) seconds *8/1024/1024 );
-	return ret;
-}
 
 void test_hashtable(CmdLineOptions& options) {
 	/* Parameters in use:
@@ -269,13 +267,13 @@ void test_hashtable(CmdLineOptions& options) {
 	//	Lookup testing preparation step
 	// ------------------------------------
 	std::srand(std::time(0)); 						// use current time as seed for random generator
-	int num_of_lookups = (options.factor != 1) ? options.factor : 100000;	//use -x to use different number of lookups than 100000
+	int num_of_lookups = 10000;	//use -x to use different number of lookups than 100000
+	retry_count = (options.factor != 1) ? options.factor : 20;
 	uint32_t* random_indices = new uint32_t[num_of_lookups];
 	for (int i=0; i < num_of_lookups; i++) {
 		uint32_t idx = (uint32_t) std::rand();
-		idx = idx % howmanytocode;
+		idx = idx % urls.size();
 		random_indices[i] = idx;
-		rt_stats.lookup_decompressed_size+=urls[idx].length()+1;
 	}
 	rt_stats.number_oflookups = num_of_lookups;
 
@@ -353,14 +351,17 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<std::setprecision(6);
 
 
-	std::cout<<rt_stats.number_oflookups << ", size: "<<Byte2KB(rt_stats.lookup_decompressed_size) <<"KB Lookup time:"<<std::endl;
+	std::cout<<rt_stats.number_oflookups << ", size: "<<Byte2KB(rt_stats.lookup_decompressed_size_for_string) <<"KB Lookup time:"<<std::endl;
 	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.lookup_time_for_strings<<"sec"<<"\t";
 	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.lookup_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.lookup_time_for_encoded / rt_stats.lookup_time_for_strings)<<std::endl;
+	long double lookup_strings_throughput = getMbps(rt_stats.lookup_decompressed_size_for_string, rt_stats.lookup_time_for_strings );
 	std::cout<<" hashtable strings = "<<std::setprecision(5)
-		<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_strings) *8/1024/1024<<"Mbps"<<"\t";
+	<< lookup_strings_throughput <<" Mbps"<<"\t";
+	long double lookup_encoded_throughput = getMbps(rt_stats.lookup_decompressed_size_for_encoded,rt_stats.lookup_time_for_encoded);
 	std::cout<<" hashtable encoded = "<<std::setprecision(5)
-		<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_encoded) *8/1024/1024<<"Mbps"<<std::endl;
+	<<lookup_encoded_throughput<<" Mbps"<<"\t";
+	std::cout<<" Ratio = "<<std::setprecision(3)<< lookup_encoded_throughput / lookup_strings_throughput <<std::endl;
 	std::cout<<std::setprecision(6);
 
 	std::cout<<"------------------"<<std::endl;
@@ -387,27 +388,18 @@ void test_hashtable(CmdLineOptions& options) {
 void lookup_strings_hashtable(UrlMatchingModule& urlc, unordered_map_strings hashtable_strings, std::deque<std::string>& urls
 		, uint32_t* random_indices, int num_of_lookups, RunTimeStatsHashtable& rt_stats)
 {
+	rt_stats.lookup_decompressed_size_for_string=0;
 	IPv4_t verifier=0;
 	std::cout<<"Performing "<<num_of_lookups<<" lookups on hashtable_strings (std::unordered_map) .. "<<std::endl;
-	TimerUtil encoding_timer(false);
-	TimerUtil packing_timer(false);
-	TimerUtil insert_timer(false);
 	TimerUtil lookup_strings_timer;
-
 	for (int i=0; i < num_of_lookups; i++) {
-		encoding_timer.start();
-		packing_timer.start();
-		//use them above only to have 3 timer, to compare time
-		//---------
-		insert_timer.start();
-		uint32_t idx = random_indices[i];
-		std::string str = urls[idx];
-		IPv4_t ip = hashtable_strings[str];
-		verifier += (ip - random_indices[i]);
-		insert_timer.stop();
-		//---------
-		packing_timer.stop();
-		encoding_timer.stop();
+		for (int time=0; time < retry_count; time++) {
+			uint32_t idx = random_indices[i];
+			std::string str = urls[idx];
+			IPv4_t ip = hashtable_strings[str];
+			verifier += (ip - random_indices[i]);
+			rt_stats.lookup_decompressed_size_for_string+=urls[idx].length();
+		}
 	}
 	rt_stats.lookup_time_for_strings = lookup_strings_timer.get_seconds();
 	if (verifier!=0)
@@ -415,89 +407,47 @@ void lookup_strings_hashtable(UrlMatchingModule& urlc, unordered_map_strings has
 
 	std::cout<<" |-encoding Timer break down"<<std::endl;
 	std::cout<<"  |- "<<std::setprecision(3)<<DVAL(rt_stats.lookup_time_for_strings) << " sec, "
-			<<getMbps(rt_stats.lookup_decompressed_size, rt_stats.lookup_time_for_strings)<<"Mbps"<<std::endl;
-	std::cout<<"   |-"<<std::setprecision(3)<<DVAL(insert_timer.get_milseconds()) << " ms, "
-			<<getMbps(rt_stats.lookup_decompressed_size, insert_timer.get_seconds())<<"Mbps"<<std::endl;
+			<<getMbps(rt_stats.lookup_decompressed_size_for_string, rt_stats.lookup_time_for_strings)<<"Mbps"<<std::endl;
 	std::cout<<" hashtable encoded = "<<std::setprecision(5)
-	<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_strings) *8/1024/1024<<"Mbps"<<std::endl;
+	<<getMbps( rt_stats.lookup_decompressed_size_for_string ,rt_stats.lookup_time_for_strings) <<"Mbps"<<std::endl;
 	std::cout<<std::setprecision(6);
-
-	rt_stats.lookup_time_for_strings = insert_timer.get_seconds();
 }
 
 
 void lookup_encoded_hashtable(UrlMatchingModule& urlc, unordered_map_encoded hashtable_encoded, std::deque<std::string>& urls
 		, uint32_t* random_indices, int num_of_lookups, RunTimeStatsHashtable& rt_stats)
 {
-
+	rt_stats.lookup_decompressed_size_for_encoded=0;
 	// ----
 	//	Lookup in encoded hashtable
 	// ------------------------------------
 	SerialAllocator<char> charsAllocator2(rt_stats.decompressed_size);
 	IPv4_t verifier=0;
 	std::cout<<"Performing "<<num_of_lookups<<" lookups on hashtable_encoded (std::unordered_map) .. "<<std::endl;
-	TimerUtil encoding_timer(false);
-	TimerUtil packing_timer(false);
-	TimerUtil insert_timer(false);
-	TimerUtil lookup_encoded_timer;
+	TimerUtil lookup_encoded_timer(false);
+	lookup_encoded_timer.start();
 	for (int i=0; i < num_of_lookups; i++) {
-		encoding_timer.start();
-		uint32_t idx = random_indices[i];
-		std::string str = urls[idx];
-		uint32_t codedbuff[BUFFSIZE];
-		uint32_t buff_size = BUFFSIZE;
-		urlc.encode(str,codedbuff,buff_size);	//redo the encoding process
-		encoding_timer.stop();
-		packing_timer.start();
-		Encoded packed;
-		packing_timer.stop();
-		insert_timer.start();
-		packed.Pack(codedbuff[0], &(codedbuff[1]) , &charsAllocator2);
-		IPv4_t ip = hashtable_encoded[packed];
-		verifier += (ip - random_indices[i]);
-		insert_timer.stop();
+		for (int time=0; time < retry_count; time++) {
+			uint32_t idx = random_indices[i];
+			std::string str = urls[idx];
+			uint32_t codedbuff[BUFFSIZE];
+			uint32_t buff_size = BUFFSIZE;
+			urlc.encode(str,codedbuff,buff_size);	//redo the encoding process
+			Encoded packed;
+			packed.Pack(codedbuff[0], &(codedbuff[1]) , &charsAllocator2);
+			IPv4_t ip = hashtable_encoded[packed];
+			verifier += (ip - random_indices[i]);
+			rt_stats.lookup_decompressed_size_for_encoded+=urls[idx].length();
+		}
 	}
+	lookup_encoded_timer.stop();
 	rt_stats.lookup_time_for_encoded = lookup_encoded_timer.get_seconds();
 	if (verifier!=0)
 		std::cout<<"Some wrong IPs were retrieved " <<STDENDL;
 
 	std::cout<<" |-encoding Timer break down"<<std::endl;
 	std::cout<<"  |- "<<std::setprecision(3)<<DVAL(rt_stats.lookup_time_for_encoded) << " sec"<<std::endl;
-	std::cout<<"   |-"<<std::setprecision(3)<<DVAL(encoding_timer.get_milseconds()) << " ms, "
-		<<getMbps(rt_stats.lookup_decompressed_size, encoding_timer.get_seconds())<<"Mbps"<<std::endl;
-	std::cout<<"   |-"<<std::setprecision(3)<<DVAL(packing_timer.get_milseconds()) << " ms"<<std::endl;
-	std::cout<<"   |-"<<std::setprecision(3)<<DVAL(insert_timer.get_milseconds()) << " ms, "
-		<<getMbps(rt_stats.lookup_decompressed_size, insert_timer.get_seconds())<<"Mbps"<<std::endl;
 	std::cout<<" hashtable encoded = "<<std::setprecision(5)
-	<<(long double) ( (long double) rt_stats.lookup_decompressed_size / (long double) rt_stats.lookup_time_for_encoded) *8/1024/1024<<"Mbps"<<std::endl;
+	<< getMbps(rt_stats.lookup_decompressed_size_for_encoded ,rt_stats.lookup_time_for_encoded) <<" Mbps"<<std::endl;
 	std::cout<<std::setprecision(6);
-
-	rt_stats.lookup_time_for_encoded = encoding_timer.get_seconds() + insert_timer.get_seconds();
-	/////////// simple version
-	/*
-// ----
-	//	Lookup in encoded hashtable
-	// ------------------------------------
-	SerialAllocator<char>* _charsAllocator2 = new SerialAllocator<char>(rt_stats.decompressed_size);
-	IPv4_t verifier=0;
-	std::cout<<"Performing "<<num_of_lookups<<" lookups on hashtable_encoded (std::unordered_map) .. "<<std::endl;
-	TimerUtil lookup_encoded_timer(true);
-	for (int i=0; i < num_of_lookups; i++) {
-		uint32_t idx = random_indices[i];
-		std::string str = urls[idx];
-		uint32_t codedbuff[BUFFSIZE];
-		uint32_t buff_size = BUFFSIZE;
-		urlc.encode(str,codedbuff,buff_size);	//redo the encoding process
-		Encoded packed;
-		packed.Pack(codedbuff[0], &(codedbuff[1]) , _charsAllocator2);
-		IPv4_t ip = hashtable_encoded[packed];
-		verifier += (ip - random_indices[i]);
-	}
-	rt_stats.lookup_time_for_encoded = lookup_encoded_timer.get_seconds();
-	if (verifier!=0)
-		std::cout<<"Some wrong IPs were retrieved " <<STDENDL;
-
-
-	 */
-
 }

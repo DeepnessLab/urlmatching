@@ -143,7 +143,7 @@ void test_article(CmdLineOptions& options)
 	}
 	delete urlc;
 
-	//step 2: tkae offline and online measurements
+	//step 2: take offline and online measurements
 	//-------
 	urlc = new UrlMatchingModule();
 
@@ -568,10 +568,24 @@ void test_test(CmdLineOptions& options) {
 	if (options.split_for_LPM) {	//free unecessary memory
 		delete input_for_urlcompressor;
 	}
+	///////////////////////////////////////////////////////////////
+	std::string dictionary_filename = options.getDictionaryFilename();
+	std::cout<<"Storing to file: "<< dictionary_filename <<std::endl;
+
+	ret = urlc.StoreDictToFile(dictionary_filename );
+	if (!ret) {
+		std::cout<<"Faild to store to " << dictionary_filename <<std::endl;
+		return;
+	}
+	UrlMatchingModule* urlc2 = new UrlMatchingModule();
+	ret = urlc2->InitFromDictFile(dictionary_filename,true);
+	assert (ret);
+	///////////////////////////////////////////////////////////////
+
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
-	sanityTesting(urlc);
+	sanityTesting(*urlc2);
 
 		// ----   encode/decode entire urlsfile   ----
 	//count urls and prepare coding buffers
@@ -614,7 +628,7 @@ void test_test(CmdLineOptions& options) {
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
 	encoding_timer.start();
-			urlc.encode(urls[i],codedbuff,buff_size);
+			urlc2->encode(urls[i],codedbuff,buff_size);
 	encoding_timer.stop();
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
@@ -637,7 +651,7 @@ void test_test(CmdLineOptions& options) {
 			buff_size = BUFFSIZE;
 			uint32_t* codedbuff = codedbuffers[i];
 			std::string decoded_str;
-			urlc.decode(decoded_str,codedbuff,buff_size);
+			urlc2->decode(decoded_str,codedbuff,buff_size);
 			if (decoded_str != urls[i]) {
 				std::cout<<"ERROR DECODING: STRINGS NOT MATCH"<<STDENDL;
 				std::cout<<"  " << DVAL(i)<< " "<< DVAL(urls[i])<<" != "<<DVAL(decoded_str)<<STDENDL;
@@ -669,12 +683,12 @@ void test_test(CmdLineOptions& options) {
 	std::cout <<"--------------------"<<std::endl;
 	printRunTimeStats(options,s,true);
 	printCompressionStats(options,s);
-	const UrlMatchingModuleStats* urlc_stats = urlc.get_stats();
+	const UrlMatchingModuleStats* urlc_stats = urlc2->get_stats();
 	printAlgorithmStats(options,urlc_stats);
 
 	// create output files
-	createOptionalDictionaryFile(options,urlc);
-	createOptionalDumpACStatesFile(options,urlc);
+	createOptionalDictionaryFile(options,*urlc2);
+	createOptionalDumpACStatesFile(options,*urlc2);
 	createOptionalOutputFile(options,s,urlc_stats);
 }
 
@@ -1019,19 +1033,19 @@ void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_
 	ofs <<"Runtime Statistics: for "<<stats.num_of_urls<<" urls, "<<Byte2KB(stats.decoded_stream_size)<<"KB"<<std::endl;
 	ofs <<"------------------"<<std::endl;
 	ofs <<"Loading: " << STDENDL;
-	ofs <<"  Time = " <<stats.time_to_load << "s,  Throughput = "<< double(stats.decoded_size/stats.time_to_load)*8/1024/1024  <<" Mb/s" << STDENDL;
+	ofs <<"  Time = " <<stats.time_to_load << "s,  Throughput = "<<getMbps(stats.decoded_size, stats.time_to_load)<<" Mb/s" << STDENDL;
 	ofs <<"  Memory footprint (linux only) ~ "<<stats.mem_footprint_est<< "Bytes = "<< double((double)stats.mem_footprint_est / 1024) <<"KB"<< STDENDL;
 	ofs <<"  UrlCompressor total allocated memory ~ "<<stats.url_compressor_allocated_memory<< "Bytes = "<< double((double)stats.url_compressor_allocated_memory / 1024) <<"KB"<< STDENDL;
 	ofs <<"Online compression:" << STDENDL;
-	ofs <<"  time_to_encode = "<<stats.time_to_encode << "s, Throughput= "<< double((stats.decoded_stream_size)/stats.time_to_encode)*8/1024/1024 <<" Mb/s" << STDENDL;
-	ofs <<"  " << DVAL(stats.decoded_stream_size) << "Bytes, " << DVAL(stats.time_to_encode) << "sec" <<  STDENDL;
+	ofs <<"  time_to_encode = "<<stats.time_to_encode << " s, Throughput= "<< getMbps(stats.decoded_stream_size,stats.time_to_encode) <<" Mb/s" << STDENDL;
+	ofs <<"  decoded_stream_size = " << Byte2KB(stats.decoded_stream_size) << " KB"<< STDENDL;
 	if (options.test_decoding) {
 		ofs <<" time_to_decode ="<<stats.time_to_decode << "s, Throughput= "<< double(stats.encoded_stream_size/stats.time_to_decode)*8/1024/1024 <<" Mb/s" << STDENDL;
 	}
 	if (print_offline_compression) {
 		ofs <<"Offline compression (create dictionary & encode all urls):"<<STDENDL
 				<<"  Time = " <<stats.time_to_load + (stats.time_to_encode/options.factor) <<",  Throughput ~"
-				<< double(stats.decoded_size/ (stats.time_to_load + (stats.time_to_encode/options.factor)) )*8/1024/1024 <<" Mb/s"<<STDENDL;
+				<<getMbps(stats.decoded_size , (stats.time_to_load + (stats.time_to_encode/options.factor)) )<<" Mb/s"<<STDENDL;
 	}
 	ofs <<"------------------"<<std::endl;
 
