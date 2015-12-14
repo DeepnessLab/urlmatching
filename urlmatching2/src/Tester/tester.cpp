@@ -15,7 +15,6 @@
 #include <assert.h>
 #include <ctime>
 #include <unordered_map>
-#include <cstdlib>
 
 #include "tester.h"
 #include "../UrlToolkit/Huffman.h"
@@ -48,6 +47,8 @@ void run_cmd_main(CmdLineOptions& options) {
 		test_extract(options);
 	} else if (options.cmd == CMD_ARTICLE) {
 		test_article(options);
+	} else if (options.cmd == CMD_ACTHROUGHPUT) {
+			test_aho_corasick_throughput(options);
 	} else {
 
 		options.usage();
@@ -55,21 +56,6 @@ void run_cmd_main(CmdLineOptions& options) {
 	}
 }
 
-
-struct RunTimeStats {
-	uint32_t num_of_urls;
-	double time_to_load;
-	double time_to_encode;
-	double time_to_decode;
-	uint32_t dictionary_size;
-	int mem_footprint_est;
-	uint32_t url_compressor_allocated_memory;
-	uint32_t decoded_size;
-	uint32_t encoded_size;
-	uint32_t decoded_stream_size;
-	uint32_t encoded_stream_size;
-
-};
 
 
 void printRunTimeStats(CmdLineOptions& options, RunTimeStats& stats, bool print_offline_compression);
@@ -734,6 +720,126 @@ void test_extract (CmdLineOptions& options) {
 	std::cout<<std::endl<<"Extracted file: "<<options.output_file_path<<std::endl;
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<"Time = " <<time_to_extract << STDENDL;
+}
+
+
+//
+//class AhoCorasickThroughputTester {
+//public:
+//	AhoCorasickThroughputTester(UrlMatchingModule& urlmodule) : _urlmodule(urlmodule) {}
+//	virtual ~AhoCorasickThroughputTester() {}
+//
+//	void run_throughput(std::string str, uint64_t& hits_counter) {
+//		_urlmodule.algo.MatchPatterns_for_Throughput(str, hits_counter);
+//	}
+//
+//private:
+//	UrlMatchingModule& _urlmodule;
+//};
+
+
+UrlMatchingModule* load_url_module_from_file(UrlDeque_t& url_deque, CmdLineOptions& options, RunTimeStats& s) {
+
+	DoubleHeavyHittersParams_t customParams = {/*n1*/ options.n1, /*n2*/ options.n2, /*r*/ options.r, /*kgrams_size*/ options.kgram_size};
+	DoubleHeavyHittersParams_t& params = customParams; //default_hh_params;
+
+
+	UrlMatchingModule* urlc = new UrlMatchingModule();
+
+	if (! urlc->getUrlsListFromFile(options.input_urls_file_path, url_deque)) {
+		std::cout<<"Error with input file"<<STDENDL;
+		exit (1);
+	}
+	if (url_deque.size() == 0) {
+		std::cout<<"ERROR: read 0 urls from file"<<STDENDL;
+		exit (1);
+	}
+	std::deque<std::string>* input_for_urlcompressor = &url_deque;
+
+	if (options.split_for_LPM) {
+		std::deque<std::string>* splitted_deque = new std::deque<std::string>;
+		urlc->SplitUrlsList(url_deque, *splitted_deque, options.LPM_delimiter);
+		input_for_urlcompressor = splitted_deque;
+	}
+
+	take_a_break(options.break_time," before loading");
+	s.mem_footprint_est = get_curr_memsize();
+	TimerUtil init_timer(true);
+	bool ret = urlc->InitFromUrlsList(url_deque, *input_for_urlcompressor, params, false, true);
+	init_timer.stop();
+	s.mem_footprint_est = get_curr_memsize() - s.mem_footprint_est;
+	s.url_compressor_allocated_memory = urlc->SizeOfTotalAllocatedMemory();
+	take_a_break(options.break_time," after loading");
+	s.time_to_load = init_timer.get_seconds();
+	assert (ret);
+
+	if (options.split_for_LPM) {	//free unecessary memory
+		delete input_for_urlcompressor;
+	}
+
+
+
+	return urlc;
+}
+
+void test_aho_corasick_throughput(CmdLineOptions& options) {
+	using namespace std;
+	RunTimeStats s;
+
+	std::cout<<" --- Aho Corasick throughput test ---"<<std::endl;
+	options.PrintParameters(std::cout);
+
+	UrlDeque_t url_deque;
+	UrlMatchingModule* urlc = load_url_module_from_file(url_deque, options,s);
+	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
+
+	sanityTesting(*urlc);
+
+		// ----   encode/decode entire urlsfile   ----
+
+
+	s.num_of_urls = url_deque.size() ;
+
+	uint32_t start_at = 0;
+	uint32_t howmanytocode = url_deque.size() ;
+
+	std::cout<<std::endl;
+	std::cout<<"-- Online Testing on " << howmanytocode - start_at<< " urls --" <<STDENDL;
+
+	//encode all urls
+	std::cout<<"Count patterns ... "<<std::endl;
+	s.decoded_size = 0;
+	s.decoded_stream_size = 0;
+
+	s.encoded_size = 0;
+
+	uint64_t hits=0;
+
+	TimerUtil throughput_timer(false);
+	throughput_timer.start();
+	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
+		for (int j=0; j < options.factor; j++) {
+			urlc->count_pattern_matching_hits(url_deque[i], hits);
+			s.decoded_stream_size+=url_deque[i].length();
+		}
+	}
+	throughput_timer.stop();
+	s.time_to_encode = throughput_timer.get_seconds();
+
+	s.dictionary_size= urlc->getDictionarySize();
+
+	// print results
+	const UrlMatchingModuleStats* urlc_stats = urlc->get_stats();
+	std::cout <<"--------------------"<<std::endl;
+	std::cout<<"Aho Corasick throughput timing on "<< url_deque.size() <<" Urls"<<std::endl;
+	std::cout<<"Number of patterns = "<<urlc_stats->number_of_patterns <<std::endl;
+	std::cout<<"Time = "<<throughput_timer.get_milseconds() << "ms, decoded_size = "<<s.decoded_stream_size << std::endl;
+	std::cout<<"Throughput = "<<std::setprecision(5)<<getMbps(s.decoded_stream_size, s.time_to_encode) <<"Mbps"<<std::endl;
+	std::cout<<std::setprecision(6);
+	std::cout<<"Hits count = "<< hits <<" hits"<<std::endl;
+//	printAlgorithmStats(options,urlc_stats);
+
+	delete urlc;
 }
 
 

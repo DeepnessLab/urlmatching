@@ -54,6 +54,7 @@ typedef struct urlMatchingType {
 //This method is very slow since it uses stringstream object, don't use it in Release
 void debugPrintModule (urlMatchingType& urlmatching);
 
+int handle_pattern_count_hits(char* str, uint32_t idx, int id, int count, void* data);
 int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct, ACTree* actree);

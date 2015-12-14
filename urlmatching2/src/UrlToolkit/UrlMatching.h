@@ -118,16 +118,15 @@ public:
 				+ algo.size()
 				+ _huffman.size());
 	}
-
 	void OptimizedACMachineSize() {
 		if (isLoaded())
 			algo.optimize_statemachine() ;
 		_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	}
-
 	uint32_t getDictionarySize()  const;
 	inline const UrlMatchingModuleStats_t* get_stats() const {return  &_statistics; }
 	bool sanity() ;
+	void count_pattern_matching_hits(std::string url, uint64_t& hits);
 
 	//Debug API
 	void print_database(std::ostream& ofs) const;
