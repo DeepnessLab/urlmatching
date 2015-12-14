@@ -77,6 +77,13 @@ public:
 	virtual inline
 	bool isLoaded() const { return _is_loaded; }
 
+	//// For throughput testsing ////
+	/**
+	 * @param input_str - input string to find matches
+	 * @param hits - incremented by number of pattern hits on input
+	 * @return true is succeed, false for fail
+	 */
+	virtual bool MatchPatterns_for_Throughput(std::string input_str, uint64_t& hits);
 
 private:
 

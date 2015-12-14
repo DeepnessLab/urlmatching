@@ -10,6 +10,9 @@
 #ifndef TESTER_H_
 #define TESTER_H_
 
+#include <deque>
+
+
 #ifdef _WIN32
     #include <direct.h>
 	#include <windows.h>
@@ -48,6 +51,24 @@ void getWorkingDirectory(std::string& out ) {
 	std::cout<<"TEST \""<<#name<<"\" ENDED, took " << test_time / 60 << " min."<< std::endl;
 
 
+typedef std::deque<std::string> UrlDeque_t;
+
+struct RunTimeStats {
+	uint32_t num_of_urls;
+	double time_to_load;
+	double time_to_encode;
+	double time_to_decode;
+	uint32_t dictionary_size;
+	int mem_footprint_est;
+	uint32_t url_compressor_allocated_memory;
+	uint32_t decoded_size;
+	uint32_t encoded_size;
+	uint32_t decoded_stream_size;
+	uint32_t encoded_stream_size;
+
+};
+
+
 class UrlMatchingModule;
 
 
@@ -61,7 +82,7 @@ void test_compress					(CmdLineOptions& options);
 void test_extract					(CmdLineOptions& options);
 void test_hashtable					(CmdLineOptions& options);
 void test_article					(CmdLineOptions& options);
-
+void test_aho_corasick_throughput	(CmdLineOptions& options);
 
 //The cmd tester (Main tester)
 void take_a_break(int seconds, std::string why);

@@ -35,6 +35,8 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->break_time 			= 0;
 	this->logger_config			= "";
 	this->factor				= 1;
+	this->y						= 0;
+	this->z						= 0;
 	this->_parse_command_line(argc, argv);
 }
 
@@ -57,7 +59,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:l:p:b:vc:x:s"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:l:p:b:vc:x:y:z:s"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -105,6 +107,12 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		case 'x':
 			this->factor = atoi(optarg);
 			break;
+		case 'y':
+			this->y = atoi(optarg);
+			break;
+		case 'z':
+			this->z = atoi(optarg);
+			break;
 		case 's':
 			this->dump_ac_statetable = true;
 			break;
@@ -140,7 +148,8 @@ bool CmdLineOptions::cmd_ok() {
 			(this->cmd == CMD_HASHTABLE) ||
 			(this->cmd == CMD_COMPRESS) ||
 			(this->cmd == CMD_EXTRACT) ||
-			(this->cmd == CMD_ARTICLE)
+			(this->cmd == CMD_ARTICLE) ||
+			(this->cmd == CMD_ACTHROUGHPUT)
 	)
 	{
 		return true;

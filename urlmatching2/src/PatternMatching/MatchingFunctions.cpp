@@ -13,6 +13,16 @@
 #include <iostream>
 
 
+int handle_pattern_count_hits(char* str, uint32_t idx, int id, int count, void* data)
+{
+	ASSERT(data != NULL);
+	DBG("handle_pattern: \""<<str<< "\" at "<<idx <<", hits = "<< *hits);
+	uint64_t* hits = (uint64_t*) data;
+	(*hits)++;
+
+	return 1;
+}
+
 
 int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 {

@@ -824,6 +824,10 @@ bool UrlMatchingModule::sanity()
 	return true;
 }
 
+void UrlMatchingModule::count_pattern_matching_hits(std::string url, uint64_t& hits_counter) {
+	algo.MatchPatterns_for_Throughput(url, hits_counter);
+}
+
 void UrlMatchingModule::dump_ac_states(std::string filename) const
 {
 	algo.dump_states(filename);

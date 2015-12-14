@@ -22,6 +22,7 @@
 #define CMD_COMPRESS        "compress"
 #define CMD_EXTRACT         "extract"
 #define CMD_ARTICLE         "article"
+#define CMD_ACTHROUGHPUT    "ac"
 
 
 
@@ -62,6 +63,8 @@ public:
 	std::string dump_ac_statetable_filename;
 	int			break_time;
 	int			factor;
+	int			y;
+	int			z;
 
 	char        line_del;
 
