@@ -220,19 +220,19 @@ void test_article(CmdLineOptions& options)
 			set[n] = idx;
 		}
 		uint32_t buff_size = BUFFSIZE;
+		encoding_timer.start();
 		for (uint32_t n = 0 ; n < set_size; n++ ) {
 			uint32_t idx = set[n];
 			uint32_t* codedbuff = codedbuffers[idx];
 			for (uint32_t t = 1 ; t <= times ; t ++) {
 				buff_size = BUFFSIZE;
-		encoding_timer.start();
 				urlc->encode(urls[idx],codedbuff,buff_size);
-		encoding_timer.stop();
 				s.decoded_stream_size+=urls[idx].length();
 				encoded_stream_bitsize += codedbuff[0] ;
 				s.num_of_urls++;
 			}
 		}
+		encoding_timer.stop();
 	}
 	s.time_to_encode = encoding_timer.get_seconds();
 	std::cout<<"  passed  "<< num_of_sets * set_size *times << " urls"<<STDENDL;
@@ -623,17 +623,17 @@ void test_test(CmdLineOptions& options) {
 
 	START_TIMING;
 	TimerUtil encoding_timer(false);
+	encoding_timer.start();
 	for (uint32_t i = start_at ; i < start_at + howmanytocode; i++ ) {
 		uint32_t* codedbuff = codedbuffers[i];
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
-	encoding_timer.start();
 			urlc2->encode(urls[i],codedbuff,buff_size);
-	encoding_timer.stop();
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
 		}
 	}
+	encoding_timer.stop();
 	s.time_to_encode = encoding_timer.get_seconds();
 
 	//calculate decoded and encoded size
