@@ -839,6 +839,9 @@ void test_aho_corasick_throughput(CmdLineOptions& options) {
 	std::cout<<"Hits count = "<< hits <<" hits"<<std::endl;
 //	printAlgorithmStats(options,urlc_stats);
 
+	createOptionalDictionaryFile(options,*urlc);
+	createOptionalDumpACStatesFile(options,*urlc);
+
 	delete urlc;
 }
 

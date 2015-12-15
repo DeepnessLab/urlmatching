@@ -152,6 +152,8 @@ private:
 	void prepare_modules();
 	void prepare_huffman_code(Pattern* pat, HuffCode& code);
 
+	void evaluate_precise_frequencies(const std::deque<std::string>& urls);
+
 	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)
 	void prepare_huffman();
 
