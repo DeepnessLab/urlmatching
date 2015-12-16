@@ -73,6 +73,8 @@ struct RunTimeStatsHashtable {
 		number_oflookups=0;
 		lookup_time_for_strings=0.0;
 		lookup_time_for_encoded=0.0;
+		strings_load_factor = 0.0;
+		encoded_load_factor = 0.0;
 	}
 
 	uint32_t num_of_urls;
@@ -94,6 +96,9 @@ struct RunTimeStatsHashtable {
 	uint32_t number_oflookups;
 	double lookup_time_for_strings;
 	double lookup_time_for_encoded;
+
+	double strings_load_factor;
+	double encoded_load_factor;
 };
 
 typedef std::unordered_map<std::string,uint32_t>			unordered_map_strings;
@@ -104,6 +109,12 @@ void lookup_strings_hashtable(UrlMatchingModule& urlc, unordered_map_strings has
 void lookup_encoded_hashtable(UrlMatchingModule& urlc, unordered_map_encoded hashtable_encoded
 		, std::deque<std::string>& urls, uint32_t* random_indices, int num_of_lookups, RunTimeStatsHashtable& rt_stats);
 
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStatsHashtable& rt_stat , const UrlMatchingModuleStats* stats );
+
+double ratio(uint64_t top, uint64_t buttom) {
+	double ret = double (  (double) top / (double) buttom);
+	return ret;
+}
 
 
 void test_hashtable(CmdLineOptions& options) {
@@ -209,7 +220,7 @@ void test_hashtable(CmdLineOptions& options) {
 	// ------------------------------------
 	rt_stats.mem_footprint_hashtable_strings = get_curr_memsize();
 	unordered_map_strings hashtable_string;
-	hashtable_string.reserve( urls.size());
+	hashtable_string.reserve( urls.size()*2);
 	std::cout<<"inserting all urls to a hashtable_string (std::unordered_map) .. "<<std::endl;
 	START_TIMING;
 	for (uint32_t i = 0 ; i < howmanytocode; i++ ) {
@@ -229,13 +240,14 @@ void test_hashtable(CmdLineOptions& options) {
 		rt_stats.mem_allocated_hashtable_strings += 8;
 		rt_stats.mem_allocated_hashtable_strings += hashtable_string.bucket_size(i) * 8;
 	}
+	rt_stats.strings_load_factor = hashtable_string.load_factor();
 
 	// ----
 	//	Test hashtable using <Encoded,IPV4>
 	// ------------------------------------
 	rt_stats.mem_footprint_hashtable_encoded = get_curr_memsize();
 	unordered_map_encoded hashtable_encoded;
-	hashtable_encoded.reserve( urls.size());
+	hashtable_encoded.reserve( urls.size()*2);
 
 	SerialAllocator<char>* _charsAllocator = new SerialAllocator<char>(allocator_size + 10 );
 
@@ -262,6 +274,7 @@ void test_hashtable(CmdLineOptions& options) {
 		rt_stats.mem_allocated_hashtable_encoded += 8;
 		rt_stats.mem_allocated_hashtable_encoded += hashtable_encoded.bucket_size(i) * 8;
 	}
+	rt_stats.encoded_load_factor = hashtable_encoded.load_factor();
 
 	// ----
 	//	Lookup testing preparation step
@@ -321,9 +334,13 @@ void test_hashtable(CmdLineOptions& options) {
 	std::cout<<"------------------"<<std::endl;
 	std::cout<<" URL compressor allocated memory = "<<Byte2KB(memory_allocated_estimation)<<"KB"<<std::endl;
 
+	std::cout<<"Hashtable Load factor:"<<std::endl;
+	std::cout<<" strings = "<< rt_stats.strings_load_factor<<"\t";
+	std::cout<<" encoded = "<<rt_stats.encoded_load_factor<<std::endl;
+
 	std::cout<<"Hashtable Memory Allocated:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.mem_allocated_hashtable_strings)<<"KB"<<"\t";
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.mem_allocated_hashtable_encoded)<<"KB"<<"\t";
+	std::cout<<" strings = "<<Byte2KB(rt_stats.mem_allocated_hashtable_strings)<<"KB"<<"\t";
+	std::cout<<" encoded = "<<Byte2KB(rt_stats.mem_allocated_hashtable_encoded)<<"KB"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( (double) rt_stats.mem_allocated_hashtable_encoded / (double)rt_stats.mem_allocated_hashtable_strings)<<std::endl;
 	std::cout<<std::setprecision(6);
 
@@ -335,31 +352,32 @@ void test_hashtable(CmdLineOptions& options) {
 //	std::cout<<std::setprecision(6);
 
 	std::cout<<"Keysize Memory allocated:"<<std::endl;
-	std::cout<<" hashtable strings = "<<Byte2KB(rt_stats.hashtable_strings_key_size)<<"KB"<<"\t";
-	std::cout<<" hashtable encoded = "<<Byte2KB(rt_stats.hashtable_encoded_key_size)<<"KB"<<"\t";
+	std::cout<<" strings = "<<Byte2KB(rt_stats.hashtable_strings_key_size)<<"KB"<<"\t";
+	std::cout<<" encoded = "<<Byte2KB(rt_stats.hashtable_encoded_key_size)<<"KB"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( (double) rt_stats.hashtable_encoded_key_size / (double) rt_stats.hashtable_strings_key_size)<<std::endl;
 	std::cout<<std::setprecision(6);
 
 	std::cout<<"Insertion timing:"<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
+	std::cout<<" strings = "<<std::setprecision(3)<<rt_stats.insert_time_for_strings<<"sec"<<"\t";
+	std::cout<<" encoded = "<<std::setprecision(3)<<rt_stats.insert_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.insert_time_for_encoded / rt_stats.insert_time_for_strings)<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(5)
+	std::cout<<" strings = "<<std::setprecision(5)
 	<<(long double) ( (long double) rt_stats.decompressed_size / rt_stats.insert_time_for_strings) *8/1024/1024<<"Mbps"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(5)
+	std::cout<<" encoded = "<<std::setprecision(5)
 	<<(long double) ( (long double) rt_stats.decompressed_size / rt_stats.insert_time_for_encoded) *8/1024/1024<<"Mbps"<<std::endl;
 	std::cout<<std::setprecision(6);
 
 
 	std::cout<<"Lookup time on size: "<<Byte2KB(rt_stats.lookup_decompressed_size_for_string) <<"KB:"<<std::endl;
-	std::cout<<" hashtable strings = "<<std::setprecision(3)<<rt_stats.lookup_time_for_strings<<"sec"<<"\t";
-	std::cout<<" hashtable encoded = "<<std::setprecision(3)<<rt_stats.lookup_time_for_encoded<<"sec"<<"\t";
+	std::cout<<" strings = "<<std::setprecision(3)<<rt_stats.lookup_time_for_strings<<"sec"<<"\t";
+	std::cout<<" encoded = "<<std::setprecision(3)<<rt_stats.lookup_time_for_encoded<<"sec"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<<double ( rt_stats.lookup_time_for_encoded / rt_stats.lookup_time_for_strings)<<std::endl;
+
 	long double lookup_strings_throughput = getMbps(rt_stats.lookup_decompressed_size_for_string, rt_stats.lookup_time_for_strings );
-	std::cout<<" hashtable strings = "<<std::setprecision(5)
+	std::cout<<" strings = "<<std::setprecision(5)
 	<< lookup_strings_throughput <<" Mbps"<<"\t";
 	long double lookup_encoded_throughput = getMbps(rt_stats.lookup_decompressed_size_for_encoded,rt_stats.lookup_time_for_encoded);
-	std::cout<<" hashtable encoded = "<<std::setprecision(5)
+	std::cout<<" encoded = "<<std::setprecision(5)
 	<<lookup_encoded_throughput<<" Mbps"<<"\t";
 	std::cout<<" Ratio = "<<std::setprecision(3)<< lookup_encoded_throughput / lookup_strings_throughput <<std::endl;
 	std::cout<<std::setprecision(6);
@@ -382,6 +400,7 @@ void test_hashtable(CmdLineOptions& options) {
 		printout_file.close();
 		std::cout <<std::endl<< "Dicionary outputed to: "<<options.print_dicionary_file<<std::endl;
 	}
+	createOptionalOutputFile(options,rt_stats,stats);
 }
 
 
@@ -486,3 +505,62 @@ void lookup_encoded_hashtable(UrlMatchingModule& urlc, unordered_map_encoded has
 			<<std::setprecision(6)
 		<<Byte2KB(rt_stats.lookup_decompressed_size_for_encoded) << " KB"<<std::endl;
 }
+
+
+void createOptionalOutputFile(CmdLineOptions& options, RunTimeStatsHashtable& rt_stat , const UrlMatchingModuleStats* stats ) {
+	using namespace std;
+	if (!options.custom_output_file)
+		return;
+	std::deque<pair<std::string,std::string>> outmap;
+	std::string filename = options.input_urls_file_path;
+	if (options.split_for_LPM)
+		filename = filename+"<"+options.LPM_delimiter+">";
+
+	outmap.push_back(std::pair<std::string,std::string>("filename",(filename)));
+	outmap.push_back(std::pair<std::string,std::string>("urls",std::to_string(stats->number_of_urls)));
+	outmap.push_back(pair<string,string>("n1",std::to_string(stats->params.n1)));
+	outmap.push_back(pair<string,string>("n2",std::to_string(stats->params.n2)));
+	outmap.push_back(pair<string,string>("r",std::to_string(stats->params.r)));
+	outmap.push_back(pair<string,string>("kgram",std::to_string(stats->params.kgrams_size)));
+	outmap.push_back(pair<string,string>("#symbols",std::to_string(stats->number_of_symbols)));
+	outmap.push_back(pair<string,string>("#patterns",std::to_string(stats->number_of_patterns)));
+	outmap.push_back(pair<string,string>("strings load facor",std::to_string(rt_stat.strings_load_factor)));
+	outmap.push_back(pair<string,string>("encoded load facor",std::to_string(rt_stat.encoded_load_factor)));
+
+	outmap.push_back(pair<string,string>("strings Allocated Bytes",std::to_string(rt_stat.mem_allocated_hashtable_strings)));
+	outmap.push_back(pair<string,string>("encoded Allocated Bytes",std::to_string(rt_stat.mem_allocated_hashtable_encoded)));
+	outmap.push_back(pair<string,string>("ratio",std::to_string(ratio (rt_stat.mem_allocated_hashtable_encoded, rt_stat.mem_allocated_hashtable_strings))));
+
+	outmap.push_back(pair<string,string>("strings Insertion time ms",std::to_string(rt_stat.insert_time_for_strings / 1000)));
+	outmap.push_back(pair<string,string>("encoded Insertion time ms",std::to_string(rt_stat.insert_time_for_encoded / 1000)));
+	long double throughput_s = getMbps(rt_stat.decompressed_size, rt_stat.insert_time_for_strings);
+	outmap.push_back(pair<string,string>("strings Insertion throughput Mbps",std::to_string(throughput_s)));
+	long double throughput_e = getMbps(rt_stat.decompressed_size, rt_stat.insert_time_for_encoded);
+	outmap.push_back(pair<string,string>("encoeded Insertion throughput Mbps",std::to_string(throughput_e)));
+	outmap.push_back(pair<string,string>("ratio",std::to_string(ratio (throughput_e, throughput_s))));
+
+	outmap.push_back(pair<string,string>("strings Lookup size KB",std::to_string(Byte2KB(rt_stat.lookup_decompressed_size_for_string))));
+	outmap.push_back(pair<string,string>("encoded Lookup size KB",std::to_string(Byte2KB(rt_stat.lookup_decompressed_size_for_encoded))));
+	outmap.push_back(pair<string,string>("strings Lookup time ms",std::to_string(rt_stat.lookup_time_for_strings / 1000)));
+	outmap.push_back(pair<string,string>("encoded Lookup time ms",std::to_string(rt_stat.lookup_time_for_encoded / 1000)));
+	throughput_s = getMbps(rt_stat.lookup_decompressed_size_for_string, rt_stat.lookup_time_for_strings);
+	outmap.push_back(pair<string,string>("strings Lookup throughput Mbps",std::to_string(throughput_s)));
+	throughput_e = getMbps(rt_stat.lookup_decompressed_size_for_encoded, rt_stat.lookup_time_for_encoded);
+	outmap.push_back(pair<string,string>("encoeded Lookup throughput Mbps",std::to_string(throughput_e)));
+	outmap.push_back(pair<string,string>("ratio",std::to_string(ratio (throughput_e, throughput_s))));
+
+	ofstream out_file;
+	out_file.open (options.output_file_path.c_str(),ios::app );
+	if (options.add_header_to_output_file) {
+		for (std::deque<std::pair<std::string,std::string>>::iterator it = outmap.begin(); it != outmap.end(); ++it) {
+			out_file<<it->first<<",";
+		}
+		out_file<<std::endl;
+	}
+	for (std::deque<std::pair<std::string,std::string>>::iterator it = outmap.begin(); it != outmap.end(); ++it) {
+		out_file<<it->second<<",";
+	}
+	out_file<<std::endl;
+	out_file.close();
+}
+

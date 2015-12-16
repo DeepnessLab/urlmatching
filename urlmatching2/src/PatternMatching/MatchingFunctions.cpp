@@ -16,10 +16,31 @@
 int handle_pattern_count_hits(char* str, uint32_t idx, int id, int count, void* data)
 {
 	ASSERT(data != NULL);
-	DBG("handle_pattern: \""<<str<< "\" at "<<idx <<", hits = "<< *hits);
+	DBG("handle_pattern_count_hits: \""<<str<< "\" at "<<idx <<", hits = "<< *hits);
 	uint64_t* hits = (uint64_t*) data;
 	(*hits)++;
 
+	return 1;
+}
+
+int handle_pattern_update_frequencies(char* str, uint32_t idx, int id, int count, void* data)
+{
+	ASSERT(data != NULL);
+	DBG("handle_pattern_update_frequencies: \""<<str<< "\" at "<<idx <<", hits = "<< *hits);
+	frequencyUpdaterType* module = (frequencyUpdaterType*) data;
+	uint64_t* hits = (uint64_t*) data;
+	(*hits)++;
+	symbolT* symbols = module->symbolsTable->table[id][count];
+	ASSERT(symbols!=NULL);
+	symbolT last_symbol = S_NULL; //skip same copies of the same string
+	while (*symbols != S_NULL) {
+		if ( last_symbol != *symbols) {
+			Pattern* p = module->list->at(*symbols);
+			p->_frequency = p->_frequency + 1;
+		}
+		last_symbol = *symbols;
+		symbols++;
+	}
 	return 1;
 }
 

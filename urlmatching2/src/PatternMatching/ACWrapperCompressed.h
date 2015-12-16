@@ -84,6 +84,8 @@ public:
 	 * @return true is succeed, false for fail
 	 */
 	virtual bool MatchPatterns_for_Throughput(std::string input_str, uint64_t& hits);
+	virtual bool MatchPatterns_update_frequencies(std::string input_str);
+
 
 private:
 

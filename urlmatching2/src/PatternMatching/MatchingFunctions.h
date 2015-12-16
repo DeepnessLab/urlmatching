@@ -51,11 +51,22 @@ typedef struct urlMatchingType {
 	symbolTableType* symbolsTable;
 } urlMatchingType;
 
+/**
+ * Struct that holds data needed to update frequencies
+ */
+typedef struct frequencyUpdaterType {
+	char * input_string;							//original url string
+	Symbol2pPatternVec* list;
+	symbolTableType* symbolsTable;
+} frequencyUpdaterType ;
+
 //This method is very slow since it uses stringstream object, don't use it in Release
 void debugPrintModule (urlMatchingType& urlmatching);
 
 int handle_pattern_count_hits(char* str, uint32_t idx, int id, int count, void* data);
 int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
+int handle_pattern_update_frequencies(char* str, uint32_t idx, int id, int count, void* data);
+
 
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct, ACTree* actree);
 
