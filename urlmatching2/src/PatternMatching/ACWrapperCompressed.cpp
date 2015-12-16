@@ -318,6 +318,31 @@ bool ACWrapperCompressed::MatchPatterns_for_Throughput(std::string input_str, ui
 	return true;
 }
 
+bool ACWrapperCompressed::MatchPatterns_update_frequencies(const std::string input_str) {
+	if ( (input_str.length() == 0 ) || (input_str == "") ){
+		return true;
+	}
+
+	if (! _has_patterns) {
+		return true;
+	}
+
+	frequencyUpdaterType updateModule;
+	updateModule.list = _patternsList;
+	updateModule.symbolsTable = &_symbolsTable;
+	const char* str = input_str.c_str();
+	_machine->handlePatternFunc = handle_pattern_update_frequencies;
+	_machine->handlePatternData = &updateModule;
+	MachineStats stats;
+
+	//to support multithreaded - make a copy of _machine and set its handlePatternData member
+	match(_machine,/*(char *)*/ str, strlen(str)
+			, 1 /* verbose to make matching call handlePatternFunc when a pattern is found*/
+			, &stats);
+
+	return true;
+}
+
 bool ACWrapperCompressed::MatchPatterns(std::string input_str, symbolT* result) {
 	assert(isLoaded());
 

@@ -198,8 +198,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
 
-	evaluate_precise_frequencies(orig_url_list);
-
+	evaluate_precise_frequencies_ac(orig_url_list);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -215,13 +214,8 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		if ((*it)->_frequency > 0)
 			i++;
 	_statistics.number_of_symbols = i;
-	_statistics.number_of_patterns = _statistics.number_of_symbols - 128;
-	std::cout <<"Anchors = " << i<<STDENDL;
+	_statistics.number_of_patterns = _statistics.number_of_symbols - MAX_CHAR;
 //	add_memory_counter(algo.size());
-
-
-
-
 
 	_huffman.free_encoding_memory();
 
@@ -264,8 +258,28 @@ void UrlMatchingModule::evaluate_precise_frequencies(const std::deque<std::strin
 			p->_frequency += f;
 		}
 	}
-	std::cout<<"updated frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
+	std::cout<<"evaluate_precise_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
 }
+
+//recheck all frequencies
+void UrlMatchingModule::evaluate_precise_frequencies_ac(const std::deque<std::string>& urls) {
+	//reset all frequencies with length > 1
+	symbolT first = MAX_CHAR;
+	for (symbolT i=first ;  i < getDBsize(); i ++ ) {
+		Pattern* p = _symbol2pattern_db[i];
+		if (p->_str_len == 1) {
+			continue;
+		}
+		p->_frequency = 0;
+	}
+	TimerUtil timer;
+	//reevaluate frequencies with length > 1
+	for (std::deque<std::string>::const_iterator it = urls.begin() ; it!=urls.end(); ++it) {
+		algo.MatchPatterns_update_frequencies(*it);
+	}
+	std::cout<<"evaluate_precise_frequencies_ac, took " << timer.get_milseconds() << " ms" << std::endl;
+}
+
 
 //DEPRECATED
 bool UrlMatchingModule::LoadUrlsFromFile(const std::string& file_path,
