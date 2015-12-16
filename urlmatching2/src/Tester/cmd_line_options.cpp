@@ -20,10 +20,10 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->use_dictionary_file	= false;
 	this->dictionary_file		= "";
 	this->add_header_to_output_file	= false;
-	this->kgram_size            = 8;
-	this->n1                    = 1500;
-	this->n2                    = 1000;
-	this->r                     = 0.8;
+	this->kgram_size            = 3;
+	this->n1                    = 1100;
+	this->n2                    = 100;
+	this->r                     = 0.5;
 	this->test_decoding			= false;
 	this->split_for_LPM			= false;
 	this->LPM_delimiter			= "/";
@@ -37,6 +37,8 @@ CmdLineOptions::CmdLineOptions(int argc, char* argv[]) {
 	this->factor				= 1;
 	this->y						= 0;
 	this->z						= 0;
+	this->use_url_test_file		= false;
+	this->url_test_file			= "";
 	this->_parse_command_line(argc, argv);
 }
 
@@ -59,7 +61,7 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 		exit(0);
 	}
 
-	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:l:p:b:vc:x:y:z:s"))) {
+	while (-1 != (o = getopt(argc-1, &argv[1], "f:d:o:ak:n:r:l:p:b:vc:x:y:z:u:s"))) {
 		switch (o) {
 		case 'f':
 			this->input_urls_file_path = optarg;
@@ -112,6 +114,10 @@ void CmdLineOptions::_parse_command_line(int argc, char* argv[]) {
 			break;
 		case 'z':
 			this->z = atoi(optarg);
+			break;
+		case 'u':
+			this->use_url_test_file=true;
+			this->url_test_file = optarg;
 			break;
 		case 's':
 			this->dump_ac_statetable = true;
@@ -180,12 +186,13 @@ void CmdLineOptions::usage() {
 	std::cout << "Usage: UrlMatchingTester [CMD] [-f urls_path] <options> <compression params>" << std::endl
 			<< std::endl
 			<< " 1. testing CMD: test, ,testhash, article"<<std::endl
-			<< "    -f [String] urls filepath  - required" << std::endl
+			<< "    -f [String] urls filepath  - REQUIRED" << std::endl
 			<< "    -o [String] ouput filepath		, default: None " << std::endl
-			<< "    -a          add header to output_filepath	, default: None " << std::endl
-			<< "    -p [String] Print dictionary file path	, default: None" << std::endl
-			<< "    -v          Verify by Decode - longer	, default: no" << std::endl
+			<< "    -a          add header line to output_filepath	, default: None " << std::endl
+			<< "    -p [String] file path for dictionary	, default: None, doesn't print dictionary" << std::endl
+			<< "    -v          Verify encoding by Decode - takes longer	, default: no" << std::endl
 			<< "    -b [Int]    Take break time to measure program memory, Seconds, default: no" << std::endl
+			<< "    -u [String] custom urls for lookup in testhash , default: use the original urls file " << std::endl
 			<< std::endl
 			<< " 2. Building dictionary and encoding input file using existing dictionary "<<std::endl
 			<< "    CMD: build, encode"<<std::endl
@@ -198,9 +205,9 @@ void CmdLineOptions::usage() {
 			<< " Compression params: "<<std::endl
 			<< " ------------------ "<<std::endl
 			<< "    -l [char]    Longest Prefix Match - split dictionary by /, default: false" << std::endl
-			<< "    -k [Int]     k-gram size			, default: 8" << std::endl
-			<< "    -r [Fload]   consecutive k-gram ratio	, default: 0.8" << std::endl
-			<< "    -n [Int]     number of pattern anchors	, default: 1000" << std::endl
+			<< "    -k [Int]     k-gram size			, default: 3" << std::endl
+			<< "    -r [Fload]   consecutive k-gram ratio	, default: 0.5" << std::endl
+			<< "    -n [Int]     number of pattern anchors	, default: 100" << std::endl
 			<< " Debugging flags:" << std::endl
 			<< " ---------------  "<<std::endl
 			<< "    -s          dump Aho Corasik state machine	, default: No" << std::endl

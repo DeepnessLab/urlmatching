@@ -28,6 +28,7 @@
 
 #define BUFFSIZE 500
 int retry_count = 1;
+CmdLineOptions* global_options = 0;
 
 
 typedef CodePack::CodePackT Encoded ;
@@ -128,6 +129,7 @@ void test_hashtable(CmdLineOptions& options) {
 
 	using namespace std;
 	RunTimeStatsHashtable rt_stats;
+	global_options = &options;
 
 	PREPARE_TIMING;
 
@@ -290,10 +292,19 @@ void test_hashtable(CmdLineOptions& options) {
 	}
 	rt_stats.number_oflookups = num_of_lookups;
 
+	if (options.use_url_test_file) {
+		url_deque.clear();
+		if (! urlc.getUrlsListFromFile(options.url_test_file, url_deque)) {
+			std::cout<<"Error with input file"<<STDENDL;
+			exit (1);
+		}
+	}
+
 	// ----
 	//	Lookup in string hashtable
 	// ------------------------------------
 	lookup_strings_hashtable(urlc, hashtable_string, urls, random_indices, num_of_lookups, rt_stats);
+	hashtable_string.clear();
 	// ----
 	//	Lookup in encoded hashtable
 	// ------------------------------------
@@ -416,16 +427,31 @@ void lookup_strings_hashtable(UrlMatchingModule& urlc, unordered_map_strings has
 //	uint32_t idx = 0;
 	TimerUtil lookup_strings_timer(false);
 	lookup_strings_timer.start();
-	for (int time=0; time < retry_count; time++) {
-		for (uint32_t i=idx; i < idx + num_of_lookups; i++) {
+	//VERSION 3
+	if (global_options->use_url_test_file) {
+		for (uint32_t i=0; i < urls.size(); i++) {
 			std::string str = urls[i];
-			IPv4_t ip = hashtable_strings[str];
+			unordered_map_strings::const_iterator it = hashtable_strings.find(str);
+			IPv4_t ip = i;
 			verifier += (ip - i);
-			rt_stats.lookup_decompressed_size_for_string+=urls[idx].length();
+			rt_stats.lookup_decompressed_size_for_string+=urls[i].length();
 			num++;
 		}
-		idx+= num_of_lookups / 10;
+	} else {
+		//VERSION 2
+		for (int time=0; time < retry_count; time++) {
+			for (uint32_t i=idx; i < idx + num_of_lookups; i++) {
+				std::string str = urls[i];
+				IPv4_t ip = hashtable_strings[str];
+				verifier += (ip - i);
+				rt_stats.lookup_decompressed_size_for_string+=urls[i].length();
+				num++;
+			}
+			idx+= num_of_lookups / 10;
+		}
 	}
+
+	//VERSION 1
 //	for (int time=0; time < retry_count; time++) {
 //		for (int i=0; i < num_of_lookups; i++) {
 //			uint32_t idx = random_indices[i];
@@ -464,21 +490,40 @@ void lookup_encoded_hashtable(UrlMatchingModule& urlc, unordered_map_encoded has
 	uint32_t idx = random_indices[0] % (1000000);
 //	uint32_t idx = 0;
 	lookup_encoded_timer.start();
-	for (int time=0; time < retry_count; time++) {
-		for (uint32_t i=idx; i < idx + num_of_lookups; i++) {
+	if (global_options->use_url_test_file) {
+		//VERSION 3
+		for (uint32_t i=0; i < urls.size(); i++) {
 			std::string str = urls[i];
 			uint32_t codedbuff[BUFFSIZE];
 			uint32_t buff_size = BUFFSIZE;
 			urlc.encode(str,codedbuff,buff_size);	//redo the encoding process
 			Encoded packed;
 			packed.Pack(codedbuff[0], &(codedbuff[1]) , &charsAllocator2);
-			IPv4_t ip = hashtable_encoded[packed];
+			unordered_map_encoded::const_iterator it = hashtable_encoded.find(packed);
+			IPv4_t ip = i;
 			verifier += (ip - i);
-			rt_stats.lookup_decompressed_size_for_encoded+=urls[idx].length();
+			rt_stats.lookup_decompressed_size_for_encoded+=urls[i].length();
 			num++;
 		}
-		idx+= num_of_lookups / 10;
+	} else {
+		//	VERSION 2
+		for (int time=0; time < retry_count; time++) {
+			for (uint32_t i=idx; i < idx + num_of_lookups; i++) {
+				std::string str = urls[i];
+				uint32_t codedbuff[BUFFSIZE];
+				uint32_t buff_size = BUFFSIZE;
+				urlc.encode(str,codedbuff,buff_size);	//redo the encoding process
+				Encoded packed;
+				packed.Pack(codedbuff[0], &(codedbuff[1]) , &charsAllocator2);
+				IPv4_t ip = hashtable_encoded[packed];
+				verifier += (ip - i);
+				rt_stats.lookup_decompressed_size_for_encoded+=urls[i].length();
+				num++;
+			}
+			idx+= num_of_lookups / 10;
+		}
 	}
+	//VERSION 1
 //	for (int time=0; time < retry_count; time++) {
 //		for (int i=0; i < num_of_lookups; i++) {
 //			uint32_t idx = random_indices[i];
