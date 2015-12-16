@@ -65,6 +65,8 @@ public:
 	int			factor;
 	int			y;
 	int			z;
+	bool 		use_url_test_file;
+	std::string url_test_file;
 
 	char        line_del;
 

@@ -185,9 +185,11 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	_statistics.number_of_patterns = patterns_counter;
 	_statistics.number_of_urls = urls_count;
+	_statistics.number_of_symbols=_nextSymbol;
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
+	evaluate_precise_frequencies(orig_url_list);
 
 	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build AC patterns matching algorithm
@@ -198,7 +200,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
 
-	evaluate_precise_frequencies_ac(orig_url_list);
+//	evaluate_precise_frequencies_ac(orig_url_list);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -208,13 +210,6 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 
 	// ----------------------------
 //	_statistics.number_of_symbols = _symbol2pattern_db.size();
-
-	uint32_t i=0;
-	for (Symbol2pPatternVec::iterator it = _symbol2pattern_db.begin(); it != _symbol2pattern_db.end();++it)
-		if ((*it)->_frequency > 0)
-			i++;
-	_statistics.number_of_symbols = i;
-	_statistics.number_of_patterns = _statistics.number_of_symbols - MAX_CHAR;
 //	add_memory_counter(algo.size());
 
 	_huffman.free_encoding_memory();
