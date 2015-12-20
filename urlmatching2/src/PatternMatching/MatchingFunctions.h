@@ -68,6 +68,7 @@ int handle_pattern(char* str,uint32_t idx, int id, int count, void* data) ;
 int handle_pattern_update_frequencies(char* str, uint32_t idx, int id, int count, void* data);
 
 
+uint32_t getStringFromList_with_achor_selection(char* out_buff, uint32_t max_size, void* list_struct, ACTree* actree);
 uint32_t getStringFromList(char* out_buff, uint32_t max_size, void* list_struct, ACTree* actree);
 
 inline

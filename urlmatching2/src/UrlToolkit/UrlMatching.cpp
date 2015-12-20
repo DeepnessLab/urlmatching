@@ -189,18 +189,21 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
-	evaluate_precise_frequencies(orig_url_list);
+//	evaluate_precise_frequencies(orig_url_list);
+	evaluate_precise_frequencies_ac(orig_url_list);
 
 	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
+	HeapDiffMeasure mem_measure;
 	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(),true /*optimize anchors*/);
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
-	_statistics.ac_memory_footprint = get_curr_memsize() - _statistics.ac_memory_footprint - algo.getStateMachineSize();
+	_statistics.ac_memory_footprint = mem_measure.get_diff();
+	_statistics.ac_memory_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
 
-//	evaluate_precise_frequencies_ac(orig_url_list);
+
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -268,9 +271,11 @@ void UrlMatchingModule::evaluate_precise_frequencies_ac(const std::deque<std::st
 		p->_frequency = 0;
 	}
 	TimerUtil timer;
+	ACWrapperCompressed ac;
+	ac.LoadPatterns(&_symbol2pattern_db, getDBsize(),false /*optimize anchors*/);
 	//reevaluate frequencies with length > 1
 	for (std::deque<std::string>::const_iterator it = urls.begin() ; it!=urls.end(); ++it) {
-		algo.MatchPatterns_update_frequencies(*it);
+		ac.MatchPatterns_update_frequencies(*it);
 	}
 	std::cout<<"evaluate_precise_frequencies_ac, took " << timer.get_milseconds() << " ms" << std::endl;
 }

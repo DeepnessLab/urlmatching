@@ -79,7 +79,7 @@ int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
  * @param list_struct
  * @return
  */
-uint32_t getStringFromList(char* out_buff, uint32_t max_size,
+uint32_t getStringFromList_with_achor_selection(char* out_buff, uint32_t max_size,
 		void* list_struct, ACTree* actree) {
 
 	PatternsIterator* list = (PatternsIterator*) list_struct;
@@ -96,6 +96,31 @@ uint32_t getStringFromList(char* out_buff, uint32_t max_size,
 		p->_frequency=0;
 		p = list->getNext();
 	}
+
+	if (p == 0) {
+		DBG(std::endl << "Total of " << list->size
+						<< " patterns loaded");
+		return 0;
+	}
+	const char* chars = p->_str;
+	strncpy(out_buff, chars, max_size);
+	DBG("adding \"" << chars << "\"; ");
+	return strlen(chars);
+}
+
+/** used to load all patterns into ac builder
+ *
+ * @param out_buff
+ * @param max_size
+ * @param list_struct
+ * @return
+ */
+uint32_t getStringFromList(char* out_buff, uint32_t max_size,
+		void* list_struct, ACTree* actree) {
+
+	PatternsIterator* list = (PatternsIterator*) list_struct;
+	//when optimized - getNext will be sorted by Gain
+	Pattern* p = list->getNext() ;
 
 	if (p == 0) {
 		DBG(std::endl << "Total of " << list->size
