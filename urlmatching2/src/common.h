@@ -94,6 +94,22 @@ private:
 	bool _running;
 };
 
+class HeapDiffMeasure {
+public:
+	HeapDiffMeasure() {
+		update_baseline();
+	}
+	inline int get_diff() {
+		int t1 = get_curr_memsize();
+		return (t1 - _t0);
+	}
+	inline void update_baseline() {
+		_t0 = get_curr_memsize();
+	}
+private:
+	int _t0;
+};
+
 
 
 #endif /* COMMON_H_ */

@@ -110,9 +110,14 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 	}
 
 	if (_has_patterns) {
-		int mem = get_curr_memsize();
-		_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
-		_statemachine_size = (uint32_t) get_curr_memsize() - (uint32_t) mem;
+		HeapDiffMeasure mem_measure;
+		// ---- Important ---- : Anchor selection optimization is in getStringFromList() function.
+		if (optimizeAnchors) {
+			_machine = createStateMachineFunc(getStringFromList_with_achor_selection,&list,1000,1000,0);
+		} else {
+			_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
+		}
+		_statemachine_size = mem_measure.get_diff();
 		DBG("AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB");
 		_machine->handlePatternFunc = handle_pattern;
 		// Build the complimantry table symbol --> pattern
@@ -156,11 +161,11 @@ symbolT* ACWrapperCompressed::create_symb_string (const char* c_string) {
 	symb_string[length-1] = S_NULL;
 
 
-	char buffer[300];
+	char buffer[310];
 	char* cpy =buffer;
 	bool to_delete = false;
 	if (strlen(c_string) >= 300) {
-		cpy = new char[strlen(c_string)];
+		cpy = new char[strlen(c_string)+10];
 		to_delete = true;
 	}
 	strcpy(cpy,c_string);
@@ -413,20 +418,19 @@ void ACWrapperCompressed::optimize_statemachine()
 {
 	if (!_has_patterns)
 		return;
-
+	ON_DEBUG_ONLY(uint32_t statemachine_size_before_optimization = _statemachine_size; );
 	std::string filename = "tmpACDUMPFILE.deleteme";
-	int mem_before = get_curr_memsize();
 	dumpStateMachine(this->_machine, filename.c_str());
 	if (_machine != NULL) {
 			destroyStateMachine(_machine);
 			_machine = NULL;
 	}
 	DBG("Read dump..");
+	HeapDiffMeasure mem_measure;
 	this->_machine = createStateMachineFromDump(filename.c_str());
 	patterntable_destroy(_machine->patternTable);
 	_machine->patternTable = 0 ;
-	int mem_after = get_curr_memsize();
-	_statemachine_size = (uint32_t) mem_after - (uint32_t) mem_before;
-	DBG("AC state machine Optimization reduced: "<< Byte2KB(mem_before - mem_after)<<"KB");
+	_statemachine_size = mem_measure.get_diff();
+	DBG("AC state machine Optimization reduced: "<< Byte2KB(statemachine_size_before_optimization - _statemachine_size)<<"KB");
 	DBG("AC state machine NEW real size = "<< Byte2KB(_statemachine_size)<<"KB");
 }
