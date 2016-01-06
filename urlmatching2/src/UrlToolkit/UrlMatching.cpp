@@ -109,6 +109,9 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.reset(params);
 	_statistics.memory_footprint = get_curr_memsize();
 
+	//Small n protection - if n2 is too small we add pattern to pick top n2
+	int small_n_protection = (params.n2 < 1000) ? 1000 : 0;
+
 	/*
 	 * - create all 'single char' patterns in db
 	 * - go over input file and count  frequencies
@@ -149,7 +152,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	}
 
 	LineIteratorDeque line_itr(&list_for_patterns);
-	LDHH ldhh(line_itr, params.n1, params.n2, params.r, params.kgrams_size);
+	LDHH ldhh(line_itr, params.n1 + small_n_protection, params.n2 + small_n_protection, params.r, params.kgrams_size);
 	if (ldhh.run() != true)
 		return unload_and_return_false();
 
@@ -161,11 +164,19 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		DBG("Special mode - huffman only was detected. i.e n2=0");
 	}
 
+	//Pick top n2 results from common_strings list
+	common_strings.sort(signature_t::reversed_frequency_compare_signature_t);
+	if (common_strings.size() > (uint32_t) params.n2) {
+		common_strings.resize(params.n2);
+	}
+
 	//Evaluate total char size for serial allocator
 	uint64_t total_char_size = 0;
+	int i = 0;
 	for (std::list<signature_t>::iterator it = common_strings.begin(); it != common_strings.end(); ++it) {
 		signature_t& sig = *it;
 		total_char_size+= sig.data.size() + 1 /*for '\0'*/;
+		i++;
 	}
 
 	_strAllocator = new SerialAllocator<char>(total_char_size + 1);
