@@ -42,7 +42,18 @@ typedef struct signature {
     }
 
     // TODO: can't really count on this number
-    inline uint32_t calcHitsInSource() {return ( 1 + real_count_all_series - real_count); }
+    inline uint32_t calcHitsInSource() const {return ( 1 + real_count_all_series - real_count); }
+
+
+// -- These static function can be used for sorting by frequency -- //
+    // comparison by frequency
+    static bool frequency_compare_signature_t (const struct signature& first, const struct signature& second) {
+    	return ( first.calcHitsInSource() < second.calcHitsInSource() );
+    }
+    // comparison by frequency
+    static bool reversed_frequency_compare_signature_t (const struct signature& first, const struct signature& second) {
+    	return ( first.calcHitsInSource() > second.calcHitsInSource()  );
+    }
 
     void print() const {
                 
@@ -78,6 +89,7 @@ typedef struct signature {
   size_t firstPacket;
 
 } signature_t;
+
 
 
 #endif	/* SIGNATURE_H */
