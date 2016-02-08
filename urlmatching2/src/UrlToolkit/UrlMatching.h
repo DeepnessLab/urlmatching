@@ -173,6 +173,13 @@ private:
 	 */
 	symbolT addPattern(const char* str, const freqT& frequency);
 
+	inline
+	Pattern* getPattern(symbolT s) {
+		if (s >= _symbol2pattern_db.size())
+			return 0;
+		return _symbol2pattern_db[s];
+	}
+
 	inline void add_memory_counter(uint32_t bytes) { _statistics.memory_allocated += bytes;}
 
 

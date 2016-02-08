@@ -217,6 +217,14 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.ac_memory_allocated = algo.size();
 
 
+	//reduce number of symbols and patterns by patterns that have been optimized out by LoadPatterns
+	uint32_t number_of_unused_patterns = 0;
+	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
+		if (getPattern(i)->_frequency == 0 )
+			number_of_unused_patterns++;
+	}
+	_statistics.number_of_patterns -= number_of_unused_patterns;
+	_statistics.number_of_symbols -= number_of_unused_patterns;
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
