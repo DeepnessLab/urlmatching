@@ -189,9 +189,11 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		char* chars = _strAllocator->alloc(sig.data.size() + 1);
 		strncpy (chars, str, sig.data.size());
 		chars[sig.data.size()] = '\0';
-		freqT frequency = sig.calcHitsInSource();
-		addPattern(chars,frequency);
-		patterns_counter++;
+		freqT frequency = sig.real_count;
+		if (frequency > 0) {
+			addPattern(chars,frequency);
+			patterns_counter++;
+		}
 	}
 	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	_statistics.number_of_patterns = patterns_counter;
@@ -201,7 +203,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
 //	evaluate_precise_frequencies(orig_url_list);
-	evaluate_precise_frequencies_ac(orig_url_list);
+//	evaluate_precise_frequencies_ac(orig_url_list);
 
 	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build AC patterns matching algorithm
