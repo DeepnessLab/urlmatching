@@ -13,5 +13,5 @@ if [ -n "$2" ]
 fi
 SRC=$1
 
-head -2 $SRC > $OUTPUT.tmp && tail -n +132 $SRC  >> $OUTPUT.tmp && mv $OUTPUT.tmp $OUTPUT 
+head -2 $SRC > $OUTPUT.tmp && tail -n +45 $SRC  >> $OUTPUT.tmp && mv $OUTPUT.tmp $OUTPUT 
 
