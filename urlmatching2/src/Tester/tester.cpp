@@ -145,6 +145,21 @@ void test_article(CmdLineOptions& options)
 
 	std::cout<<" -------> finished loading <------- "<<std::endl<<std::endl;
 
+	//Check if -u was set, for custom urls file
+	if (options.use_url_test_file) {
+		std::cout<<"Using testing on urls from " << options.url_test_file <<STDENDL;
+		url_deque.clear();
+		if (! urlc->getUrlsListFromFile(options.url_test_file, url_deque)) {
+			std::cout<<"Error with input file"<<STDENDL;
+			exit (1);
+		}
+		if (url_deque.size() == 0) {
+			std::cout<<"ERROR: read 0 urls from file"<<STDENDL;
+			exit (1);
+		}
+	}
+
+
 	std::cout<<"Preparing buffers for encoding .. "<<std::endl;
 	//count urls and prepare coding buffers
 	std::deque<std::string> urls;
