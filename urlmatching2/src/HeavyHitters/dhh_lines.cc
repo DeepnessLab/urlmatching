@@ -183,11 +183,9 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
                 
                 if (should_begin_series_with_current_kgram) {
                     kgram_series.ptr      = kgram.ptr;
-                    kgram_series.size     = kgram.size;
                     kgram_series_hh_count = kgram_hh_count;
                 } else {
                     kgram_series.ptr      = NULL;
-                    kgram_series.size     = 0;
                     kgram_series_hh_count = 0;
                 }
             }
