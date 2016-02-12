@@ -125,10 +125,10 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
 
             } else {
 
-                // TODO: test - use only second condition
-                if ( (kgram_hh_count >= kgram_series_hh_count) ||
-                     (kgram_hh_count > kgram_series_hh_count * r ) ) {
-
+                float kgram_ratio = (kgram_hh_count*1.0)/kgram_series_hh_count;
+                
+                if ( 1/r > kgram_ratio && kgram_ratio > r ) {
+                    
                     kgram_series_hh_count = kgram_hh_count;
 
                 } else {
@@ -158,7 +158,7 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
                 } else { //current k-gram is the last k-gram in the packet
                     kgram_series.size = kgram.size;
                 }
-                
+
                 // check if k-gram series has already been seen in this packet...
                 raw_buffer_hash_table_t::iterator it = seen_kgram_series.find(kgram_series);
                 
