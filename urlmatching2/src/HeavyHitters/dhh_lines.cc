@@ -121,8 +121,6 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
             if (kgram_series.ptr == NULL) {
 
                 kgram_series.ptr      = kgram.ptr;
-                kgram_series.size     = kgram.size;
-
                 kgram_series_hh_count = kgram_hh_count;
 
             } else {
@@ -131,7 +129,6 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
                 if ( (kgram_hh_count >= kgram_series_hh_count) ||
                      (kgram_hh_count > kgram_series_hh_count * r ) ) {
 
-                    ++kgram_series.size;
                     kgram_series_hh_count = kgram_hh_count;
 
                 } else {
@@ -155,6 +152,12 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
         if (should_input_to_hh2 || is_last_pckt_kgram) {
             // check if we at the end of a consecutive k-gram series
             if (kgram_series.ptr) {
+                
+                if (kgram_series.ptr != kgram.ptr) {
+                    kgram_series.size = (kgram.ptr - kgram_series.ptr) + kgram_size - 1;
+                } else { //current k-gram is the last k-gram in the packet
+                    kgram_series.size = kgram.size;
+                }
                 
                 // check if k-gram series has already been seen in this packet...
                 raw_buffer_hash_table_t::iterator it = seen_kgram_series.find(kgram_series);
@@ -183,11 +186,9 @@ inline size_t LDHH::_handle_pckt(const raw_buffer_t &pckt) {
                 
                 if (should_begin_series_with_current_kgram) {
                     kgram_series.ptr      = kgram.ptr;
-                    kgram_series.size     = kgram.size;
                     kgram_series_hh_count = kgram_hh_count;
                 } else {
                     kgram_series.ptr      = NULL;
-                    kgram_series.size     = 0;
                     kgram_series_hh_count = 0;
                 }
             }
