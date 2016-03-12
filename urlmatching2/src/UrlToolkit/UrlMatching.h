@@ -152,8 +152,18 @@ private:
 	void prepare_modules();
 	void prepare_huffman_code(Pattern* pat, HuffCode& code);
 
-	void evaluate_precise_frequencies(const std::deque<std::string>& urls);
+	//Re-evaluate the patterns frequencies using simple std::string::find - Complexity O(n^2)
+	void evaluate_precise_frequencies_simple(const std::deque<std::string>& urls);
+	//Re-evaluate the patterns frequencies using AC module - Complexity O(n)
 	void evaluate_precise_frequencies_ac(const std::deque<std::string>& urls);
+	/**
+	 * Re-evaluate the patterns frequencies according to their real representation in
+	 * the input URL list.
+	 * i.e It will count hits only when the pattern would be really used to compress a URL
+	 * from the input URL list.
+	 */
+	void evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls);
+
 
 	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)
 	void prepare_huffman();
