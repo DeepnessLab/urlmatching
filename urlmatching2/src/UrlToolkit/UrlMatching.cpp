@@ -202,9 +202,6 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	DBG("total of "<< patterns_counter <<" patterns were found");
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
-//	evaluate_precise_frequencies(orig_url_list);
-//	evaluate_precise_frequencies_ac(orig_url_list);
-
 	_symbol2pattern_db.shrink_to_fit();
 	//Step 1: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
@@ -225,6 +222,9 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	}
 	_statistics.number_of_patterns -= number_of_unused_patterns;
 	_statistics.number_of_symbols -= number_of_unused_patterns;
+
+
+//	evaluate_precise_patterns_frequencies(orig_url_list);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -248,7 +248,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 }
 
 //recheck all frequencies
-void UrlMatchingModule::evaluate_precise_frequencies(const std::deque<std::string>& urls) {
+void UrlMatchingModule::evaluate_precise_frequencies_simple(const std::deque<std::string>& urls) {
 	//reset all frequencies with length > 1
 	symbolT first = MAX_CHAR;
 	for (symbolT i=first ;  i < getDBsize(); i ++ ) {
@@ -277,8 +277,9 @@ void UrlMatchingModule::evaluate_precise_frequencies(const std::deque<std::strin
 			p->_frequency += f;
 		}
 	}
-	std::cout<<"evaluate_precise_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
+	std::cout<<"evaluate_precise_frequencies_simple, took " << timer.get_milseconds() << " ms" << std::endl;
 }
+
 
 //recheck all frequencies
 void UrlMatchingModule::evaluate_precise_frequencies_ac(const std::deque<std::string>& urls) {
@@ -299,6 +300,42 @@ void UrlMatchingModule::evaluate_precise_frequencies_ac(const std::deque<std::st
 		ac.MatchPatterns_update_frequencies(*it);
 	}
 	std::cout<<"evaluate_precise_frequencies_ac, took " << timer.get_milseconds() << " ms" << std::endl;
+}
+
+
+//recheck all frequencies
+void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls) {
+	TimerUtil timer;
+	ACWrapperCompressed ac;
+
+	std::deque<freqT> new_frequencies(getDBsize());
+	for (uint32_t i = 0 ; i < getDBsize(); i++) {
+		new_frequencies[i]=0;
+	}
+
+	ac.LoadPatterns(&_symbol2pattern_db, getDBsize(),false /*optimize anchors*/);
+	//reevaluate frequencies with length > 1
+	for (std::deque<std::string>::const_iterator it = urls.begin() ; it!=urls.end(); ++it) {
+		//find patterns cover over url
+		symbolT result[MAX_URL_LENGTH];
+		ac.MatchPatterns(*it,result);
+		symbolT* symbol = result;
+		while (*symbol != S_NULL) {
+			freqT f = new_frequencies[*symbol];
+			new_frequencies[*symbol] = f+1;
+			symbol++;
+		}
+	}
+
+	symbolT first = MAX_CHAR;
+	for (symbolT i=first ;  i < getDBsize(); i ++ ) {
+		Pattern* p = _symbol2pattern_db[i];
+		if (p->_str_len == 1) {
+			continue;
+		}
+		p->_frequency = new_frequencies[i];
+	}
+	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
 }
 
 
