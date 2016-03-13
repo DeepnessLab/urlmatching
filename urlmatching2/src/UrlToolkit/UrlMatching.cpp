@@ -223,7 +223,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.number_of_patterns -= number_of_unused_patterns;
 	_statistics.number_of_symbols -= number_of_unused_patterns;
 
-//	evaluate_precise_patterns_frequencies(orig_url_list);
+	evaluate_precise_patterns_frequencies(orig_url_list);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
