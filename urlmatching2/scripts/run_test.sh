@@ -14,7 +14,7 @@ mkdir -p results
 echo " -- " > $OTXT
 
 echo "Started at" ; date
-SLEEPP="sleep 4"
+SLEEPP="sleep 3"
 # article n
 if [ -z "$2" ] || [ "$2" -eq 1 ]
  then
