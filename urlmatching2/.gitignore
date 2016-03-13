@@ -8,3 +8,4 @@ tmpAC*
 *.extract
 *.compress
 *.dict
+/scripts/*~
