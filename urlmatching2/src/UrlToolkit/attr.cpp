@@ -20,7 +20,8 @@ Pattern::~Pattern()  {
 
 long double Pattern::get_h() const {
 	typedef long double ld;
-	ld ret = (ld )_frequency / (ld) Pattern::total_frequency;
+	ld ret = (ld) Pattern::total_frequency / (ld )_frequency ;
+//	ld ret = (ld )_frequency / (ld) Pattern::total_frequency;
 	ret = log2(ret);
 	ret = ret / 8;
 	return ret;

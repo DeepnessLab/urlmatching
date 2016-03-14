@@ -223,6 +223,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.number_of_patterns -= number_of_unused_patterns;
 	_statistics.number_of_symbols -= number_of_unused_patterns;
 
+//	evaluate_precise_frequencies_ac(orig_url_list);
 	evaluate_precise_patterns_frequencies(orig_url_list);
 
 	//Step 2: build huffman dictionary and update all patterns
@@ -335,8 +336,7 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 		}
 	}
 
-	symbolT first = MAX_CHAR;
-	for (symbolT i=first ;  i < getDBsize(); i ++ ) {
+	for (symbolT i=1 ;  i < getDBsize(); i ++ ) {
 		Pattern* p = _symbol2pattern_db[i];
 		if (p->_str_len == 1) {
 			continue;
@@ -344,6 +344,7 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 		if (p->_frequency == 0) {
 			continue;
 		}
+		std::cout<<"symbol="<<i<<" freq before="<<p->_frequency<<", after="<<new_frequencies[i]<<std::endl;
 		p->_frequency = new_frequencies[i];
 	}
 	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
