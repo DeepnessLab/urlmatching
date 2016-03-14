@@ -91,8 +91,10 @@ uint32_t getStringFromList_with_achor_selection(char* out_buff, uint32_t max_siz
 		ld h = p->get_h();
 		int num_states = enter_simulate_addional_states(actree, (char*) p->_str, p->_str_len);
 		ld cost =  (ld) (Pattern::C_state * num_states) + h;
-		if (gain >= cost)
+		if (gain >= cost) {
+			p->_frequency=h;
 			break;
+		}
 		p->_frequency=0;
 		p = list->getNext();
 	}
