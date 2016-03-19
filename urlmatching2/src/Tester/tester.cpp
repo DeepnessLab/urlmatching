@@ -32,6 +32,9 @@
 #endif
 #define DVAL(what) #what" = "<< (what)
 
+extern bool print_module;
+
+
 void run_cmd_main(CmdLineOptions& options) {
 	if (options.cmd == CMD_FULLTEST) {
 		test_test(options);
@@ -629,9 +632,12 @@ void test_test(CmdLineOptions& options) {
 		uint32_t* codedbuff = codedbuffers[i];
 		for (int j=0; j < options.factor; j++) {
 			buff_size = BUFFSIZE;
+//			if (urls[i].find(".gero") != std::string::npos)
+//				print_module = true;
 			urlc2->encode(urls[i],codedbuff,buff_size);
 			s.decoded_stream_size+=urls[i].length();
 			encoded_stream_bitsize += codedbuff[0] ;
+//			print_module = false;
 		}
 	}
 	encoding_timer.stop();

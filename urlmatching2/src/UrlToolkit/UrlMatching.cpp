@@ -16,6 +16,7 @@
 #include <bitset>
 #include <assert.h>
 #include "UrlMatching.h"
+#include "PrintUrlMatching.h"
 #include "../HeavyHitters/dhh_lines.h"
 #include "../common.h"
 #include "../logger.h"
@@ -26,6 +27,8 @@
 
 #define BITS_IN_BYTE 8
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
+
+bool print_module = false;
 
 typedef unsigned char uchar;
 
@@ -203,6 +206,15 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	DBG("total of "<< _nextSymbol <<" symbols were inserted");
 
 	_symbol2pattern_db.shrink_to_fit();
+
+	evaluate_precise_patterns_frequencies(orig_url_list);
+
+	for (Pattern* p: _symbol2pattern_db) {
+		if (p->_str_len == 1) {
+			p->_coded.length = (uint16_t) p->get_h();
+		}
+	}
+
 	//Step 1: build AC patterns matching algorithm
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
@@ -224,7 +236,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	_statistics.number_of_symbols -= number_of_unused_patterns;
 
 //	evaluate_precise_frequencies_ac(orig_url_list);
-	evaluate_precise_patterns_frequencies(orig_url_list);
+	evaluate_precise_patterns_frequencies(orig_url_list,&algo);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -304,48 +316,67 @@ void UrlMatchingModule::evaluate_precise_frequencies_ac(const std::deque<std::st
 
 
 //recheck all frequencies
-void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls) {
+void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls, ACWrapperCompressed* custom_ac) {
 	TimerUtil timer;
 	ACWrapperCompressed ac;
 
-	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
-		if (getPattern(i)->_frequency == 0 )
-			continue;
-		if (getPattern(i)->_str_len == 1 )
-			continue;
-		Pattern *p = getPattern(i);
-		p->_coded.length = p->get_h();
-	}
+//	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
+//		if (getPattern(i)->_frequency == 0 )
+//			continue;
+//		if (getPattern(i)->_str_len == 1 )
+//			continue;
+//		Pattern *p = getPattern(i);
+////		p->_coded.length = (p->get_h() > 1) ? p->get_h() : 1;
+//	}
 
 	std::deque<freqT> new_frequencies(getDBsize());
 	for (uint32_t i = 0 ; i < getDBsize(); i++) {
 		new_frequencies[i]=1;
 	}
 
-	ac.LoadPatterns(&_symbol2pattern_db, getDBsize(),false /*optimize anchors*/);
+	if (custom_ac == 0) {
+		ac.LoadPatterns(&_symbol2pattern_db, getDBsize(),false /*optimize anchors*/);
+		custom_ac = &ac;
+	}
+
+	bool once = true;
 	//reevaluate frequencies with length > 1
 	for (std::deque<std::string>::const_iterator it = urls.begin() ; it!=urls.end(); ++it) {
 		//find patterns cover over url
 		symbolT result[MAX_URL_LENGTH];
-		ac.MatchPatterns(*it,result);
+		print_module = false;
+//		if (once && it->find("e.c")!=  std::string::npos) {
+//			std::cout<<"string with e.c"<<std::endl;
+//			print_module = true;
+//			once = false;
+//		}
+		custom_ac->MatchPatterns(*it,result);
 		symbolT* symbol = result;
 		while (*symbol != S_NULL) {
 			freqT f = new_frequencies[*symbol];
 			new_frequencies[*symbol] = f+1;
 			symbol++;
 		}
+		print_module = false;
 	}
 
-	for (symbolT i=1 ;  i < getDBsize(); i ++ ) {
+ 	for (symbolT i=1 ;  i < getDBsize(); i ++ ) {
 		Pattern* p = _symbol2pattern_db[i];
 		if (p->_str_len == 1) {
 			continue;
 		}
-		if (p->_frequency == 0) {
-			continue;
+//		std::cout<<"symbol="<<i<<" freq before="<<p->_frequency
+//				<<", after="<<new_frequencies[i]
+//				<< " \""<<p->_str
+//				<< "\" huf len="<< p->getHuffmanLength()<<std::endl;
+//		if (new_frequencies[i] > 0)
+//			p->_frequency = new_frequencies[i];
+		std::string str(p->_str);
+		if (str.find(".gero") != std::string::npos)
+			std::cout<<"daniel"<<std::endl;
+		if ((p->_frequency) > 0) {
+			p->_frequency = new_frequencies[i];
 		}
-		std::cout<<"symbol="<<i<<" freq before="<<p->_frequency<<", after="<<new_frequencies[i]<<std::endl;
-		p->_frequency = new_frequencies[i];
 	}
 	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
 }

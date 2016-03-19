@@ -19,6 +19,7 @@
 #include <vector>
 #include <algorithm>    // std::sort
 
+
 #ifndef UINT32_MAX
 #define UINT32_MAX  (0xffffffff)
 #endif
@@ -62,10 +63,10 @@ public:
 	Pattern(uint32_t symbol, freqT frequency, const char* str);
 	virtual ~Pattern() ;
 
-	uint32_t inline getStringLength() { return (_str_len*sizeof(char)); }
-	uint32_t inline getHuffmanLength() { return (_coded.length);	}
+	uint32_t inline getStringLength() const { return (_str_len*sizeof(char)); }
+	uint32_t inline getHuffmanLength() const { return (_coded.length);	}
 
-	inline 	size_t size() {
+	inline 	size_t size() const {
 		size_t size = sizeof(Pattern)
 				+ _str_len;
 		return size;
@@ -86,6 +87,19 @@ public:
 
 
 };
+
+
+//inline
+//std::ostream& operator<<(std::ostream& os, const Pattern& m) {
+//	os << "Pattern["
+//			<<m._symbol<<","
+//			<<m._str
+//			<<",f="
+//			<<m._frequency
+//			<<",len(h)="
+//			<<"]";
+//	return os;
+//}
 
 typedef std::vector<Pattern*> Symbol2pPatternVec;
 
@@ -188,6 +202,5 @@ private:
 	bool _optimize;	//optimize patterns according to anchor selection
 
 };
-
 
 #endif /* URLDICTIONARYTYPES_H_ */
