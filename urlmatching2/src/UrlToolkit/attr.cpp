@@ -1,4 +1,5 @@
 #include "UrlMatching.h"
+#include "PrintUrlMatching.h"
 #include "../logger.h"
 #include "../common.h"
 #include <string.h>
@@ -8,7 +9,7 @@ Pattern::Pattern(uint32_t symbol, freqT frequency, const char* str) : _str(str) 
 	_symbol=symbol;
 	_frequency=frequency;
 	_coded.buf[0] = 0;
-	_coded.length = 0;
+	_coded.length = 1;
 	_str_len = strlen(_str);
 	total_frequency+=frequency;
 }
@@ -18,19 +19,21 @@ Pattern::~Pattern()  {
 //		delete[] _coded.buf;
 }
 
+// huffman length in bits
 long double Pattern::get_h() const {
 	typedef long double ld;
 	ld ret = (ld) Pattern::total_frequency / (ld )_frequency ;
 //	ld ret = (ld )_frequency / (ld) Pattern::total_frequency;
 	ret = log2(ret);
-	ret = ret / 8;
+//	ret = ret / 8;	//convert to bytes
 	return ret;
 }
 
+// return gain in Freq*bits
 long double Pattern::get_gain() const {
 	typedef long double ld;
-	ld h = get_h();
-	ld ret = _frequency * (_str_len - h);
+	ld h = get_h();	//in bits
+	ld ret = _frequency * (_str_len * 8 - h);
 	return ret;
 }
 

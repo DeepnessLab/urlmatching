@@ -162,7 +162,7 @@ private:
 	 * i.e It will count hits only when the pattern would be really used to compress a URL
 	 * from the input URL list.
 	 */
-	void evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls);
+	void evaluate_precise_patterns_frequencies(const std::deque<std::string>& urls, ACWrapperCompressed* custom_ac = 0);
 
 
 	//rebuild _huffman in order to restore decoding capabilities (when loading from stored Dict file)

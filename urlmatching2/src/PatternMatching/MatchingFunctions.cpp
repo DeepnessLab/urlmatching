@@ -55,15 +55,18 @@ int handle_pattern(char* str, uint32_t idx, int id, int count, void* data)
 	for (uint32_t j = url_module->index+1 ; j <=idx ; j++) {
 		uint32_t char_at_j = (uint32_t) url_module->input_string[j];
 		symbolT s =  url_module->char_to_symbol[char_at_j];
-		updateModule(*url_module,s,j);
+		insert_symbol(*url_module,s,j);
 		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
 	symbolT* symbols = url_module->symbolsTable->table[id][count];
 	ASSERT(symbols!=NULL);
 	symbolT last_symbol = S_NULL; //skip same copies of the same string
 	while (*symbols != S_NULL) {
-		if ( last_symbol != *symbols)
-			updateModule(*url_module,*symbols,idx);
+		Pattern* p = (*url_module->list)[*symbols];
+#define likely(x)      __builtin_expect(!!(x), 1)
+		if (likely( last_symbol != *symbols && p->getHuffmanLength() > 0)) {
+			insert_symbol(*url_module,*symbols,idx);
+		}
 		last_symbol = *symbols;
 		symbols++;
 	}
@@ -86,29 +89,31 @@ uint32_t getStringFromList_with_achor_selection(char* out_buff, uint32_t max_siz
 	//when optimized - getNext will be sorted by Gain
 	Pattern* p = list->getNext() ;
 	while (p != 0) {
-		typedef long double ld ;
-		ld gain = p->get_gain();
-		ld h = p->get_h();
-		int num_states = enter_simulate_addional_states(actree, (char*) p->_str, p->_str_len);
-		ld cost =  (ld) (Pattern::C_state * num_states) + h;
-		if (gain >= cost) {
-			p->_frequency=h;
-			break;
+		if (p->_frequency > 0) {
+			typedef long double ld ;
+			ld h = p->get_h();			//in bits
+			ld gain = p->get_gain();	//in bits
+			int num_states = enter_simulate_addional_states(actree, (char*) p->_str, p->_str_len);
+			ld cost =  (ld) (num_states * Pattern::C_state /*bytes*/ * 8 /*to bits*/ ) + h;
+			p->_coded.length = ((uint16_t) h > 0 ) ? (uint16_t) h : 1;
+			if (gain >= cost) {
+				const char* chars = p->_str;
+				strncpy(out_buff, chars, max_size);
+				DBG("adding \"" << chars << "\"; ");
+				return strlen(chars);
+			}
 		}
 		p->_frequency=0;
+		p->_coded.length=8*MAX_CODED_HUFFMAN_SIZE;
 		p = list->getNext();
 	}
 
-	if (p == 0) {
-		DBG(std::endl << "Total of " << list->size
-						<< " patterns loaded");
-		return 0;
-	}
-	const char* chars = p->_str;
-	strncpy(out_buff, chars, max_size);
-	DBG("adding \"" << chars << "\"; ");
-	return strlen(chars);
+	DBG(std::endl << "Total of " << list->size
+			<< " patterns loaded");
+	return 0;
+
 }
+
 
 /** used to load all patterns into ac builder
  *

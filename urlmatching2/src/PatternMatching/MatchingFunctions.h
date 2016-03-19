@@ -26,6 +26,8 @@ extern "C" {
 
 #define MAX_URL_LENGTH 1000
 
+extern bool print_module;
+
 /**
  * Data structure to hold an array of strings and an index
  */
@@ -50,6 +52,9 @@ typedef struct urlMatchingType {
 	symbolT* char_to_symbol;						//array [char] = symbols
 	symbolTableType* symbolsTable;
 } urlMatchingType;
+
+std::ostream& operator<<(std::ostream& os, const urlMatchingType& m);
+
 
 /**
  * Struct that holds data needed to update frequencies
@@ -121,7 +126,7 @@ void calcViPi(urlMatchingType& module) {
 }
 
 inline
-void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
+void  insert_symbol(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	//collect new pattens until idx is advanced - then evaluate the vi pi module
 	if (idx > module.index) {
 		//new index, consolidate previous index
@@ -135,6 +140,9 @@ void  updateModule(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	DBG("updateModule:");
 	module.matching_symbols_arr[module.matching_symbols_idx] = symbol;
 	module.matching_symbols_idx++;
+//	if (print_module) {
+//		std::cout<<"idx="<<idx<<" " << module<<std::endl;
+//	}
 }
 
 
@@ -146,7 +154,7 @@ uint32_t finalize_result(urlMatchingType& module, symbolT *result) {
 	for (uint32_t j = module.index+1 ; module.input_string[j] != '\0' ; j++) {
 		uint32_t char_at_j = (uint32_t) module.input_string[j];
 		symbolT s =  module.char_to_symbol[char_at_j];
-		updateModule(module,s,j);
+		insert_symbol(module,s,j);
 		DBG(" > Added \""<<(char) char_at_j<<"\" at "<<j);
 	}
 
@@ -192,5 +200,38 @@ void initModule(urlMatchingType& module) {
 	module.matching_symbols_idx=0;
 }
 
+inline
+std::ostream& operator<<(std::ostream& os, const urlMatchingType& m) {
+	os<<"Input string: "<<m.input_string<<std::endl;
+
+	std::string st("");
+	std::string st2(",");
+	std::string* s = &st;
+	os<<"MatchingPatterns[";
+	s = &st;
+	for (uint i = 0; i < m.matching_symbols_idx; i++) {
+		Pattern* p =(*m.list)[m.matching_symbols_arr[i]];
+		os<<*s<<"("<<(uint64_t) m.matching_symbols_arr[i]<<"|"<<p->_str<<"|h="<<p->getHuffmanLength()<<")";
+		s=&st2;
+	}
+	os<<"]"<<std::endl;
+	os<<"P[";
+	s = &st;
+	for (uint i = 0; i <= m.index ; i++) {
+		os<<*s<<m.P[i];
+		s=&st2;
+	}
+	os<<"]"<<std::endl;
+	os<<"V[";
+	s = &st;
+	for (uint i = 0; i <= m.index ; i++) {
+		Pattern* p = (*m.list)[m.V[i]];
+		os<<*s<<"("<<(uint64_t) m.V[i]<<"|"<<p->_str<<"|h="<<p->getHuffmanLength()<<")";
+//		os<<s<<"("<(uint64_t) m.V[i]<<" | "<<p->_str<<")";
+		s=&st2;
+	}
+	os<<"]"<<std::endl;
+	return os;
+}
 
 #endif /* PATTERNMATCHING_MATCHINGFUNCTIONS_H_ */
