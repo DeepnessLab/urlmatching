@@ -26,8 +26,6 @@ extern "C" {
 
 #define MAX_URL_LENGTH 1000
 
-extern bool print_module;
-
 /**
  * Data structure to hold an array of strings and an index
  */
@@ -140,9 +138,7 @@ void  insert_symbol(urlMatchingType& module,symbolT& symbol, uint32_t& idx) {
 	DBG("updateModule:");
 	module.matching_symbols_arr[module.matching_symbols_idx] = symbol;
 	module.matching_symbols_idx++;
-//	if (print_module) {
-//		std::cout<<"idx="<<idx<<" " << module<<std::endl;
-//	}
+//	std::cout<<"idx="<<idx<<" " << module<<std::endl;
 }
 
 
