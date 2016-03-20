@@ -28,8 +28,6 @@
 #define BITS_IN_BYTE 8
 #define BITS_IN_UINT32_T (sizeof(uint32_t)*BITS_IN_BYTE)
 
-bool print_module = false;
-
 typedef unsigned char uchar;
 
 //globals
@@ -320,15 +318,6 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 	TimerUtil timer;
 	ACWrapperCompressed ac;
 
-//	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
-//		if (getPattern(i)->_frequency == 0 )
-//			continue;
-//		if (getPattern(i)->_str_len == 1 )
-//			continue;
-//		Pattern *p = getPattern(i);
-////		p->_coded.length = (p->get_h() > 1) ? p->get_h() : 1;
-//	}
-
 	std::deque<freqT> new_frequencies(getDBsize());
 	for (uint32_t i = 0 ; i < getDBsize(); i++) {
 		new_frequencies[i]=1;
@@ -339,17 +328,11 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 		custom_ac = &ac;
 	}
 
-	bool once = true;
 	//reevaluate frequencies with length > 1
 	for (std::deque<std::string>::const_iterator it = urls.begin() ; it!=urls.end(); ++it) {
 		//find patterns cover over url
 		symbolT result[MAX_URL_LENGTH];
-		print_module = false;
-//		if (once && it->find("e.c")!=  std::string::npos) {
-//			std::cout<<"string with e.c"<<std::endl;
-//			print_module = true;
-//			once = false;
-//		}
+
 		custom_ac->MatchPatterns(*it,result);
 		symbolT* symbol = result;
 		while (*symbol != S_NULL) {
@@ -357,23 +340,14 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 			new_frequencies[*symbol] = f+1;
 			symbol++;
 		}
-		print_module = false;
 	}
 
  	for (symbolT i=1 ;  i < getDBsize(); i ++ ) {
 		Pattern* p = _symbol2pattern_db[i];
-		if (p->_str_len == 1) {
-			continue;
-		}
 //		std::cout<<"symbol="<<i<<" freq before="<<p->_frequency
 //				<<", after="<<new_frequencies[i]
 //				<< " \""<<p->_str
 //				<< "\" huf len="<< p->getHuffmanLength()<<std::endl;
-//		if (new_frequencies[i] > 0)
-//			p->_frequency = new_frequencies[i];
-		std::string str(p->_str);
-		if (str.find(".gero") != std::string::npos)
-			std::cout<<"daniel"<<std::endl;
 		if ((p->_frequency) > 0) {
 			p->_frequency = new_frequencies[i];
 		}
