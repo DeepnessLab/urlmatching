@@ -815,22 +815,21 @@ uint32_t UrlMatchingModule::getDictionarySize()  const{
 void UrlMatchingModule::print_database(std::ostream& ofs) const
 {
 	ofs <<"UrlCompressor db contains "<< getDBsize() << " patterns:"<<std::endl;
-	ofs << "symbol, freq, code length (bits), string len, code, string"<<std::endl;
+	ofs << "Symbol,Frequency, Code length (bits), Code, strlen (bytes), string, Huffman length est. (bits)"<<std::endl;
 	for (uint32_t i=0; i< getDBsize() ;i++) {
 	//	for (Symbol2PatternType::iterator it=_symbol2pattern_db.begin(); it!=_symbol2pattern_db.end(); ++it) {
 		Pattern* ptrn = _symbol2pattern_db[i];
-		ofs 	<< ptrn->_symbol <<","
-				<< ptrn->_frequency<<","
-				<<ptrn->getHuffmanLength()<<","
-				<<ptrn->getStringLength()<<",";
+		ofs 	<< ptrn->_symbol
+				<<"," << ptrn->_frequency
+				<<","<<ptrn->getHuffmanLength()
+				<<",0x";
 		uint16_t size_ = conv_bits_to_uin32_size(ptrn->getHuffmanLength());
 		for (uint16_t t=0 ; t < size_;  t++) {
-			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
+			ofs << std::hex <<std::setfill('0') << std::setw(sizeof(uint32_t)) << ptrn->_coded.buf[t] << std::dec ;
 		}
-//		for (uint16_t j = 0, t=0 ; j < ptrn->getHuffmanLength(); j+=sizeof(uint32_t)*8, t++) {
-//			ofs << std::hex << ptrn->_coded.buf[t] << std::dec ;
-//		}
+		ofs <<","<<ptrn->getStringLength();
 		ofs <<","<<ptrn->_str;
+		ofs <<","<<ptrn->get_h();
 		ofs << std::endl;
 	}
 }
