@@ -258,7 +258,7 @@ void test_article(CmdLineOptions& options)
 			}
 		}
 		STOP_TIMING;
-		std::cout<<"100%  "<<STDENDL;
+		std::cout<<" 100%  "<<STDENDL;
 	}
 	s.time_to_decode = (options.test_decoding) ? GETTIMING: 0l;
 
