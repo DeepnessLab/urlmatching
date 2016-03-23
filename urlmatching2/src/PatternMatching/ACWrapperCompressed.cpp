@@ -85,7 +85,7 @@ bool ACWrapperCompressed::LoadPatterns(std::string filepath) {
 
 }
 
-bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size, bool optimizeAnchors) {
+bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t patternsList_size, uint32_t max_patterns_to_load, bool optimizeAnchors) {
 	assert(!isLoaded());
 	//make a copy for Symbol2PatternType list
 	_patternsList = patternsList;
@@ -113,9 +113,9 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 		HeapDiffMeasure mem_measure;
 		// ---- Important ---- : Anchor selection optimization is in getStringFromList() function.
 		if (optimizeAnchors) {
-			_machine = createStateMachineFunc(getStringFromList_with_achor_selection,&list,1000,1000,0);
+			_machine = createStateMachineFunc(getStringFromList_with_achor_selection,&list, max_patterns_to_load, 1000,1000,0);
 		} else {
-			_machine = createStateMachineFunc(getStringFromList,&list,1000,1000,0);
+			_machine = createStateMachineFunc(getStringFromList,&list, max_patterns_to_load, 1000,1000,0);
 		}
 		_statemachine_size = mem_measure.get_diff();
 		DBG("AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB");

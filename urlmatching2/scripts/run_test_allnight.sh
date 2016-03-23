@@ -22,9 +22,9 @@ if [ -z "$2" ] || [ "$2" -eq 1 ]
 	ARGS="-k 3 -r 0.5"
 	for LPMONOFF in 1 2
 	do		
-		for NN in 50 100 200 500 1170 2287 4401 6474 8510 9491 10500 11550 12600 13600 14650 16800 17900
+		for NN in 50 100 200 500 1000 2000 4000 6000 8000 9000 10000 11000 12000 13000 1400 16000 17000
 		do
-			for TIMESS in `seq 1 30`
+			for TIMESS in `seq 1 5`
 			do
 				echo "$ACSV -n $(($NN)): $ARGS"
 				$PROG1 article -o $ACSV -f $File -n $(($NN)) $ARGS >>$OTXT
@@ -42,7 +42,7 @@ CMD="article"
 ACSV="results/datUnix.K.$1.csv"
 if [ -z "$2" ] || [ "$2" -eq 2 ]
  then
-	for N in 100 1170 4401 9491 12600
+	for N in 100 1000 4000 9000 12000
 	do
 		ARGS="-n $N -r 0.5"
 		echo "$CMD $ACSV : $ARGS"
@@ -65,13 +65,13 @@ if [ -z "$2" ] || [ "$2" -eq 3 ]
 		ARGS="-k $K -r 0.5"
 		echo "$CMD $ACSV : $ARGS"
 		$PROG1 $CMD -o $ACSV -f $File -n 100 $ARGS -a >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 550 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 1170 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 3364 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 6474 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 9491 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 12600 $ARGS >>$OTXT
-		$PROG1 $CMD -o $ACSV -f $File -n 15700 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 500 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 1000 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 3000 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 6000 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 9000 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 10000 $ARGS >>$OTXT
+		$PROG1 $CMD -o $ACSV -f $File -n 15000 $ARGS >>$OTXT
 	done
 fi
 

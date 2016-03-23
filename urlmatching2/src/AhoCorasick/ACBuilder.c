@@ -734,7 +734,7 @@ void acBuildTreeASCII(ACTree *tree, const char *path, int avoidFailToLeaves, int
 }
 
 
-void acBuildTreeFunc(ACTree *tree,  getStringFuncType func , void* func_struct, int avoidFailToLeaves, int mixID) {
+void acBuildTreeFunc(ACTree *tree,  getStringFuncType func, void* func_struct, int max_patterns_to_load, int avoidFailToLeaves, int mixID) {
 
 	char buff[READ_BUFFER_SIZE];
 	int length, count;
@@ -749,7 +749,9 @@ void acBuildTreeFunc(ACTree *tree,  getStringFuncType func , void* func_struct, 
 #endif
 	tree->root = createNewNode(tree, NULL);
 
-	while ( func(buff,READ_BUFFER_SIZE,func_struct,tree)!=0 && (MAX_PATTERNS <= 0 || count < MAX_PATTERNS)) {
+	while ( func(buff,READ_BUFFER_SIZE,func_struct,tree)!=0
+			&& (MAX_PATTERNS <= 0 || count < MAX_PATTERNS)
+			&& (max_patterns_to_load <=0 || count < max_patterns_to_load)) {
 //		printf("Loaded %s\n",buff);
 		length = strlen(buff)/* - 1*/;
 		if (length == 0) {
