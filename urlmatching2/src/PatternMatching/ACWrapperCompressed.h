@@ -38,8 +38,14 @@ public:
 	virtual ~ACWrapperCompressed();
 
 	//Build pattern matching machine out of patterns vector
-	virtual bool LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t size
-			, bool optimizeAnchors = false);
+	virtual bool LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t size,
+			uint32_t max_patterns_to_load, bool optimizeAnchors = false);
+
+	virtual bool LoadPatterns(Symbol2pPatternVec* patternsList, uint32_t size,
+				bool optimizeAnchors = false)
+	{
+		return LoadPatterns(patternsList, size, size, optimizeAnchors);
+	}
 
 	//Load Patterns from file (not in use)
 	virtual bool LoadPatterns(std::string filepath);

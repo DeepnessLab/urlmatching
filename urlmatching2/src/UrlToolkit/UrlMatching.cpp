@@ -152,8 +152,11 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		}
 	}
 
+	int dhh_n1 = params.n1 * (1.2) + small_n_protection;
+	int dhh_n2 = params.n1 * (1.2) + small_n_protection;
+
 	LineIteratorDeque line_itr(&list_for_patterns);
-	LDHH ldhh(line_itr, params.n1 + small_n_protection, params.n2 + small_n_protection, params.r, params.kgrams_size);
+	LDHH ldhh(line_itr, dhh_n1, dhh_n2, params.r, params.kgrams_size);
 	if (ldhh.run() != true)
 		return unload_and_return_false();
 
@@ -217,7 +220,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	HeapDiffMeasure mem_measure;
-	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(),true /*optimize anchors*/);
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(), params.n1 ,true /*optimize anchors*/);
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_footprint = mem_measure.get_diff();
 	_statistics.ac_memory_footprint = algo.getStateMachineSize();
@@ -352,7 +355,7 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 			p->_frequency = new_frequencies[i];
 		}
 	}
-	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
+//	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
 }
 
 

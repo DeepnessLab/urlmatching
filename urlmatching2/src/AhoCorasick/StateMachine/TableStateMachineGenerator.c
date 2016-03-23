@@ -103,7 +103,7 @@ TableStateMachine *generateTableStateMachineFunc(getStringFuncType func, void* f
 	ACTree tree;
 	TableStateMachine *machine;
 
-	acBuildTreeFunc(&tree, func, func_struct ,0, 1);
+	acBuildTreeFunc(&tree, func, func_struct, -1 ,0, 1);
 
 	machine = createTableStateMachine(tree.size);
 

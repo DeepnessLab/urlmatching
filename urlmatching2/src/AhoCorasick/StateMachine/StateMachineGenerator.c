@@ -578,7 +578,7 @@ StateMachine *createSimpleStateMachineFunc(getStringFuncType func, void* func_st
 	StateMachine *machine;
 	PatternTable *patternTable;
 
-	acBuildTreeFunc(&tree, func, func_struct ,0, 0);
+	acBuildTreeFunc(&tree, func, func_struct, -1 ,0, 0);
 //	acBuildTree(&tree, path, 0, 0);
 
 	table = createStateTable(tree.size);
@@ -697,14 +697,14 @@ StateMachine *createStateMachine(const char *path, int maxGotosLE, int maxGotosB
 	return machine;
 }
 
-StateMachine *createStateMachineFunc(getStringFuncType func, void* func_struct, int maxGotosLE, int maxGotosBM, int verbose) {
+StateMachine *createStateMachineFunc(getStringFuncType func, void* func_struct, int max_patterns_to_load, int maxGotosLE, int maxGotosBM, int verbose) {
 	ACTree tree;
 	StateTable *table;
 	StateMachine *machine;
 	PatternTable *patternTable;
 	int i;
 
-	acBuildTreeFunc(&tree, func, func_struct ,1, 0);
+	acBuildTreeFunc(&tree, func, func_struct, max_patterns_to_load ,1, 0);
 //	acBuildTreeASCII(&tree, path, 1, 0);
 
 	table = createStateTable(tree.size);
