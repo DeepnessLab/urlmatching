@@ -65,6 +65,10 @@ public:
 
 	uint32_t inline getStringLength() const { return (_str_len*sizeof(char)); }
 	uint32_t inline getHuffmanLength() const { return (_coded.length);	}
+	void 	 inline invalidate() {
+		_frequency=0;
+		_coded.length=8*MAX_CODED_HUFFMAN_SIZE;
+	}
 
 	inline 	size_t size() const {
 		size_t size = sizeof(Pattern)
