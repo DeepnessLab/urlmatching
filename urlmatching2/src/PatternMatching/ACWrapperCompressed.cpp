@@ -117,6 +117,10 @@ bool ACWrapperCompressed::LoadPatterns(Symbol2pPatternVec* patternsList, uint32_
 		} else {
 			_machine = createStateMachineFunc(getStringFromList,&list, max_patterns_to_load, 1000,1000,0);
 		}
+		//invalidate the rest of the patterns
+		for (Pattern* p = list.getNext() ; p != 0; p = list.getNext() ) {
+			p->invalidate();
+		}
 		_statemachine_size = mem_measure.get_diff();
 		DBG("AC state machine real size = "<< (get_curr_memsize() - mem)/1024<<"KB");
 		_machine->handlePatternFunc = handle_pattern;
