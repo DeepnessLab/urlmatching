@@ -152,8 +152,8 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		}
 	}
 
-	int dhh_n1 = params.n1 * (1.2) + small_n_protection;
-	int dhh_n2 = params.n1 * (1.2) + small_n_protection;
+	int dhh_n1 = params.n1 * (1.4) + small_n_protection;
+	int dhh_n2 = params.n2 * (1.4) + small_n_protection;
 
 	LineIteratorDeque line_itr(&list_for_patterns);
 	LDHH ldhh(line_itr, dhh_n1, dhh_n2, params.r, params.kgrams_size);
@@ -216,28 +216,58 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		}
 	}
 
-	//Step 1: build AC patterns matching algorithm
-	//	Load patterns to pattern matching algorithm();
+	{
+		//Step 1: build AC patterns matching algorithm
+		//	Load patterns to pattern matching algorithm();
+
+		ACWrapperCompressed tmp_ac;
+		//Step 1: build AC patterns matching algorithm
+		//	Load patterns to pattern matching algorithm();
+		HeapDiffMeasure mem_measure;
+		tmp_ac.LoadPatterns(&_symbol2pattern_db, getDBsize(), params.n2 ,true /*optimize anchors*/);
+
+		//reduce number of symbols and patterns by patterns that have been optimized out by LoadPatterns
+		uint32_t number_of_unused_patterns = 0;
+		for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
+			if (getPattern(i)->_frequency == 0 )
+				number_of_unused_patterns++;
+		}
+		_statistics.number_of_patterns -= number_of_unused_patterns;
+		_statistics.number_of_symbols -= number_of_unused_patterns;
+
+		//	evaluate_precise_frequencies_ac(orig_url_list);
+		evaluate_precise_patterns_frequencies(orig_url_list,&tmp_ac);
+	}
+
+	{
+		Symbol2pPatternVec tmp;
+		for (Pattern* p : _symbol2pattern_db) {
+			if (p->_symbol <= MAX_CHAR || p->_frequency > 0) {
+				tmp.push_back(p);
+			} else {
+				delete p;
+			}
+		}
+		_symbol2pattern_db.clear();
+		symbolT s = 0;
+		for (Pattern* p : tmp) {
+//			uint32_t size = tmp.size();
+			_symbol2pattern_db.push_back(p);
+			p->_symbol = s;
+			s++;
+		}
+		_nextSymbol = s;
+		assert(s == getDBsize());
+		_symbol2pattern_db.shrink_to_fit();
+	}
+
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	HeapDiffMeasure mem_measure;
-	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(), params.n1 ,true /*optimize anchors*/);
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_footprint = mem_measure.get_diff();
 	_statistics.ac_memory_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
-
-
-	//reduce number of symbols and patterns by patterns that have been optimized out by LoadPatterns
-	uint32_t number_of_unused_patterns = 0;
-	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
-		if (getPattern(i)->_frequency == 0 )
-			number_of_unused_patterns++;
-	}
-	_statistics.number_of_patterns -= number_of_unused_patterns;
-	_statistics.number_of_symbols -= number_of_unused_patterns;
-
-//	evaluate_precise_frequencies_ac(orig_url_list);
-	evaluate_precise_patterns_frequencies(orig_url_list,&algo);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
