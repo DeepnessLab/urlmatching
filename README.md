@@ -1,5 +1,5 @@
 # ***urlmatching*** based compression algorithm
-This project implements the URL compression algorithm descibed in the article ***"Scalable URL Matching with Small Memory Footprint" by Anat Bremler-Barr, David Hay, Daniel Krauthgamer and Shimrit Tzur David***. The algorithm was implemented by Daniel Krauthgamer.
+This project implements the URL compression algorithm descibed in the article ***"Scalable URL Matching with Small Memory Footprint" by Anat Bremler-Barr, David Hay, Daniel Krauthgamer and Shimrit Tzur David / IFIP Networking 2016 Conference***. The algorithm was implemented by Daniel Krauthgamer.
 * The project should be compiled under C++11 or later
 * The project contains a tester code to test the performance of module.
 * The recommended parameters are ```n=1000,r=0.5,k=3``` and ```n=1000,r=0.5,k=2``` when running in LPM using ```.``` delimiter
