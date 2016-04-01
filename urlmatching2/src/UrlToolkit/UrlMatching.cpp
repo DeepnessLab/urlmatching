@@ -240,15 +240,12 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 
 	{
 		Symbol2pPatternVec tmp;
-		int i=0,j=0;
 		for (Pattern* p : _symbol2pattern_db) {
 			if (p->_frequency == 0) {
 				delete p;
-				j++;
 			} else {
 //				assert(p->_symbol > MAX_CHAR);
 				tmp.push_back(p);
-				i++;
 			}
 		}
 		_symbol2pattern_db.clear();
@@ -258,12 +255,10 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 			p->_symbol = s;
 			s++;
 		}
-		std::cout<<DVAL(i)<<" "<<DVAL(j)<<std::endl;
 		_nextSymbol = s;
 		assert(s == getDBsize());
 		_symbol2pattern_db.shrink_to_fit();
 	}
-	std::cout<<"DB size = "<<getDBsize()<<std::endl;
 
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	HeapDiffMeasure mem_measure;
