@@ -127,7 +127,6 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		for (uint32_t i=0 ; i <= CHAR_MAX ; i++ )
 			frequencies[i]=1;
 
-//		for (std::deque<std::string>::iterator itr = list.begin())
 		LineIteratorDeque lit(&orig_url_list);
 		while (lit.has_next() ) {
 			const raw_buffer_t &pckt = lit.next();
@@ -153,7 +152,7 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 	}
 
 	int dhh_n1 = params.n1 * (1.2) + small_n_protection;
-	int dhh_n2 = params.n1 * (1.2) + small_n_protection;
+	int dhh_n2 = params.n2 * (1.2) + small_n_protection;
 
 	LineIteratorDeque line_itr(&list_for_patterns);
 	LDHH ldhh(line_itr, dhh_n1, dhh_n2, params.r, params.kgrams_size);
@@ -170,8 +169,8 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 
 	//Pick top n2 results from common_strings list
 	common_strings.sort(signature_t::reversed_frequency_compare_signature_t);
-	if (common_strings.size() > (uint32_t) params.n2) {
-		common_strings.resize(params.n2);
+	if (common_strings.size() > (uint32_t) dhh_n2) {
+		common_strings.resize(dhh_n2);
 	}
 
 	//Evaluate total char size for serial allocator
@@ -216,28 +215,58 @@ bool UrlMatchingModule::InitFromUrlsList(const std::deque<std::string>& orig_url
 		}
 	}
 
-	//Step 1: build AC patterns matching algorithm
-	//	Load patterns to pattern matching algorithm();
+	{
+		//Step 1: build AC patterns matching algorithm
+		//	Load patterns to pattern matching algorithm();
+
+		ACWrapperCompressed tmp_ac;
+		//Step 1: build AC patterns matching algorithm
+		//	Load patterns to pattern matching algorithm();
+		HeapDiffMeasure mem_measure;
+		tmp_ac.LoadPatterns(&_symbol2pattern_db, getDBsize(), params.n2 ,true /*optimize anchors*/);
+
+		//reduce number of symbols and patterns by patterns that have been optimized out by LoadPatterns
+		uint32_t number_of_unused_patterns = 0;
+		for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
+			if (getPattern(i)->_frequency == 0 )
+				number_of_unused_patterns++;
+		}
+		_statistics.number_of_patterns -= number_of_unused_patterns;
+		_statistics.number_of_symbols -= number_of_unused_patterns;
+
+		//	evaluate_precise_frequencies_ac(orig_url_list);
+		evaluate_precise_patterns_frequencies(orig_url_list,&tmp_ac);
+	}
+
+	{
+		Symbol2pPatternVec tmp;
+		for (Pattern* p : _symbol2pattern_db) {
+			if (p->_frequency == 0) {
+				delete p;
+			} else {
+//				assert(p->_symbol > MAX_CHAR);
+				tmp.push_back(p);
+			}
+		}
+		_symbol2pattern_db.clear();
+		symbolT s = 0;
+		for (Pattern* p : tmp) {
+			_symbol2pattern_db.push_back(p);
+			p->_symbol = s;
+			s++;
+		}
+		_nextSymbol = s;
+		assert(s == getDBsize());
+		_symbol2pattern_db.shrink_to_fit();
+	}
+
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	HeapDiffMeasure mem_measure;
-	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(), params.n1 ,true /*optimize anchors*/);
+	algo.LoadPatterns(&_symbol2pattern_db, getDBsize());
 	_statistics.ac_statemachine_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_footprint = mem_measure.get_diff();
 	_statistics.ac_memory_footprint = algo.getStateMachineSize();
 	_statistics.ac_memory_allocated = algo.size();
-
-
-	//reduce number of symbols and patterns by patterns that have been optimized out by LoadPatterns
-	uint32_t number_of_unused_patterns = 0;
-	for (symbolT i=1; i < _symbol2pattern_db.size(); i++ ) {
-		if (getPattern(i)->_frequency == 0 )
-			number_of_unused_patterns++;
-	}
-	_statistics.number_of_patterns -= number_of_unused_patterns;
-	_statistics.number_of_symbols -= number_of_unused_patterns;
-
-//	evaluate_precise_frequencies_ac(orig_url_list);
-	evaluate_precise_patterns_frequencies(orig_url_list,&algo);
 
 	//Step 2: build huffman dictionary and update all patterns
 	//prepare array to load huffman dictionary
@@ -347,15 +376,11 @@ void UrlMatchingModule::evaluate_precise_patterns_frequencies(const std::deque<s
 
  	for (symbolT i=1 ;  i < getDBsize(); i ++ ) {
 		Pattern* p = _symbol2pattern_db[i];
-//		std::cout<<"symbol="<<i<<" freq before="<<p->_frequency
-//				<<", after="<<new_frequencies[i]
-//				<< " \""<<p->_str
-//				<< "\" huf len="<< p->getHuffmanLength()<<std::endl;
-		if ((p->_frequency) > 0) {
-			p->_frequency = new_frequencies[i];
-		}
+		if ((p->_frequency) == 0)
+			continue;
+		p->_frequency = new_frequencies[i];
 	}
-//	std::cout<<"evaluate_precise_patterns_frequencies, took " << timer.get_milseconds() << " ms" << std::endl;
+
 }
 
 
@@ -540,15 +565,19 @@ bool UrlMatchingModule::InitFromDictFileStream(std::ifstream& file, bool optimiz
 
 	mem_block = (char *) &_statistics;
 	file.read(mem_block,sizeof(_statistics));
-	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
-	_statistics.memory_footprint = get_curr_memsize();
-	_statistics.memory_allocated = 0;
 
 	//remove symbol 0 - NULL
 	delete _symbol2pattern_db.back();
 	_symbol2pattern_db.pop_back();
 	ASSERT (_symbol2pattern_db.size() == 0);
 	_nextSymbol = 0;
+
+	_statistics.total_patterns_length=0;	//addPattern(..) will update that again
+	_statistics.memory_footprint = get_curr_memsize();
+	_statistics.memory_allocated = 0;
+
+	_statistics.number_of_symbols = 0;
+	_statistics.number_of_patterns = 0;
 
 	char strbuf[1000];
 	uint32_t patterns_counter = 0;
@@ -565,12 +594,14 @@ bool UrlMatchingModule::InitFromDictFileStream(std::ifstream& file, bool optimiz
 		strcpy(str , strbuf);
 		symbolT s = addPattern(str,fp.frequency);
 		ASSERT(s == patterns_counter);
+		if (fp.str_length > 1)
+			_statistics.number_of_patterns++;
+		_statistics.number_of_symbols++;
 
 		//update huffman code
 		CodedHuffman& coded = _symbol2pattern_db[s]->_coded;
 		coded.length = fp.huffman_length ;
 		uint16_t huff_buf_size = conv_bits_to_uin32_size(coded.length );
-//		coded.buf = new uint32_t[ huff_buf_size ];
 		mem_block = (char *) coded.buf;
 		huff_buf_size *= sizeof(uint32_t);
 		file.read(mem_block,huff_buf_size );
@@ -587,8 +618,6 @@ bool UrlMatchingModule::InitFromDictFileStream(std::ifstream& file, bool optimiz
 		return false;
 	}
 
-//	prepare_huffman();
-
 	//	Load patterns to pattern matching algorithm();
 	_statistics.ac_memory_footprint = get_curr_memsize();
 	algo.LoadPatterns(&_symbol2pattern_db, getDBsize(), false /*no anchor optimizing */);
@@ -602,9 +631,6 @@ bool UrlMatchingModule::InitFromDictFileStream(std::ifstream& file, bool optimiz
 	}
 	add_memory_counter(_symbol2pattern_db.capacity() * SIZEOFPOINTER);
 	// ----------------------------
-//	_statistics.number_of_symbols = _symbol2pattern_db.size();
-
-//	add_memory_counter(algo.size());
 
 	_statistics.memory_footprint = get_curr_memsize() - _statistics.memory_footprint;
 	_is_loaded = true;

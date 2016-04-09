@@ -58,10 +58,9 @@ uint16_t conv_bits_to_bytes(uint32_t bits) {
 /**
  * Defines a single pattern: <Pattern,Symbol,Frequency,Huffman length>
  */
-class Pattern {
+struct Pattern {
 public:
 	Pattern(uint32_t symbol, freqT frequency, const char* str);
-	virtual ~Pattern() ;
 
 	uint32_t inline getStringLength() const { return (_str_len*sizeof(char)); }
 	uint32_t inline getHuffmanLength() const { return (_coded.length);	}
@@ -78,10 +77,10 @@ public:
 
 	//members				(sizes in 64bit OS)
 	symbolT _symbol;		//4 bytes
-	uint16_t _str_len;		//2 bytes
+	freqT _frequency; 	//4 bytes
 	const char* _str;		//8 bytes
 	CodedHuffman _coded;	//12bytes
-	freqT _frequency; 	//4 bytes
+	uint16_t _str_len;		//2 bytes
 
 //Evaluate anchors methods and members
 	static uint32_t total_frequency;
