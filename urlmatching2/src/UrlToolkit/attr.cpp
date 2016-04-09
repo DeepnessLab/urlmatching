@@ -13,11 +13,6 @@ Pattern::Pattern(uint32_t symbol, freqT frequency, const char* str) : _str(str) 
 	_str_len = strlen(_str);
 	total_frequency+=frequency;
 }
-//
-//Pattern::~Pattern()  {
-////	if (_coded.buf != NULL)
-////		delete[] _coded.buf;
-//}
 
 // huffman length in bits
 long double Pattern::get_h() const {
