@@ -66,6 +66,8 @@ Compressed Aho-Corasick code has a non-efficient memory footprint only after it 
 
 # Repeating the tests in the article
 * Test files with urls are provided in ```test_files/```
+* The source of `full_domains` file a tar file from `URLBlacklist.com` 
+* Extract all the urls using `extract_urlblacklist_file.sh` in `scripts/`
 * Some of the files are to big for github so they are in 7z container
 * The URLs file that used in the article is ```test_files/full_domains_shuffled ```
 * The scripts used to produce the graphs and data in the article are in ```scripts/```, they might need to be updated with the executable name in order to use them.
